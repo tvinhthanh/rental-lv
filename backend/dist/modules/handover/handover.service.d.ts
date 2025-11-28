@@ -8,8 +8,6 @@ export declare class HandoverService {
     findByBooking(bookingId: string): Promise<({
         booking: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             bookingCode: string;
             customerId: string;
             vehicleId: string;
@@ -24,6 +22,8 @@ export declare class HandoverService {
             promotionId: string | null;
             cancelReason: string | null;
             note: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     } & {
         id: string;

@@ -33,23 +33,23 @@ export declare class DepositController {
         }[];
     } & {
         id: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         bookingId: string;
         customerId: string;
         totalAmount: number;
         status: string;
+        notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }) | null>;
     create(dto: CreateDepositDto): Promise<{
         id: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         bookingId: string;
         customerId: string;
         totalAmount: number;
         status: string;
+        notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     addDetail(dto: CreateDepositDetailDto): Promise<{
         id: string;

@@ -9,9 +9,6 @@ export declare class DepositService {
     findByBooking(bookingId: string): Promise<({
         items: {
             id: string;
-            notes: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             depositId: string;
             itemType: string;
             itemName: string | null;
@@ -19,6 +16,9 @@ export declare class DepositService {
             amount: number | null;
             condition: string | null;
             photoUrls: string[];
+            notes: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     } & {
         id: string;
@@ -42,9 +42,6 @@ export declare class DepositService {
     }>;
     addDetail(dto: CreateDepositDetailDto, actorId?: string): Promise<{
         id: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         depositId: string;
         itemType: string;
         itemName: string | null;
@@ -52,12 +49,12 @@ export declare class DepositService {
         amount: number | null;
         condition: string | null;
         photoUrls: string[];
+        notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     listDetails(depositId: string): Promise<{
         id: string;
-        notes: string | null;
-        createdAt: Date;
-        updatedAt: Date;
         depositId: string;
         itemType: string;
         itemName: string | null;
@@ -65,5 +62,8 @@ export declare class DepositService {
         amount: number | null;
         condition: string | null;
         photoUrls: string[];
+        notes: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
 }

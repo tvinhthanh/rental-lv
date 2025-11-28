@@ -8,16 +8,16 @@ export declare class VehicleCategoryController {
     list(query: VehicleCategoryQueryDto): Promise<{
         items: {
             id: string;
+            createdAt: Date;
             name: string;
+            updatedAt: Date;
             code: string | null;
             slug: string | null;
-            description: string | null;
-            imageUrl: string | null;
             metaTitle: string | null;
             metaDescription: string | null;
+            description: string | null;
+            imageUrl: string | null;
             displayOrder: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
         total: number;
         page: number;
@@ -27,7 +27,12 @@ export declare class VehicleCategoryController {
     detail(id: string): Promise<{
         vehicles: {
             id: string;
+            createdAt: Date;
             name: string;
+            updatedAt: Date;
+            slug: string | null;
+            metaTitle: string | null;
+            metaDescription: string | null;
             vehicleType: string | null;
             licensePlate: string;
             brand: string | null;
@@ -39,74 +44,69 @@ export declare class VehicleCategoryController {
             fuelType: string | null;
             mileage: number | null;
             status: string;
-            slug: string | null;
-            metaTitle: string | null;
-            metaDescription: string | null;
             seoDescription: string | null;
+            photos: string[];
+            categoryId: string;
+            branchId: string;
+            priceListId: string | null;
             rating: number | null;
             reviewCount: number | null;
-            photos: string[];
-            priceListId: string | null;
             overridePriceEnabled: boolean;
             overrideDailyRate: number | null;
             overrideHourlyRate: number | null;
             overrideWeekendRate: number | null;
             overrideHolidayRate: number | null;
-            categoryId: string;
-            branchId: string;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
     } & {
         id: string;
+        createdAt: Date;
         name: string;
+        updatedAt: Date;
         code: string | null;
         slug: string | null;
-        description: string | null;
-        imageUrl: string | null;
         metaTitle: string | null;
         metaDescription: string | null;
+        description: string | null;
+        imageUrl: string | null;
         displayOrder: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     create(dto: CreateVehicleCategoryDto): Promise<{
         id: string;
+        createdAt: Date;
         name: string;
+        updatedAt: Date;
         code: string | null;
         slug: string | null;
-        description: string | null;
-        imageUrl: string | null;
         metaTitle: string | null;
         metaDescription: string | null;
+        description: string | null;
+        imageUrl: string | null;
         displayOrder: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     update(id: string, dto: UpdateVehicleCategoryDto): Promise<{
         id: string;
+        createdAt: Date;
         name: string;
+        updatedAt: Date;
         code: string | null;
         slug: string | null;
-        description: string | null;
-        imageUrl: string | null;
         metaTitle: string | null;
         metaDescription: string | null;
+        description: string | null;
+        imageUrl: string | null;
         displayOrder: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     delete(id: string): Promise<{
         id: string;
+        createdAt: Date;
         name: string;
+        updatedAt: Date;
         code: string | null;
         slug: string | null;
-        description: string | null;
-        imageUrl: string | null;
         metaTitle: string | null;
         metaDescription: string | null;
+        description: string | null;
+        imageUrl: string | null;
         displayOrder: number | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
 }

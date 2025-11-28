@@ -61,41 +61,41 @@ export declare class BillingController {
     }>;
     payments(invoiceId: string): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
+        status: string;
+        createdAt: Date;
         invoiceId: string;
         paidAt: Date;
         method: string;
         amount: number;
         referenceNo: string | null;
         note: string | null;
-        status: string;
-        createdAt: Date;
     }[]>;
     addSurcharge(dto: CreateSurchargeDto): Promise<{
         id: string;
-        invoiceId: string;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
-        description: string | null;
+        invoiceId: string;
         amount: number;
+        description: string | null;
         surchargeType: string | null;
         evidenceUrl: string | null;
         occurredAt: Date | null;
         createdBy: string | null;
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     surcharges(invoiceId: string): import(".prisma/client").Prisma.PrismaPromise<{
         id: string;
-        invoiceId: string;
+        status: string;
+        createdAt: Date;
+        updatedAt: Date;
         name: string;
-        description: string | null;
+        invoiceId: string;
         amount: number;
+        description: string | null;
         surchargeType: string | null;
         evidenceUrl: string | null;
         occurredAt: Date | null;
         createdBy: string | null;
-        status: string;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
 }

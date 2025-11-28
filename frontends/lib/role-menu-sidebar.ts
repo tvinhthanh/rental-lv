@@ -13,6 +13,7 @@ export const ROLE_MENU_SIDEBAR = {
         { label: "Payments", href: "/admin/payments" },
         { label: "Surcharges", href: "/admin/surcharges" },
 
+        { label: "Users", href: "/admin/users" },
         { label: "Customers", href: "/admin/customers" },
 
         { label: "Promotions", href: "/admin/promotions" },

@@ -29,7 +29,9 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/404", req.url));
     }
 
-    if (path.startsWith("/user") && role !== "USER") {
+    const isCustomer = role === "CUSTOMER" || role === "USER";
+
+    if (path.startsWith("/user") && !isCustomer) {
         return NextResponse.redirect(new URL("/404", req.url));
     }
 

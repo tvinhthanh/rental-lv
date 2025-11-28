@@ -19,7 +19,7 @@ const billing_service_1 = require("./billing.service");
 const create_invoice_dto_1 = require("./dto/create-invoice.dto");
 const create_payment_dto_1 = require("./dto/create-payment.dto");
 const create_surcharge_dto_1 = require("./dto/create-surcharge.dto");
-const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let BillingController = class BillingController {
     constructor(billing) {
         this.billing = billing;

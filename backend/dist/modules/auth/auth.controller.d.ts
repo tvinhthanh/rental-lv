@@ -20,13 +20,13 @@ export declare class AuthController {
     }>;
     getMe(user: any): Promise<{
         id: string;
+        createdAt: Date;
+        name: string | null;
         email: string;
         password: string;
-        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
-        createdAt: Date;
         updatedAt: Date;
     }>;
 }

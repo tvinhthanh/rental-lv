@@ -4,24 +4,24 @@ export declare class AuditLogService {
     private prisma;
     constructor(prisma: PrismaService);
     log(userId: string | null | undefined, action: string, module: string, entityId?: string | null, metadata?: any): Promise<{
-        id: string;
         userId: string | null;
         module: string;
         action: string;
         entityId: string | null;
+        id: string;
         entityType: string | null;
-        metadata: import(".prisma/client").Prisma.JsonValue | null;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
     }>;
     findAll(query: AuditLogQueryDto): Promise<{
         items: {
-            id: string;
             userId: string | null;
             module: string;
             action: string;
             entityId: string | null;
+            id: string;
             entityType: string | null;
-            metadata: import(".prisma/client").Prisma.JsonValue | null;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             createdAt: Date;
         }[];
         total: number;
@@ -30,13 +30,13 @@ export declare class AuditLogService {
         totalPages: number;
     }>;
     findOne(id: string): Promise<{
-        id: string;
         userId: string | null;
         module: string;
         action: string;
         entityId: string | null;
+        id: string;
         entityType: string | null;
-        metadata: import(".prisma/client").Prisma.JsonValue | null;
+        metadata: import("@prisma/client/runtime/library").JsonValue | null;
         createdAt: Date;
     } | null>;
 }

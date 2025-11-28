@@ -10,13 +10,13 @@ export declare class AuthService {
     constructor(jwtService: JwtService, userService: UserService, audit: AuditLogService);
     validateUser(email: string, pass: string): Promise<{
         id: string;
+        createdAt: Date;
+        name: string | null;
         email: string;
         password: string;
-        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
-        createdAt: Date;
         updatedAt: Date;
     } | null>;
     login(dto: LoginDto): Promise<{
@@ -35,13 +35,13 @@ export declare class AuthService {
     }>;
     me(user: any): Promise<{
         id: string;
+        createdAt: Date;
+        name: string | null;
         email: string;
         password: string;
-        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
-        createdAt: Date;
         updatedAt: Date;
     }>;
 }

@@ -328,19 +328,30 @@ export class BookingService {
     }
 
     async getByBranch(branchId: string) {
-        return this.prisma.booking.findMany({
-            where: { branchId },
-            include: {
-                customer: true,
-                vehicle: {
-                    include: {
-                        category: true,
-                        branch: true,
+        const [items, total] = await Promise.all([
+            this.prisma.booking.findMany({
+                where: { branchId },
+                include: {
+                    customer: true,
+                    vehicle: {
+                        include: {
+                            category: true,
+                            branch: true,
+                        },
                     },
-                },
-                branch: true,
-            }
-        });
+                    branch: true,
+                }
+            }),
+            this.prisma.booking.count({
+                where: { branchId }
+            })
+        ]);
+
+        return {
+            items,
+            total
+        };
     }
+
 
 }

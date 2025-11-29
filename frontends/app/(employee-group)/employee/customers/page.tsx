@@ -93,90 +93,60 @@ export default function EmployeeCustomersPage() {
     }, [employee?.branchId]);
 
     // Guards
-    if (userLoading || loadingEmployee) {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 flex items-center justify-center">
-                <div className="h-10 w-10 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
-            </div>
-        );
-    }
+    if (userLoading || loadingEmployee)
+        return <p className="p-6 text-gray-200">Đang tải...</p>;
 
-    if (!user || user.role !== "EMPLOYEE") {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 p-6">
-                <p className="text-red-400">Bạn không có quyền truy cập.</p>
-            </div>
-        );
-    }
+    if (!user || user.role !== "EMPLOYEE")
+        return <p className="p-6 text-red-400">Bạn không có quyền truy cập.</p>;
 
-    if (!employee) {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 p-6">
-                <p className="text-red-400">Không tìm thấy thông tin nhân viên.</p>
-            </div>
-        );
-    }
+    if (!employee)
+        return <p className="p-6 text-red-400">Không tìm thấy thông tin nhân viên.</p>;
 
-    if (!employee.branchId) {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 p-6">
-                <p className="text-yellow-400">Bạn chưa được phân chi nhánh.</p>
-            </div>
-        );
-    }
+    if (!employee.branchId)
+        return <p className="p-6 text-yellow-300">Bạn chưa được phân chi nhánh.</p>;
 
     return (
-        <div className="min-h-screen bg-slate-950/90 text-gray-100">
-            <div className="mx-auto max-w-7xl px-4 py-8">
-                {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
-                            Danh Sách Khách Hàng
-                        </h1>
-                        <p className="mt-1 text-sm text-slate-400">
-                            Chi nhánh: <span className="text-purple-400">{employee.branch?.name || employee.branchId}</span>
-                        </p>
-                    </div>
+        <div className="p-6 text-gray-200">
+            <h1 className="text-2xl font-bold mb-6">
+                Khách hàng từng booking tại chi nhánh{" "}
+                <span className="text-blue-400">{employee.branch?.name}</span>
+            </h1>
 
-                    <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng khách hàng</p>
-                        <p className="text-lg font-semibold text-purple-400">
-                            {customers.length}
-                        </p>
-                    </div>
+            {loadingCustomers ? (
+                <p className="text-gray-400">Đang tải danh sách khách hàng...</p>
+            ) : customers.length === 0 ? (
+                <p className="text-gray-400">Chưa có khách hàng nào.</p>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {customers.map((c) => (
+                        <div
+                            key={c.id}
+                            className="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow"
+                        >
+                            <div className="flex items-center gap-3">
+                                <img
+                                    src={c.avatarUrl || "/avatar-default.png"}
+                                    className="w-12 h-12 rounded-full border border-slate-600"
+                                    alt=""
+                                />
+                                <div>
+                                    <h3 className="text-white font-semibold">{c.fullName}</h3>
+                                    <p className="text-gray-400 text-sm">{c.email}</p>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-300 mt-3">
+                                <b>Số lần đặt xe:</b> {c.bookingCount}
+                            </p>
+
+                            <p className="text-gray-300">
+                                <b>Lần cuối:</b>{" "}
+                                {new Date(c.lastBookingDate).toLocaleString("vi-VN")}
+                            </p>
+                        </div>
+                    ))}
                 </div>
-
-                {error && (
-                    <div className="mb-4 rounded-lg bg-red-900/30 border border-red-500/50 px-4 py-3 text-red-300">
-                        {error}
-                    </div>
-                )}
-
-                {/* Customers Grid */}
-                {loadingCustomers ? (
-                    <div className="flex justify-center items-center py-20">
-                        <div className="h-10 w-10 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
-                    </div>
-                ) : customers.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 py-12 text-center">
-                        <p className="text-slate-400">Chưa có khách hàng nào trong hệ thống.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {customers.map((customer) => (
-                            <CustomerCard
-                                key={customer.id}
-                                customer={customer}
-                                onClick={() => {
-                                    // Có thể mở modal hoặc navigate đến trang chi tiết
-                                    console.log("Customer clicked:", customer);
-                                }}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
+            )}
         </div>
     );
 }

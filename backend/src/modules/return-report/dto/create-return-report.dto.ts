@@ -52,4 +52,20 @@ export class CreateReturnReportDto {
     @IsOptional()
     @IsNumber()
     damageSurchargeAmount?: number;
+
+    @IsOptional()
+    @IsNumber()
+    fuelPricePerPercent?: number;
+
+    @IsOptional()
+    @IsNumber()
+    overKmPricePerKm?: number;
+
+    @IsOptional()
+    @IsNumber()
+    allowedKm?: number;
+
+    @IsOptional()
+    @IsNumber()
+    damageCharge?: number;
 }

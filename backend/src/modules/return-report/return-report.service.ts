@@ -67,26 +67,44 @@ export class ReturnReportService {
             const invoiceId = booking.invoice.id;
             const surchargesToCreate: Array<{ name: string; amount: number; description?: string }> = [];
 
-            if (dto.fuelSurchargeAmount && handover.fuelLevelStart !== null && dto.fuelLevelEnd !== undefined && dto.fuelLevelEnd < (handover.fuelLevelStart ?? 0)) {
-                surchargesToCreate.push({
-                    name: 'Fuel shortage',
-                    amount: dto.fuelSurchargeAmount,
-                    description: 'Fuel level on return is lower than pickup'
-                });
+            // Fuel shortage
+            if (handover.fuelLevelStart !== null && dto.fuelLevelEnd !== undefined) {
+                const fuelDeficit = Math.max(0, (handover.fuelLevelStart ?? 0) - (dto.fuelLevelEnd ?? 0));
+                const fuelAmount = dto.fuelSurchargeAmount
+                    ?? (dto.fuelPricePerPercent ? fuelDeficit * dto.fuelPricePerPercent : 0);
+
+                if (fuelAmount > 0) {
+                    surchargesToCreate.push({
+                        name: 'Fuel shortage',
+                        amount: fuelAmount,
+                        description: 'Fuel level on return is lower than pickup'
+                    });
+                }
             }
 
-            if (dto.overKmSurchargeAmount && handover.odoStart !== null && dto.odoEnd !== undefined && dto.odoEnd > (handover.odoStart ?? 0)) {
-                surchargesToCreate.push({
-                    name: 'Over mileage',
-                    amount: dto.overKmSurchargeAmount,
-                    description: 'Mileage exceeded threshold'
-                });
+            // Over mileage
+            if (handover.odoStart !== null && dto.odoEnd !== undefined) {
+                const allowedKm = dto.allowedKm ?? 0;
+                const totalDelta = (dto.odoEnd ?? 0) - (handover.odoStart ?? 0);
+                const excess = Math.max(0, totalDelta - allowedKm);
+                const overKmAmount = dto.overKmSurchargeAmount
+                    ?? (dto.overKmPricePerKm && excess > 0 ? excess * dto.overKmPricePerKm : 0);
+
+                if (overKmAmount > 0) {
+                    surchargesToCreate.push({
+                        name: 'Over mileage',
+                        amount: overKmAmount,
+                        description: `Exceeded allowed km by ${excess}km`
+                    });
+                }
             }
 
-            if (dto.damageSurchargeAmount && dto.damageNote) {
+            // Damage fee
+            const damageAmount = dto.damageSurchargeAmount ?? dto.damageCharge ?? 0;
+            if (damageAmount > 0 && dto.damageNote) {
                 surchargesToCreate.push({
                     name: 'Damage fee',
-                    amount: dto.damageSurchargeAmount,
+                    amount: damageAmount,
                     description: dto.damageNote
                 });
             }
@@ -98,6 +116,25 @@ export class ReturnReportService {
                         name: item.name,
                         description: item.description,
                         amount: item.amount
+                    }
+                });
+            }
+
+            if (surchargesToCreate.length > 0) {
+                const surchargeAgg = await this.prisma.surcharge.aggregate({
+                    where: { invoiceId },
+                    _sum: { amount: true }
+                });
+
+                const surchargeTotal = surchargeAgg._sum.amount ?? 0;
+                const subtotal = booking.invoice.subtotal ?? 0;
+                const discountTotal = booking.invoice.discountTotal ?? 0;
+
+                await this.prisma.invoice.update({
+                    where: { id: invoiceId },
+                    data: {
+                        surchargeTotal,
+                        totalAmount: subtotal + surchargeTotal - discountTotal
                     }
                 });
             }

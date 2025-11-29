@@ -69,19 +69,44 @@ export class BillingService {
   async addSurcharge(dto: CreateSurchargeDto) {
     await this.findInvoice(dto.invoiceId);
 
-    return this.prisma.surcharge.create({
+    const surcharge = await this.prisma.surcharge.create({
       data: {
         invoiceId: dto.invoiceId,
         name: dto.name,
-        // reason: dto.reason,
+        description: dto.reason,
         amount: dto.amount
       }
     });
+
+    await this.recalcInvoiceTotals(dto.invoiceId);
+    return surcharge;
   }
 
   findSurcharges(invoiceId: string) {
     return this.prisma.surcharge.findMany({
       where: { invoiceId }
+    });
+  }
+
+  private async recalcInvoiceTotals(invoiceId: string) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
+    if (!invoice) return;
+
+    const surchargeAgg = await this.prisma.surcharge.aggregate({
+      where: { invoiceId },
+      _sum: { amount: true }
+    });
+
+    const surchargeTotal = surchargeAgg._sum.amount ?? 0;
+    const subtotal = invoice.subtotal ?? 0;
+    const discountTotal = invoice.discountTotal ?? 0;
+
+    await this.prisma.invoice.update({
+      where: { id: invoiceId },
+      data: {
+        surchargeTotal,
+        totalAmount: subtotal + surchargeTotal - discountTotal
+      }
     });
   }
 }

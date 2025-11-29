@@ -16,7 +16,7 @@ export default function UserModal({ selected, onClose }: Props) {
         email: "",
         name: "",
         password: "",
-        role: "CUSTOMER",
+        role: "USER",
         isActive: true,
     });
 
@@ -26,7 +26,7 @@ export default function UserModal({ selected, onClose }: Props) {
                 email: selected.email ?? "",
                 name: selected.name ?? "",
                 password: "",
-                role: selected.role ?? "CUSTOMER",
+                role: selected.role ?? "USER",
                 isActive: selected.isActive ?? true,
             });
         } else {
@@ -34,7 +34,7 @@ export default function UserModal({ selected, onClose }: Props) {
                 email: "",
                 name: "",
                 password: "",
-                role: "CUSTOMER",
+                role: "USER",
                 isActive: true,
             });
         }
@@ -124,7 +124,7 @@ export default function UserModal({ selected, onClose }: Props) {
                         >
                             <option value="ADMIN">ADMIN</option>
                             <option value="EMPLOYEE">EMPLOYEE</option>
-                            <option value="CUSTOMER">CUSTOMER</option>
+                            <option value="USER">USER</option>
                         </select>
                     </div>
 

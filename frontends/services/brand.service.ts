@@ -3,10 +3,9 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const brandService = {
-    // GET /brands?keyword=...
-    getAll(keyword?: string) {
-        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/brands${qs}`);
+    // GET /brands
+    getAll() {
+        return api.get(`/brands`);
     },
 
     // GET /brands/:id

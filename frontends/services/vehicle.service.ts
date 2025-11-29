@@ -3,9 +3,8 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const vehicleService = {
-    getAll(keyword?: string) {
-        const qs = keyword ? `?search=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/vehicles${qs}`);
+    getAll() {
+        return api.get(`/vehicles`);
     },
 
     get(id: string) {

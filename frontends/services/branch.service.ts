@@ -2,10 +2,9 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const branchService = {
-    // GET /branches?keyword=...
-    getAll(keyword?: string) {
-        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/branches${qs}`);
+    // GET /branches
+    getAll() {
+        return api.get(`/branches`);
     },
 
     // GET /branches/:id

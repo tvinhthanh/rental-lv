@@ -2,9 +2,8 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const employeeService = {
-    getAll(keyword?: string) {
-        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/employees${qs}`);
+    getAll() {
+        return api.get(`/employees`);
     },
 
     get: (id: string) =>

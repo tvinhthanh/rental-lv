@@ -3,9 +3,8 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const priceListService = {
-    getAll(keyword?: string) {
-        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/price-lists${qs}`);
+    getAll() {
+        return api.get(`/price-lists`);
     },
 
     getOne(id: string) {

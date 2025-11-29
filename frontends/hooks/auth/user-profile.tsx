@@ -1,13 +1,15 @@
 "use client";
 
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import api from "@/lib/api";
-
-const fetcher = (url: string) => api.get(url).then(r => r.data);
-
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 export function useProfile() {
-    const { data: user, isLoading: userLoading, error: userError } = useCurrentUser();
+    const {
+        data: user,
+        isLoading: userLoading,
+        error: userError
+    } = useCurrentUser();
 
     const refId =
         user && user.role !== "ADMIN"
@@ -23,9 +25,17 @@ export function useProfile() {
 
     const {
         data: profile,
-        error: profileError,
-        isLoading: profileLoading
-    } = useSWR(endpoint, fetcher);
+        isLoading: profileLoading,
+        error: profileError
+    } = useQuery({
+        queryKey: ["profile", endpoint],
+        enabled: !!endpoint,        // chỉ fetch khi có endpoint hợp lệ
+        queryFn: async () => {
+            if (!endpoint) return null;
+            const res = await api.get(endpoint);
+            return res.data;
+        }
+    });
 
     return {
         user,

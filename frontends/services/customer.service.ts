@@ -2,9 +2,8 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const customerService = {
-    getAll(keyword?: string) {
-        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
-        return api.get(`/customers${qs}`);
+    getAll() {
+        return api.get(`/customers`);
     },
     get: (id: string) => api.get(`/customers/${id}`),
     create: (data: any) => api.post("/customers", data),

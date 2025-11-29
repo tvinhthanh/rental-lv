@@ -130,7 +130,7 @@ export class DepositService {
         const remaining = deposit.totalAmount - deposit.usedAmount - deposit.refundedAmount;
         if (dto.amount > remaining) throw new BadRequestException('Refund exceeds remaining deposit');
 
-        const updateData: any = {
+        const updateData: Prisma.DepositUpdateInput = {
             refundedAmount: deposit.refundedAmount + dto.amount,
             status: deposit.refundedAmount + dto.amount >= deposit.totalAmount ? 'REFUNDED' : deposit.status
         };
@@ -178,7 +178,7 @@ export class DepositService {
             where: { id },
             data: {
                 usedAmount: deposit.usedAmount + dto.amount
-            }
+            } as Prisma.DepositUpdateInput
         });
 
         await this.prisma.depositDetail.create({

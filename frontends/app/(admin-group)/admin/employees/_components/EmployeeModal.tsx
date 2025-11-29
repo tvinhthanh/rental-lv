@@ -3,11 +3,25 @@
 import { useEffect, useState } from "react";
 import { employeeService } from "@/services/employee.service";
 import { branchService } from "@/services/branch.service";
+import { authService } from "@/services/auth.service";
 
 const STATUS_OPTIONS = ["ACTIVE", "INACTIVE", "ON_LEAVE"];
 
+// ==============================
+// Normalize
+// ==============================
+const normalizeList = (res: any) => {
+    if (!res) return [];
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res?.items)) return res.items;
+    if (Array.isArray(res?.data)) return res.data;
+    if (Array.isArray(res?.list)) return res.list;
+    return [];
+};
+
 export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     const [branches, setBranches] = useState<any[]>([]);
+
     const [form, setForm] = useState({
         fullName: data?.fullName || "",
         phone: data?.phone || "",
@@ -21,13 +35,24 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         avatarUrl: data?.avatarUrl || "",
     });
 
+    // ==============================
+    // LOAD BRANCHES (normalized)
+    // ==============================
     useEffect(() => {
         branchService.getAll().then((res: any) => {
             const items = Array.isArray(res) ? res : res?.items ?? [];
             setBranches(items);
         }).catch(() => setBranches([]));
+        (async () => {
+            const res = await branchService.getAll();
+            const items = normalizeList(res);
+            setBranches(items);
+        })();
     }, []);
 
+    // ==============================
+    // UPDATE FORM WHEN EDIT
+    // ==============================
     useEffect(() => {
         setForm({
             fullName: data?.fullName || "",
@@ -43,13 +68,16 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         });
     }, [data]);
 
+    // ==============================
+    // Handle change
+    // ==============================
     const handleChange = (e: any) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // ==============================
+    // SUBMIT
+    // ==============================
     const handleSubmit = async () => {
         const payload: any = {
             ...form,
@@ -59,7 +87,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         };
 
         if (mode === "create") {
-            await employeeService.create(payload);
+            await authService.createEmployee(payload);
         } else {
             await employeeService.update(data.id, payload);
         }
@@ -82,6 +110,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         className="input-dark"
                         required
                     />
+
                     <input
                         name="phone"
                         placeholder="Phone"
@@ -89,6 +118,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         onChange={handleChange}
                         className="input-dark"
                     />
+
                     <input
                         name="email"
                         placeholder="Email"
@@ -96,6 +126,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         onChange={handleChange}
                         className="input-dark"
                     />
+
                     <div className="grid grid-cols-2 gap-3">
                         <input
                             name="department"
@@ -112,6 +143,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             className="input-dark"
                         />
                     </div>
+
                     <div className="grid grid-cols-2 gap-3">
                         <input
                             name="salary"
@@ -121,6 +153,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             onChange={handleChange}
                             className="input-dark"
                         />
+
                         <select
                             name="status"
                             value={form.status}
@@ -141,8 +174,11 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             className="input-dark bg-slate-800"
                         >
                             <option value="">Assign branch (optional)</option>
+
                             {branches.map((b: any) => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
+                                <option key={b.id} value={b.id}>
+                                    {b.name}
+                                </option>
                             ))}
                         </select>
 

@@ -47,4 +47,9 @@ export class BookingController {
     getDateAvailable(@Param('carId') carId: string) {
         return this.service.getDateAvailable(carId);
     }
+
+    @Get("branch/:branchId")
+    getByBranch(@Param("branchId") branchId: string) {
+        return this.service.getByBranch(branchId);
+    }
 }

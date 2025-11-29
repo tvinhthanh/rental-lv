@@ -30,5 +30,6 @@ export const branchService = {
     // DELETE /branches/:id  → đúng backend delete()
     delete(id: string) {
         return api.delete(`/branches/${id}`);
-    }
+    },
+
 };

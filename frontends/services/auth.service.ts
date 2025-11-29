@@ -55,5 +55,5 @@ export const authService = {
     forgotPassword(data: any) {
         return api.post("/auth/forgot-password", data);
     },
-
+    createEmployee: (data: any) => api.post("/auth/create-employee", data),
 };

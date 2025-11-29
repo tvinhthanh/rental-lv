@@ -108,4 +108,8 @@ export class EmployeeService {
         await this.audit.log(actorId ?? null, 'DELETE', 'Employee', id);
         return this.prisma.employee.delete({ where: { id } });
     }
+
+    async getByUserId(userId: string) {
+        return this.prisma.employee.findUnique({ where: { userId } });
+    }
 }

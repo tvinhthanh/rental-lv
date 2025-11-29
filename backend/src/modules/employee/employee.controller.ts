@@ -3,6 +3,7 @@ import { EmployeeService } from './employee.service';
 import { EmployeeQueryDto } from './dto/employee-query.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { PrismaService } from '@/prisma/prisma.service';
 
 @Controller('employees')
 export class EmployeeController {
@@ -32,4 +33,10 @@ export class EmployeeController {
     delete(@Param('id') id: string) {
         return this.service.delete(id);
     }
+
+    @Get('user/:id')
+    getByUserId(@Param('id') id: string) {
+        return this.service.getByUserId(id);
+    }
+
 }

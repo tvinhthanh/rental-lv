@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateHandoverDto } from './dto/create-handover.dto';
@@ -13,7 +13,7 @@ export class HandoverService {
     async findByBooking(bookingId: string) {
         return this.prisma.handover.findUnique({
             where: { bookingId },
-            include: { booking: true }
+            include: { booking: true, employee: true }
         });
     }
 
@@ -22,6 +22,10 @@ export class HandoverService {
             where: { id: dto.bookingId }
         });
         if (!booking) throw new NotFoundException('Booking not found');
+
+        if (booking.status !== 'CONFIRMED') {
+            throw new BadRequestException('Booking must be CONFIRMED before handover');
+        }
 
         const existing = await this.prisma.handover.findUnique({
             where: { bookingId: dto.bookingId }
@@ -32,6 +36,7 @@ export class HandoverService {
                 where: { bookingId: dto.bookingId },
                 data: {
                     ...dto,
+                    employeeId: dto.employeeId ?? existing.employeeId,
                     photoUrls: dto.photoUrls ?? existing.photoUrls
                 }
             });
@@ -47,6 +52,7 @@ export class HandoverService {
         const handover = await this.prisma.handover.create({
             data: {
                 ...dto,
+                employeeId: dto.employeeId ?? null,
                 photoUrls: dto.photoUrls ?? []
             }
         });

@@ -93,6 +93,7 @@ model Employee {
   branch   Branch? @relation(fields: [branchId], references: [id])
 
   authoredPosts BlogPost[]
+  handovers     Handover[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -413,12 +414,14 @@ model Handover {
   accessories       String?
   customerSignature String?
   handedOverBy      String?
+  employeeId        String? @db.ObjectId
   photoUrls         String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   booking Booking @relation(fields: [bookingId], references: [id])
+  employee Employee? @relation(fields: [employeeId], references: [id])
 }
 
 ///////////////////////////////////////////////////////////

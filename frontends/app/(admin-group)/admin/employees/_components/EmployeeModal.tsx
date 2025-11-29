@@ -44,6 +44,10 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                 setBranches([]);
             }
         })();
+        branchService.getAll().then((res: any) => {
+            const items = Array.isArray(res) ? res : res?.items ?? [];
+            setBranches(items);
+        }).catch(() => setBranches([]));
     }, []);
 
     //  UPDATE FORM WHEN EDIT

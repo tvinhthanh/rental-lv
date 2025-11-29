@@ -16,38 +16,27 @@ export default function CarSlider() {
     useEffect(() => {
         let cancelled = false;
 
-        // Set loading state trong async function thay vì sync
         (async () => {
             try {
                 const data = await vehicleService.getAll();
-
                 if (cancelled) return;
 
                 const items = Array.isArray(data) ? data : data?.items ?? [];
+                const filtered = items.filter((v: any) => Array.isArray(v.photos) && v.photos.length > 0);
 
-                // Filter: chỉ cần có photos để hiển thị (backend đã filter document rồi)
-                // Price có thể hiển thị sau hoặc dùng overridePrice
-                const filtered = items.filter((v: any) => {
-                    const hasPhotos = v.photos?.length > 0;
-                    return hasPhotos;
-                });
-
-                // Nếu không có xe sau filter, nhưng có xe từ API → log để debug
                 if (filtered.length === 0 && items.length > 0) {
-                    console.warn('[CarSlider] No vehicles passed filter! Check vehicle data structure.');
+                    console.warn("[CarSlider] No vehicles passed filter! Check vehicle data structure.");
                 }
 
-                if (!cancelled) {
-                    setVehicles(filtered);
-                    setLoading(false);
-                    setError(null);
-                }
+                setVehicles(filtered);
+                setError(null);
             } catch (err: any) {
                 if (!cancelled) {
-                    console.error('[CarSlider] Error fetching vehicles:', err);
-                    setError(err?.message || 'Không thể tải danh sách xe');
-                    setLoading(false);
+                    console.error("[CarSlider] Error fetching vehicles:", err);
+                    setError(err?.message || "Không thể tải danh sách xe");
                 }
+            } finally {
+                if (!cancelled) setLoading(false);
             }
         })();
 
@@ -58,7 +47,6 @@ export default function CarSlider() {
 
     const next = () => {
         if (vehicles.length <= 1) return;
-        // Move 2 items at a time, but ensure we don't wrap around incorrectly
         if (vehicles.length === 2) {
             setIndex((prev) => (prev + 1) % 2);
         } else {
@@ -71,7 +59,6 @@ export default function CarSlider() {
 
     const prev = () => {
         if (vehicles.length <= 1) return;
-        // Move 2 items at a time
         if (vehicles.length === 2) {
             setIndex((prev) => (prev + 1) % 2);
         } else {
@@ -116,25 +103,18 @@ export default function CarSlider() {
         );
     }
 
-    // Get 2 different cars to display
     const getDisplayCars = () => {
         if (vehicles.length === 0) return [];
-        if (vehicles.length === 1) {
-            // If only 1 car, return only 1 item
-            return [vehicles[0]];
-        }
+        if (vehicles.length === 1) return [{ ...vehicles[0], displayIndex: 0 }];
 
         const cars = [];
         const firstIndex = index % vehicles.length;
         cars.push({ ...vehicles[firstIndex], displayIndex: 0 });
 
-        // Get second car - ensure it's different
         let secondIndex = (firstIndex + 1) % vehicles.length;
-        // Make sure secondIndex is different from firstIndex
         if (secondIndex === firstIndex) {
             secondIndex = (firstIndex + 1) % vehicles.length;
         }
-
         cars.push({ ...vehicles[secondIndex], displayIndex: 1 });
         return cars;
     };
@@ -148,7 +128,9 @@ export default function CarSlider() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Xe nổi bật</p>
-                        <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Dòng xe được yêu thích nhất</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                            Dòng xe được yêu thích nhất
+                        </h2>
                     </div>
                     <div className="flex gap-3">
                         <button
@@ -168,18 +150,15 @@ export default function CarSlider() {
                     </div>
                 </div>
 
-                <div className={`grid gap-6 ${displayCars.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
+                <div className={`grid gap-6 ${displayCars.length === 2 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
                     {displayCars.map((car, idx) => {
                         const photo = car.photos?.[0];
-                        // Ưu tiên priceList, nếu không có thì dùng overridePrice
                         const price = car.priceList?.dailyRate
-                            ? formatVND(car.priceList.dailyRate) + " / ngày"
+                            ? `${formatVND(car.priceList.dailyRate)} / ngày`
                             : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
-                                ? formatVND((car as any).overrideDailyRate) + " / ngày"
+                                ? `${formatVND((car as any).overrideDailyRate)} / ngày`
                                 : "Liên hệ";
                         const slug = car.slug ?? car.id;
-
-                        // Create unique key combining car id and display index
                         const uniqueKey = `${car.id}-${car.displayIndex ?? idx}`;
 
                         return (
@@ -199,7 +178,9 @@ export default function CarSlider() {
                                     <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
                                         Đời mới • Bảo dưỡng định kỳ
                                     </div>
-                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{car.name}</h3>
+                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                                        {car.name}
+                                    </h3>
                                     <p className="text-blue-200 text-lg font-semibold">{price}</p>
                                     <p className="text-slate-200 text-sm">
                                         {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}

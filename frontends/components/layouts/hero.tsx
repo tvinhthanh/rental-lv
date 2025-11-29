@@ -22,7 +22,6 @@ export default function Hero() {
 
     return (
         <section className="relative overflow-hidden bg-[#0b1424]">
-            {/* Fullwidth image section */}
             <div className="relative w-full h-[500px] md:h-[600px] lg:h-[700px]">
                 {heroImages.map((src, idx) => (
                     <img
@@ -34,37 +33,35 @@ export default function Hero() {
                         decoding="async"
                     />
                 ))}
-                {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0b1424]/90 via-[#0b1424]/70 to-transparent z-10" />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0b1424]/50 z-10" />
                 
-                {/* Content overlay */}
                 <div className="absolute inset-0 z-20 flex items-center">
                     <div className="max-w-6xl mx-auto px-4 w-full">
                         <div className="max-w-2xl space-y-5">
                             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em]">
                                 RENTAL LV • CHUẨN HÃNG
-                    </div>
+                            </div>
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-lg">
-                        Lái xe chuẩn Ford, đặt nhanh trong một chạm
-                    </h1>
+                                Lái xe chuẩn Ford, đặt nhanh trong một chạm
+                            </h1>
                             <p className="text-lg md:text-xl text-blue-100 max-w-xl drop-shadow-md">
-                        Đội xe đời mới, bảo hiểm đầy đủ, hỗ trợ 24/7. Chọn xe, đặt lịch và nhận xe tại chi nhánh gần nhất.
-                    </p>
+                                Đội xe đời mới, bảo hiểm đầy đủ, hỗ trợ 24/7. Chọn xe, đặt lịch và nhận xe tại chi nhánh gần nhất.
+                            </p>
                             <div className="flex flex-wrap gap-3 pt-2">
-                        <a
-                            href="/user/cars"
+                                <a
+                                    href="/user/cars"
                                     className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow-lg hover:-translate-y-0.5 transition hover:shadow-xl"
-                        >
-                            Xem danh sách xe
-                        </a>
-                        <a
-                            href="/user/bookings"
+                                >
+                                    Xem danh sách xe
+                                </a>
+                                <a
+                                    href="/user/bookings"
                                     className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
-                        >
-                            Bắt đầu đặt xe
-                        </a>
-                    </div>
+                                >
+                                    Bắt đầu đặt xe
+                                </a>
+                            </div>
                             <div className="flex flex-wrap gap-6 pt-4 text-sm text-blue-100">
                                 <span className="drop-shadow-md">Xe mới 2022-2024</span>
                                 <span className="drop-shadow-md">Bảo dưỡng định kỳ</span>
@@ -74,7 +71,6 @@ export default function Hero() {
                     </div>
                 </div>
 
-                {/* Carousel indicators */}
                 <div className="absolute bottom-4 right-4 z-30 flex gap-2">
                     {heroImages.map((_, idx) => (
                         <span

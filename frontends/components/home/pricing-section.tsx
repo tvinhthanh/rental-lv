@@ -22,11 +22,9 @@ export default function PricingSection() {
                 arr.map((p: any) => ({
                     id: p.id,
                     title: p.name ?? "Gói thuê",
-                    price: p.dailyRate
-                        ? `${formatVND(p.dailyRate)} / ngày`
-                        : "—",
+                    price: p.dailyRate ? `${formatVND(p.dailyRate)} / ngày` : "—",
                     description: p.description ?? "",
-                    raw: p
+                    raw: p,
                 }))
             );
         } catch (err) {
@@ -59,7 +57,7 @@ export default function PricingSection() {
     if (packages.length === 0) {
         return (
             <section className="py-16 relative overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-br from-[#0b1424] via-[#0c1f36] to-[#0b1424]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0b1424] via-[#0c1f36] to-[#0b1424]" />
                 <div className="max-w-6xl mx-auto relative px-4">
                     <p className="text-center text-blue-100">
                         Hiện chưa có gói thuê nào.
@@ -71,16 +69,14 @@ export default function PricingSection() {
 
     return (
         <section className="py-16 relative overflow-hidden">
-            <div className="absolute inset-0 bg-linear-to-br from-[#0b1424] via-[#0c1f36] to-[#0b1424]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0b1424] via-[#0c1f36] to-[#0b1424]" />
             <div className="max-w-5xl mx-auto relative px-4 md:px-8">
                 <div className="text-center mb-12">
                     <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Bảng giá & ưu đãi</p>
-                    <h2 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Chọn gói thuê phù hợp</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Chọn gói thuê phù hợp</h2>
                 </div>
 
-                {/* VIP Card Stack Container */}
                 <div className="relative h-[500px] md:h-[550px] flex items-center justify-center perspective-1000 w-full">
-                    {/* Navigation buttons */}
                     {packages.length > 1 && (
                         <>
                             <button
@@ -100,13 +96,9 @@ export default function PricingSection() {
                         </>
                     )}
 
-                    {/* Stacked Cards */}
                     <div className="relative w-full max-w-2xl mx-auto h-full flex items-center justify-center">
                         {packages.map((pkg, idx) => {
-                            // Calculate circular offset for smooth infinite loop
                             let offset = idx - currentIndex;
-
-                            // Handle wrap-around for circular motion
                             if (offset > packages.length / 2) {
                                 offset = offset - packages.length;
                             } else if (offset < -packages.length / 2) {
@@ -116,30 +108,25 @@ export default function PricingSection() {
                             const absOffset = Math.abs(offset);
                             const isActive = offset === 0;
 
-                            // Calculate transform based on position
                             let transform = "";
                             let scale = 1;
                             let opacity = 1;
                             const zIndex = packages.length - absOffset;
 
                             if (offset < 0) {
-                                // Card to the left
                                 transform = `translateX(${-280 + offset * 40}px) translateZ(${-absOffset * 50}px) rotateY(${offset * 15}deg)`;
                                 scale = 1 - absOffset * 0.15;
                                 opacity = 1 - absOffset * 0.4;
                             } else if (offset > 0) {
-                                // Card to the right
                                 transform = `translateX(${280 + offset * 40}px) translateZ(${-absOffset * 50}px) rotateY(${offset * 15}deg)`;
                                 scale = 1 - absOffset * 0.15;
                                 opacity = 1 - absOffset * 0.4;
                             } else {
-                                // Active card (center)
                                 transform = "translateX(0) translateZ(0) rotateY(0deg)";
                                 scale = 1;
                                 opacity = 1;
                             }
 
-                            // Clamp values
                             scale = Math.max(0.7, scale);
                             opacity = Math.max(0.3, opacity);
 
@@ -155,46 +142,59 @@ export default function PricingSection() {
                                     }}
                                     onClick={() => setCurrentIndex(idx)}
                                 >
-                                    <div className={`border-2 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-lg relative overflow-hidden h-[350px] md:h-[400px] transition-all duration-500 ${isActive
-                                        ? "border-cyan-400/60 bg-linear-to-br from-white/15 to-white/5 shadow-cyan-500/20"
-                                        : "border-white/20 bg-white/5"
-                                        }`}>
-                                        {/* Glow effect for active card */}
+                                    <div
+                                        className={`border-2 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-lg relative overflow-hidden h-[350px] md:h-[400px] transition-all duration-500 ${
+                                            isActive
+                                                ? "border-cyan-400/60 bg-gradient-to-br from-white/15 to-white/5 shadow-cyan-500/20"
+                                                : "border-white/20 bg-white/5"
+                                        }`}
+                                    >
                                         {isActive && (
-                                            <div className="absolute inset-0 bg-linear-to-br from-cyan-500/10 via-transparent to-indigo-500/10 rounded-3xl pointer-events-none" />
+                                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-indigo-500/10 rounded-3xl pointer-events-none" />
                                         )}
 
-                                        {/* Badge */}
                                         {idx === 0 && (
-                                            <span className="absolute top-4 right-4 text-xs bg-linear-to-r from-blue-600 to-cyan-500 text-white px-4 py-1.5 rounded-full font-semibold shadow-lg z-10">
+                                            <span className="absolute top-4 right-4 text-xs bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-1.5 rounded-full font-semibold shadow-lg z-10">
                                                 Khuyến nghị
                                             </span>
                                         )}
 
                                         <div className="relative z-10 h-full flex flex-col">
-                                            <h3 className={`text-2xl md:text-3xl font-bold mb-3 transition-all duration-500 ${isActive
-                                                ? "bg-linear-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent"
-                                                : "text-white/70"
-                                                }`}>
+                                            <h3
+                                                className={`text-2xl md:text-3xl font-bold mb-3 transition-all duration-500 ${
+                                                    isActive
+                                                        ? "bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent"
+                                                        : "text-white/70"
+                                                }`}
+                                            >
                                                 {pkg.title}
                                             </h3>
 
                                             <div className="mb-4">
-                                                <p className={`text-3xl md:text-4xl font-bold mb-2 transition-all duration-500 ${isActive ? "text-cyan-300" : "text-blue-200/70"
-                                                    }`}>
+                                                <p
+                                                    className={`text-3xl md:text-4xl font-bold mb-2 transition-all duration-500 ${
+                                                        isActive ? "text-cyan-300" : "text-blue-200/70"
+                                                    }`}
+                                                >
                                                     {pkg.price}
                                                 </p>
                                             </div>
 
-                                            <p className={`text-blue-100 mb-6 text-sm md:text-base flex-1 transition-all duration-500 ${isActive ? "opacity-100" : "opacity-70"
-                                                }`}>
+                                            <p
+                                                className={`text-blue-100 mb-6 text-sm md:text-base flex-1 transition-all duration-500 ${
+                                                    isActive ? "opacity-100" : "opacity-70"
+                                                }`}
+                                            >
                                                 {pkg.description || "Gói tiêu chuẩn bao gồm bảo hiểm cơ bản và hỗ trợ 24/7."}
                                             </p>
 
-                                            <button className={`w-full py-3.5 font-bold rounded-xl shadow-lg transition-all duration-500 ${isActive
-                                                ? "bg-linear-to-r from-indigo-600 to-cyan-500 text-white hover:scale-105 hover:shadow-cyan-500/50"
-                                                : "bg-white/20 text-white/70 hover:bg-white/30"
-                                                }`}>
+                                            <button
+                                                className={`w-full py-3.5 font-bold rounded-xl shadow-lg transition-all duration-500 ${
+                                                    isActive
+                                                        ? "bg-gradient-to-r from-indigo-600 to-cyan-500 text-white hover:scale-105 hover:shadow-cyan-500/50"
+                                                        : "bg-white/20 text-white/70 hover:bg-white/30"
+                                                }`}
+                                            >
                                                 Đặt gói này
                                             </button>
                                         </div>
@@ -205,29 +205,23 @@ export default function PricingSection() {
                     </div>
                 </div>
 
-                {/* Dots indicator - Below cards */}
                 {packages.length > 1 && (
                     <div className="flex justify-center gap-2 mt-12">
                         {packages.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`rounded-full transition-all duration-300 ${idx === currentIndex
-                                    ? "w-10 h-3 bg-linear-to-r from-indigo-400 to-cyan-400"
-                                    : "w-3 h-3 bg-white/40 hover:bg-white/60"
-                                    }`}
+                                className={`rounded-full transition-all duration-300 ${
+                                    idx === currentIndex
+                                        ? "w-10 h-3 bg-gradient-to-r from-indigo-400 to-cyan-400"
+                                        : "w-3 h-3 bg-white/40 hover:bg-white/60"
+                                }`}
                                 aria-label={`Đi tới gói ${idx + 1}`}
                             />
                         ))}
                     </div>
                 )}
             </div>
-
-            <style jsx global>{`
-                .perspective-1000 {
-                    perspective: 1000px;
-                }
-            `}</style>
         </section>
     );
 }

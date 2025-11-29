@@ -344,6 +344,7 @@ export class BillingService {
     const totalAmount = subtotal + surchargeTotal - discountTotal - depositApplied;
     const status = paymentsTotal >= totalAmount ? 'PAID' : invoice.status;
 
+
     const updatedInvoice = await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: {

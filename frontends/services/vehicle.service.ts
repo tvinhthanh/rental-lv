@@ -25,5 +25,9 @@ export const vehicleService = {
 
     getBySlug(slug: string) {
         return api.get(`/vehicles/slug/${slug}`);
+    },
+
+    getByBranch(branchId: string) {
+        return api.get(`/vehicles/branch/${branchId}`);
     }
 };

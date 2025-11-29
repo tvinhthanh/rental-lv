@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
@@ -31,4 +31,15 @@ export class MaintenanceController {
     delete(@Param('id') id: string) {
         return this.service.delete(id);
     }
+
+    @Get('branch/:branchId')
+    getByBranch(@Param('branchId') branchId: string) {
+        return this.service.findByBranch(branchId);
+    }
+
+    @Patch(":id/complete")
+    complete(@Param("id") id: string) {
+        return this.service.completeMaintenance(id);
+    }
+
 }

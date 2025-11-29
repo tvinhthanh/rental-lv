@@ -31,5 +31,6 @@ export const ROLE_MENU_SIDEBAR = {
         { label: "Surcharges", href: "/employee/surcharges" },
         { label: "Vehicles", href: "/employee/vehicles" },
         { label: "Invoices", href: "/employee/invoices" },
+        { label: "Maintenance", href: "/employee/maintenance" },
     ],
 };

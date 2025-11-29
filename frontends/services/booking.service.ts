@@ -8,5 +8,8 @@ export const bookingService = {
     updateStatus: (id: string, status: string) =>
         api.put(`/bookings/${id}/status/${status}`).then(r => r.data),
     getDateAvailable: (vehicleId: string) => api.get(`/bookings/cars/${vehicleId}`).then(r => r.data),
-    getByBranch: (branchId: string) => api.get(`/bookings/branch/${branchId}`).then(r => r.data),
+    async getByBranch(branchId: string) {
+        const res = await api.get(`/bookings/branch/${branchId}`);
+        return res;
+    }
 };  

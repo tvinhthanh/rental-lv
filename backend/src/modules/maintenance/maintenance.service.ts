@@ -37,12 +37,26 @@ export class MaintenanceService {
                 odometer: dto.odometer,
                 performedBy: dto.performedBy,
                 cost: dto.cost,
-                status: dto.status ?? 'DONE',
-                nextMaintenanceAt: dto.nextMaintenanceAt ? new Date(dto.nextMaintenanceAt) : undefined
+                status: dto.status ?? 'PENDING',
+                nextMaintenanceAt: dto.nextMaintenanceAt
+                    ? new Date(dto.nextMaintenanceAt)
+                    : undefined,
             }
         });
 
-        await this.audit.log(actorId ?? null, 'CREATE', 'Maintenance', maintenance.id, maintenance);
+        await this.prisma.vehicle.update({
+            where: { id: dto.vehicleId },
+            data: { status: "MAINTENANCE" }
+        });
+
+        await this.audit.log(
+            actorId ?? null,
+            'CREATE',
+            'Maintenance',
+            maintenance.id,
+            maintenance
+        );
+
         return maintenance;
     }
 
@@ -71,4 +85,56 @@ export class MaintenanceService {
         await this.audit.log(actorId ?? null, 'DELETE', 'Maintenance', id);
         return this.prisma.maintenance.delete({ where: { id } });
     }
+
+    async findByBranch(branchId: string) {
+        return this.prisma.maintenance.findMany({
+            where: {
+                vehicle: {
+                    branchId: branchId,
+                },
+            },
+            include: {
+                vehicle: true,
+            }
+        });
+    }
+
+    async findByStatus(branchId: string, status: string) {
+        return this.prisma.maintenance.findMany({
+            where: {
+                vehicle: {
+                    branchId: branchId,
+                    status: status,
+                }
+            }
+        });
+    }
+
+    async findByVehicle(vehicleId: string) {
+        return this.prisma.maintenance.findMany({ where: { vehicleId } });
+    }
+
+    async completeMaintenance(id: string) {
+        const maintenance = await this.findOne(id);
+
+        // update maintenance
+        const updated = await this.prisma.maintenance.update({
+            where: { id },
+            data: {
+                status: "DONE",
+                updatedAt: new Date(),
+            },
+        });
+
+        // update vehicle
+        await this.prisma.vehicle.update({
+            where: { id: maintenance.vehicleId },
+            data: {
+                status: "AVAILABLE",
+            },
+        });
+
+        return updated;
+    }
+
 }

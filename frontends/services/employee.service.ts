@@ -1,9 +1,27 @@
 import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
+const buildQuery = (params?: Record<string, any>) => {
+    if (!params) return "";
+    const qp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && `${v}` !== "") {
+            qp.append(k, `${v}`);
+        }
+    });
+    const s = qp.toString();
+    return s ? `?${s}` : "";
+};
+
 export const employeeService = {
-    getAll() {
-        return api.get(`/employees`);
+    getAll(params?: any) {
+        const query = buildQuery(params);
+        return api.get(`/employees${query}`);
+    },
+
+    list: (params?: any) => {
+        const query = buildQuery(params);
+        return api.get(`/employees${query}`);
     },
 
     get: (id: string) =>

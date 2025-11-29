@@ -8,7 +8,7 @@ export class CreateInvoiceDto {
     customerId!: string;
 
     @IsNumber()
-    subtotal!: number;
+    baseAmount!: number;
 
     @IsOptional()
     @IsNumber()
@@ -18,6 +18,11 @@ export class CreateInvoiceDto {
     @IsNumber()
     discountTotal?: number;
 
+    @IsOptional()
     @IsNumber()
-    totalAmount!: number;
+    depositApplied?: number;
+
+    @IsOptional()
+    @IsNumber()
+    totalAmount?: number;
 }

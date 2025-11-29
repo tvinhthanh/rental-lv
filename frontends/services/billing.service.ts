@@ -1,4 +1,5 @@
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 
 export const billingService = {
     invoices: () => api.get("/billing/invoices").then(r => r.data),

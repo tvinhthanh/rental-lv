@@ -1,34 +1,35 @@
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 
 export const branchService = {
     // GET /branches?keyword=...
-    async getAll(keyword?: string) {
-        const res = await api.get("/branches", { params: { search: keyword } });
-        return Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+    getAll(keyword?: string) {
+        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
+        return api.get(`/branches${qs}`);
     },
 
     // GET /branches/:id
     get(id: string) {
-        return api.get(`/branches/${id}`).then(r => r.data);
+        return api.get(`/branches/${id}`);
     },
 
     // POST /branches
     create(data: any) {
-        return api.post("/branches", data).then(r => r.data);
+        return api.post("/branches", data);
     },
 
     // PUT /branches/:id  → đúng với backend update()
     update(id: string, data: any) {
-        return api.put(`/branches/${id}`, data).then(r => r.data);
+        return api.put(`/branches/${id}`, data);
     },
 
     // PATCH /branches/:id/deactivate  → đúng backend deactivate()
     deactivate(id: string) {
-        return api.patch(`/branches/${id}/deactivate`).then(r => r.data);
+        return api.put(`/branches/${id}/deactivate`);
     },
 
     // DELETE /branches/:id  → đúng backend delete()
     delete(id: string) {
-        return api.delete(`/branches/${id}`).then(r => r.data);
+        return api.delete(`/branches/${id}`);
     }
 };

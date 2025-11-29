@@ -1,15 +1,16 @@
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 
 export const depositService = {
     get: (bookingId: string) =>
-        api.get(`/deposit/${bookingId}`).then(r => r.data),
+        api.get(`/deposit/${bookingId}`),
 
     create: (data: any) =>
-        api.post("/deposit", data).then(r => r.data),
+        api.post("/deposit", data),
 
     addDetail: (data: any) =>
-        api.post("/deposit/detail", data).then(r => r.data),
+        api.post("/deposit/detail", data),
 
     details: (depositId: string) =>
-        api.get(`/deposit/detail/${depositId}`).then(r => r.data),
+        api.get(`/deposit/detail/${depositId}`),
 };

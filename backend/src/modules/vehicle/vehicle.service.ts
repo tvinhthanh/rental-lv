@@ -82,6 +82,21 @@ export class VehicleService {
         return vehicle;
     }
 
+    async findBySlug(slug: string) {
+        const vehicle = await this.prisma.vehicle.findUnique({
+            where: { slug },
+            include: {
+                brand: true,
+                branch: true,
+                category: true,
+                priceList: true
+            }
+        });
+
+        if (!vehicle) throw new NotFoundException('Vehicle not found');
+        return vehicle;
+    }
+
     // ----------------------------------------------------------
     // CREATE
     // ----------------------------------------------------------

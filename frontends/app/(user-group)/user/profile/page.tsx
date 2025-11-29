@@ -16,7 +16,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="p-4 text-gray-200">
+        <div className="p-4 text-gray-200 max-w-2xl">
             <h1 className="text-2xl font-bold mb-4">Thông tin cá nhân</h1>
 
             <div className="bg-gray-800/40 p-4 rounded-xl w-full max-w-xl space-y-2">

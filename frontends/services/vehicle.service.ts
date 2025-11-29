@@ -1,30 +1,30 @@
-// src/services/vehicle.service.ts
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+
+const api = new APIRequest();
 
 export const vehicleService = {
-    // GET /vehicles?search=...
-    async getAll(keyword?: string) {
-        const res = await api.get("/vehicles", { params: { search: keyword } });
-        return Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+    getAll(keyword?: string) {
+        const qs = keyword ? `?search=${encodeURIComponent(keyword)}` : "";
+        return api.get(`/vehicles${qs}`);
     },
 
-    // GET /vehicles/:id
     get(id: string) {
-        return api.get(`/vehicles/${id}`).then(r => r.data);
+        return api.get(`/vehicles/${id}`);
     },
 
-    // POST /vehicles
     create(data: any) {
-        return api.post("/vehicles", data).then(r => r.data);
+        return api.post(`/vehicles`, data);
     },
 
-    // PUT /vehicles/:id
     update(id: string, data: any) {
-        return api.put(`/vehicles/${id}`, data).then(r => r.data);
+        return api.put(`/vehicles/${id}`, data);
     },
 
-    // DELETE /vehicles/:id
     delete(id: string) {
-        return api.delete(`/vehicles/${id}`).then(r => r.data);
+        return api.delete(`/vehicles/${id}`);
+    },
+
+    getBySlug(slug: string) {
+        return api.get(`/vehicles/slug/${slug}`);
     }
 };

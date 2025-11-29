@@ -37,4 +37,9 @@ export class VehicleController {
     delete(@Param('id') id: string) {
         return this.service.delete(id);
     }
+
+    @Get('slug/:slug')
+    getBySlug(@Param('slug') slug: string) {
+        return this.service.findBySlug(slug);
+    }
 }

@@ -1,30 +1,26 @@
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+
+const api = new APIRequest();
 
 export const priceListService = {
-    // GET ALL (with optional search)
     getAll(keyword?: string) {
-        return api
-            .get("/price-lists/", { params: { search: keyword } })
-            .then((res) => res.data);
+        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
+        return api.get(`/price-lists${qs}`);
     },
 
-    // GET ONE
     getOne(id: string) {
-        return api.get(`/price-lists/${id}`).then((res) => res.data);
+        return api.get(`/price-lists/${id}`);
     },
 
-    // CREATE
     create(data: any) {
-        return api.post("/price-lists", data).then((res) => res.data);
+        return api.post(`/price-lists`, data);
     },
 
-    // UPDATE
     update(id: string, data: any) {
-        return api.put(`/price-lists/${id}`, data).then((res) => res.data);
+        return api.put(`/price-lists/${id}`, data);
     },
 
-    // DELETE
     delete(id: string) {
-        return api.delete(`/price-lists/${id}`).then((res) => res.data);
-    },
+        return api.delete(`/price-lists/${id}`);
+    }
 };

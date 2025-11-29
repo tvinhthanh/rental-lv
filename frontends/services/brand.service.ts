@@ -1,35 +1,36 @@
 // src/services/brand.service.ts
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 
 export const brandService = {
     // GET /brands?keyword=...
-    async getAll(keyword?: string) {
-        const res = await api.get("/brands", { params: { keyword } });
-        return Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+    getAll(keyword?: string) {
+        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
+        return api.get(`/brands${qs}`);
     },
 
     // GET /brands/:id
     get(id: string) {
-        return api.get(`/brands/${id}`).then(r => r.data);
+        return api.get(`/brands/${id}`);
     },
 
     // POST /brands
     create(data: any) {
-        return api.post("/brands", data).then(r => r.data);
+        return api.post("/brands", data);
     },
 
     // PUT /brands/:id
     update(id: string, data: any) {
-        return api.put(`/brands/${id}`, data).then(r => r.data);
+        return api.put(`/brands/${id}`, data);
     },
 
     // PATCH /brands/:id/deactivate
     deactivate(id: string) {
-        return api.patch(`/brands/${id}/deactivate`).then(r => r.data);
+        return api.put(`/brands/${id}/deactivate`);
     },
 
     // DELETE /brands/:id
     delete(id: string) {
-        return api.delete(`/brands/${id}`).then(r => r.data);
+        return api.delete(`/brands/${id}`);
     }
 };

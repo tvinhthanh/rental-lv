@@ -1,39 +1,36 @@
-import api from "@/lib/api";
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 
 export const authService = {
     async login(data: any) {
         const res = await api.post("/auth/login", data);
 
-        const token = res?.data?.accessToken;
-        const role = res?.data?.user?.role;
+        const token = res.accessToken;        // ✔ Đúng cấu trúc API
+        const role = res.user?.role;
 
         if (typeof window !== "undefined" && token) {
+            // Lưu token
             localStorage.setItem("accessToken", token);
             document.cookie = `accessToken=${token}; path=/; max-age=604800`;
         }
 
         if (typeof window !== "undefined" && role) {
-            document.cookie = `role=${role}; path=/; max-age=604800`;
+            // Lưu role
             localStorage.setItem("role", role);
+            document.cookie = `role=${role}; path=/; max-age=604800`;
         }
 
-        return res.data;
-    },
-
-
-    async register(data: any) {
-        const res = await api.post("/auth/register", data);
-        return res.data;
-    },
-
-    async forgotPassword(data: any) {
-        const res = await api.post("/auth/forgot-password", data);
-        return res.data;
+        return res;    // ✔ Không return res.data nữa
     },
 
     logout() {
         if (typeof window !== "undefined") {
             localStorage.removeItem("accessToken");
+            localStorage.removeItem("role");
+
+            // Xoá cookie
+            document.cookie = `accessToken=; path=/; max-age=0`;
+            document.cookie = `role=; path=/; max-age=0`;
         }
     },
 
@@ -50,4 +47,13 @@ export const authService = {
         }
         return false;
     },
+
+    register(data: any) {
+        return api.post("/auth/register", data);
+    },
+
+    forgotPassword(data: any) {
+        return api.post("/auth/forgot-password", data);
+    },
+
 };

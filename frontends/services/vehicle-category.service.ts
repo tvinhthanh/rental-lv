@@ -1,21 +1,20 @@
-import api from "@/lib/api";
-
+import { APIRequest } from "@/lib/api";
+const api = new APIRequest();
 export const vehicleCategoryService = {
-    getAll(keyword?: string) {
-        return api
-            .get("/vehicle-categories", { params: { search: keyword } })
-            .then((r: { data: any; }) => r.data);
+    list(keyword?: string) {
+        const qs = keyword ? `?keyword=${encodeURIComponent(keyword)}` : "";
+        return api.get(`/vehicle-categories${qs}`);
     },
 
     create(data: any) {
-        return api.post("/vehicle-categories", data).then((r: { data: any; }) => r.data);
+        return api.post("/vehicle-categories", data);
     },
 
     update(id: string, data: any) {
-        return api.put(`/vehicle-categories/${id}`, data).then((r: { data: any; }) => r.data);
+        return api.put(`/vehicle-categories/${id}`, data);
     },
 
     delete(id: string) {
-        return api.delete(`/vehicle-categories/${id}`).then((r: { data: any; }) => r.data);
+        return api.delete(`/vehicle-categories/${id}`);
     },
 };

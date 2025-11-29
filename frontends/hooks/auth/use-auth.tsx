@@ -12,6 +12,7 @@ import {
     useMutation,
     useQueryClient
 } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 type AuthUser = {
     id: string;
@@ -42,27 +43,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         queryKey: ["auth", "profile"],
         queryFn: async () => {
             const token = authService.getToken();
-            if (!token) throw new Error("No token");
-            return userService.me();
+            if (!token) return null;
+
+            try {
+                return await userService.me();
+            } catch (e) {
+                authService.logout();
+                return null;
+            }
         },
-        enabled: !!authService.getToken(),
+        enabled: typeof window !== "undefined",
         retry: false,
         staleTime: 5 * 60 * 1000
     });
 
     const logout = useCallback(() => {
-        // 1. Clear token trước
         authService.logout();
 
-        // 2. Set query data về null (trigger re-render ngay lập tức)
         queryClient.setQueryData(["auth", "profile"], null);
 
-        // 3. Invalidate để đảm bảo query không còn cache
         queryClient.invalidateQueries({
             queryKey: ["auth", "profile"]
         });
 
-        // 4. Clear toàn bộ cache (optional - nếu muốn clear hết data)
         queryClient.clear();
     }, [queryClient]);
 
@@ -93,34 +96,34 @@ export function useAuth() {
     return ctx;
 }
 
+// ⚡ Login tự động refreshProfile và redirect
 export function useLogin() {
     const { refreshProfile } = useAuth();
+    const router = useRouter();
 
     return useMutation({
-        mutationFn: (data: { email: string; password: string }) =>
-            authService.login(data),
+        mutationFn: authService.login,
         onSuccess: async () => {
             await refreshProfile();
+            router.push("/dashboard");
         }
     });
 }
 
 export function useRegister() {
     return useMutation({
-        mutationFn: (data: { email: string; password: string; name?: string }) =>
-            authService.register(data)
+        mutationFn: authService.register
     });
 }
 
 export function useForgotPassword() {
     return useMutation({
-        mutationFn: (data: { email: string }) =>
-            authService.forgotPassword(data)
+        mutationFn: authService.forgotPassword
     });
 }
+
 export function useResetPassword() {
     return useMutation({
-        mutationFn: (data: { email: string }) =>
-            userService.resetPassword(data)
+        mutationFn: userService.resetPassword
     });
 }

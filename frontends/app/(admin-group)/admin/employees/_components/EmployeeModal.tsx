@@ -22,7 +22,10 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     });
 
     useEffect(() => {
-        branchService.getAll().then(setBranches);
+        branchService.getAll().then((res: any) => {
+            const items = Array.isArray(res) ? res : res?.items ?? [];
+            setBranches(items);
+        }).catch(() => setBranches([]));
     }, []);
 
     useEffect(() => {

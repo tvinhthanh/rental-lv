@@ -110,7 +110,7 @@ export class ContractService {
                 customerSignature: dto.customerSignature,
                 employeeSignature: dto.employeeSignature,
                 signedBy: dto.signedBy,
-                fileUrl: null,
+                fileUrl: dto.fileUrl,
                 status: 'DRAFT'
             }
         });

@@ -25,4 +25,21 @@ export class CloudinaryService {
             ).end(file.buffer);
         });
     }
+
+    async uploadFile(
+        file: Express.Multer.File
+    ): Promise<UploadApiResponse> {
+        return new Promise((resolve, reject) => {
+            this.cloudinary.uploader.upload_stream(
+                { resource_type: 'auto' },
+                (
+                    error: UploadApiErrorResponse | undefined,
+                    result: UploadApiResponse | undefined
+                ) => {
+                    if (error || !result) return reject(error);
+                    resolve(result);
+                }
+            ).end(file.buffer);
+        });
+    }
 }

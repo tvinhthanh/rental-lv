@@ -27,4 +27,20 @@ export class CreateContractDto {
     @IsOptional()
     @IsString()
     notes?: string;
+
+    @IsOptional()
+    @IsString()
+    customerSignature?: string;
+
+    @IsOptional()
+    @IsString()
+    employeeSignature?: string;
+
+    @IsOptional()
+    @IsString()
+    signedBy?: string;
+
+    @IsOptional()
+    @IsString()
+    fileUrl?: string;
 }

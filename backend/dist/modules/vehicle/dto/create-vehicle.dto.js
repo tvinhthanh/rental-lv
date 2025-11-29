@@ -31,11 +31,6 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateVehicleDto.prototype, "brand", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
 ], CreateVehicleDto.prototype, "model", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
@@ -94,6 +89,7 @@ __decorate([
 ], CreateVehicleDto.prototype, "seoDescription", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], CreateVehicleDto.prototype, "photos", void 0);
 __decorate([
@@ -105,7 +101,38 @@ __decorate([
     __metadata("design:type", String)
 ], CreateVehicleDto.prototype, "branchId", void 0);
 __decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateVehicleDto.prototype, "brandId", void 0);
+__decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateVehicleDto.prototype, "priceListId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateVehicleDto.prototype, "overridePriceEnabled", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateVehicleDto.prototype, "usePriceList", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateVehicleDto.prototype, "overrideDailyRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateVehicleDto.prototype, "overrideHourlyRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateVehicleDto.prototype, "overrideWeekendRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateVehicleDto.prototype, "overrideHolidayRate", void 0);
 //# sourceMappingURL=create-vehicle.dto.js.map

@@ -60,7 +60,19 @@ export class VehicleCategoryService {
             if (exists) throw new BadRequestException('Category code already exists');
         }
 
-        const category = await this.prisma.vehicleCategory.create({ data: dto });
+        const category = await this.prisma.vehicleCategory.create({
+            data: {
+                name: dto.name,
+                code: dto.code || null,
+                slug: dto.slug || null,
+                description: dto.description || null,
+                imageUrl: dto.imageUrl || null,
+                metaTitle: dto.metaTitle || null,
+                metaDescription: dto.metaDescription || null,
+                displayOrder: dto.displayOrder ?? 0
+            }
+        });
+
 
         await this.audit.log(actorId ?? null, 'CREATE', 'VehicleCategory', category.id, category);
 
@@ -70,14 +82,30 @@ export class VehicleCategoryService {
     async update(id: string, dto: UpdateVehicleCategoryDto, actorId?: string) {
         const before = await this.findOne(id);
 
+        // Check duplicate code
         if (dto.code && dto.code !== before.code) {
             const exists = await this.prisma.vehicleCategory.findUnique({ where: { code: dto.code } });
             if (exists) throw new BadRequestException('Category code already exists');
         }
 
+        // CHỈ PICK FIELD NÀO CHO UPDATE
+        const data: any = {
+            name: dto.name,
+            code: dto.code,
+            slug: dto.slug,
+            description: dto.description,
+            imageUrl: dto.imageUrl,
+            metaTitle: dto.metaTitle,
+            metaDescription: dto.metaDescription,
+            seoTitle: dto.seoTitle,
+            hTitle: dto.hTitle,
+            displayOrder: dto.displayOrder,
+            isActive: dto.isActive
+        };
+
         const category = await this.prisma.vehicleCategory.update({
             where: { id },
-            data: dto
+            data
         });
 
         await this.audit.log(actorId ?? null, 'UPDATE', 'VehicleCategory', id, {
@@ -87,6 +115,7 @@ export class VehicleCategoryService {
 
         return category;
     }
+
 
     async delete(id: string, actorId?: string) {
         await this.audit.log(actorId ?? null, 'DELETE', 'VehicleCategory', id);

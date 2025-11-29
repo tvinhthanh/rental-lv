@@ -57,12 +57,24 @@ let VehicleCategoryService = class VehicleCategoryService {
         return category;
     }
     async create(dto, actorId) {
+        var _a;
         if (dto.code) {
             const exists = await this.prisma.vehicleCategory.findUnique({ where: { code: dto.code } });
             if (exists)
                 throw new common_1.BadRequestException('Category code already exists');
         }
-        const category = await this.prisma.vehicleCategory.create({ data: dto });
+        const category = await this.prisma.vehicleCategory.create({
+            data: {
+                name: dto.name,
+                code: dto.code || null,
+                slug: dto.slug || null,
+                description: dto.description || null,
+                imageUrl: dto.imageUrl || null,
+                metaTitle: dto.metaTitle || null,
+                metaDescription: dto.metaDescription || null,
+                displayOrder: (_a = dto.displayOrder) !== null && _a !== void 0 ? _a : 0
+            }
+        });
         await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'CREATE', 'VehicleCategory', category.id, category);
         return category;
     }
@@ -73,9 +85,22 @@ let VehicleCategoryService = class VehicleCategoryService {
             if (exists)
                 throw new common_1.BadRequestException('Category code already exists');
         }
+        const data = {
+            name: dto.name,
+            code: dto.code,
+            slug: dto.slug,
+            description: dto.description,
+            imageUrl: dto.imageUrl,
+            metaTitle: dto.metaTitle,
+            metaDescription: dto.metaDescription,
+            seoTitle: dto.seoTitle,
+            hTitle: dto.hTitle,
+            displayOrder: dto.displayOrder,
+            isActive: dto.isActive
+        };
         const category = await this.prisma.vehicleCategory.update({
             where: { id },
-            data: dto
+            data
         });
         await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'UPDATE', 'VehicleCategory', id, {
             before,

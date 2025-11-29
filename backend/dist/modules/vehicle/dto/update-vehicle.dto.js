@@ -110,4 +110,28 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateVehicleDto.prototype, "priceListId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], UpdateVehicleDto.prototype, "overridePriceEnabled", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateVehicleDto.prototype, "overrideDailyRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateVehicleDto.prototype, "overrideHourlyRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateVehicleDto.prototype, "overrideWeekendRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateVehicleDto.prototype, "overrideHolidayRate", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateVehicleDto.prototype, "brandId", void 0);
 //# sourceMappingURL=update-vehicle.dto.js.map

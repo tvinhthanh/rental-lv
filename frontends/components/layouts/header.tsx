@@ -5,10 +5,12 @@ import { useAuth } from "@/hooks/auth/use-auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ROLE_MENU_HEADER } from "@/lib/role-menu";
+import { useState } from "react";
 
 export default function Header() {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
+    const [open, setOpen] = useState(false);
 
     const menu =
         user?.role && ROLE_MENU_HEADER[user.role as keyof typeof ROLE_MENU_HEADER]
@@ -20,6 +22,16 @@ export default function Header() {
         toast.success("Logged out");
         router.push("/auth");
         router.refresh(); // Force refresh để chắc chắn
+    };
+
+    const handleProfile = () => {
+        if (user?.role === "CUSTOMER") {
+            router.push("/user/profile");
+        } else if (user?.role === "EMPLOYEE") {
+            router.push("/employee/profile");
+        } else if (user?.role === "ADMIN") {
+            router.push("/admin/profile");
+        }
     };
     return (
         <header className="relative w-full px-6 py-4">
@@ -65,24 +77,33 @@ export default function Header() {
                 {isAuthenticated ? (
                     <div className="flex items-center gap-4">
 
-                        <div className="text-gray-200 hidden sm:block">
-                            Hello,{" "}
-                            <span className="font-semibold">
+                        <div className="relative">
+                            <button
+                                onClick={() => setOpen(!open)}
+                                className="text-gray-200 font-semibold hover:text-cyan-300"
+                            >
                                 {user?.name || user?.email}
-                            </span>
+                            </button>
+
+                            {open && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50">
+                                    <button
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                                        onClick={handleProfile}
+                                    >
+                                        Profile Settings
+                                    </button>
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
-                        <button
-                            onClick={handleLogout}
-                            className="
-                px-4 py-2 rounded-lg 
-                bg-gradient-to-r from-red-500 to-pink-500 
-                text-white font-bold
-                hover:scale-[1.03] transition-all
-              "
-                        >
-                            Logout
-                        </button>
                     </div>
                 ) : (
                     <Link

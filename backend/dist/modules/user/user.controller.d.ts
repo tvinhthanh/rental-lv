@@ -11,13 +11,13 @@ export declare class UserController {
     getAll(query: UserQueryDto): Promise<{
         items: {
             id: string;
-            createdAt: Date;
-            name: string | null;
             email: string;
             password: string;
+            name: string | null;
             role: string;
             isActive: boolean;
             lastLogin: Date | null;
+            createdAt: Date;
             updatedAt: Date;
         }[];
         total: number;
@@ -27,35 +27,35 @@ export declare class UserController {
     }>;
     getOne(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     create(dto: CreateUserDto): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: string, dto: UpdateUserDto): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     changePassword(id: string, dto: ChangePasswordDto): Promise<{
@@ -63,46 +63,46 @@ export declare class UserController {
     }>;
     resetPassword(id: string, dto: ResetPasswordDto): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     updateRole(id: string, dto: UpdateRoleDto): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     disable(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     hardDelete(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
 }

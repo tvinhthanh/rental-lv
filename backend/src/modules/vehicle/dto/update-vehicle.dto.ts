@@ -76,4 +76,22 @@ export class UpdateVehicleDto {
 
     @IsOptional()
     priceListId?: string;
+
+    @IsOptional()
+    overridePriceEnabled?: boolean;
+
+    @IsOptional()
+    overrideDailyRate?: number;
+
+    @IsOptional()
+    overrideHourlyRate?: number;
+
+    @IsOptional()
+    overrideWeekendRate?: number;
+
+    @IsOptional()
+    overrideHolidayRate?: number;
+
+    @IsString()
+    brandId!: string;
 }

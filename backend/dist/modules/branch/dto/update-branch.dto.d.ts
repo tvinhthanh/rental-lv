@@ -11,4 +11,8 @@ export declare class UpdateBranchDto {
     googleMapUrl?: string;
     businessHours?: string;
     isActive?: boolean;
+    branchId?: string;
+    slug?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

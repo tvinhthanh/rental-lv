@@ -8,4 +8,6 @@ export declare class UpdateVehicleCategoryDto {
     seoTitle?: string;
     hTitle?: string;
     displayOrder?: number;
+    isActive?: boolean;
+    slug: string;
 }

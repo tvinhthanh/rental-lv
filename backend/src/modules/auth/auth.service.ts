@@ -9,13 +9,16 @@ import { UserService } from '../user/user.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { PrismaService } from '@/prisma/prisma.service';
+import { CustomerDTO } from './dto/user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
-    private audit: AuditLogService
+    private audit: AuditLogService,
+    private prisma: PrismaService
   ) { }
 
   async validateUser(email: string, pass: string) {
@@ -66,24 +69,50 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, cusDto: CustomerDTO) {
+    // Check email tồn tại
     const exists = await this.userService.findByEmail(dto.email);
     if (exists) throw new BadRequestException('Email already exists');
 
+    // Tạo User
     const user = await this.userService.create({
       email: dto.email,
       password: dto.password,
-      name: dto.name
+      name: dto.name,
+      role: 'USER' //ROLE BASE : USER => GÁN CUSTOMERS
     });
 
-    await this.audit.log(user.id, 'REGISTER', 'Auth', user.id);
+    const customer = await this.prisma.customer.create({
+      data: {
+        userId: user.id,
+        fullName: cusDto.fullName ?? '',
+        email: cusDto.email,
+        phone: cusDto.phone as string,
+        address: cusDto.address,
+        dateOfBirth: cusDto.dateOfBirth,
+        gender: cusDto.gender,
+        driverLicenseNo: cusDto.driverLicenseNo,
+        driverLicenseExpiry: cusDto.driverLicenseExpiry,
+        nationalId: cusDto.nationalId,
+        nationality: cusDto.nationality,
+        avatarUrl: cusDto.avatarUrl
+      }
+    });
+
+
+    // Ghi Audit Log
+    await this.audit.log(user.id, 'REGISTER', 'Auth', user.id, {
+      customerId: customer.id
+    });
 
     return {
-      id: user.id,
+      userId: user.id,
+      customerId: customer.id,
       email: user.email,
       name: user.name
     };
   }
+
 
   async me(user: any) {
     return this.userService.findOne(user.id);

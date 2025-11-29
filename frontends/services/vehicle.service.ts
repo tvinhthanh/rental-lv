@@ -1,32 +1,30 @@
+// src/services/vehicle.service.ts
 import api from "@/lib/api";
 
 export const vehicleService = {
-    getAll(keyword?: string) {
-        return api.get("/vehicles", { params: { keyword } }).then(res => res.data);
+    // GET /vehicles?search=...
+    async getAll(keyword?: string) {
+        const res = await api.get("/vehicles", { params: { search: keyword } });
+        return Array.isArray(res.data) ? res.data : res.data?.items ?? [];
     },
 
-    getOne(id: string) {
-        return api.get(`/vehicles/${id}`).then(res => res.data);
+    // GET /vehicles/:id
+    get(id: string) {
+        return api.get(`/vehicles/${id}`).then(r => r.data);
     },
 
+    // POST /vehicles
     create(data: any) {
-        return api.post("/vehicles", data).then(res => res.data);
+        return api.post("/vehicles", data).then(r => r.data);
     },
 
+    // PUT /vehicles/:id
     update(id: string, data: any) {
-        return api.patch(`/vehicles/${id}`, data).then(res => res.data);
+        return api.put(`/vehicles/${id}`, data).then(r => r.data);
     },
 
+    // DELETE /vehicles/:id
     delete(id: string) {
-        return api.delete(`/vehicles/${id}`).then(res => res.data);
-    },
-
-    uploadPhotos(files: File[]) {
-        const form = new FormData();
-        files.forEach(file => form.append("files", file));
-
-        return api.post("/upload/images", form, {
-            headers: { "Content-Type": "multipart/form-data" }
-        }).then((res) => res.data);
+        return api.delete(`/vehicles/${id}`).then(r => r.data);
     }
 };

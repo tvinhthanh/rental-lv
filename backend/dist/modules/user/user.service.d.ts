@@ -13,13 +13,13 @@ export declare class UserService {
     findAll(query: UserQueryDto): Promise<{
         items: {
             id: string;
-            createdAt: Date;
-            name: string | null;
             email: string;
             password: string;
+            name: string | null;
             role: string;
             isActive: boolean;
             lastLogin: Date | null;
+            createdAt: Date;
             updatedAt: Date;
         }[];
         total: number;
@@ -29,46 +29,46 @@ export declare class UserService {
     }>;
     findOne(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     findByEmail(email: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     } | null>;
     create(dto: CreateUserDto, actorId?: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     update(id: string, dto: UpdateUserDto, actorId?: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     changePassword(id: string, body: ChangePasswordDto, actorId: string): Promise<{
@@ -76,57 +76,57 @@ export declare class UserService {
     }>;
     resetPassword(id: string, body: ResetPasswordDto, actorId: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     updateRole(id: string, body: UpdateRoleDto, actorId: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     updateLastLogin(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     softDelete(id: string, actorId: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
     hardDelete(id: string, actorId: string): Promise<{
         id: string;
-        createdAt: Date;
-        name: string | null;
         email: string;
         password: string;
+        name: string | null;
         role: string;
         isActive: boolean;
         lastLogin: Date | null;
+        createdAt: Date;
         updatedAt: Date;
     }>;
 }

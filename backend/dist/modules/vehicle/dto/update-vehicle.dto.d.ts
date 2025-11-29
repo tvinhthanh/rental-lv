@@ -19,4 +19,10 @@ export declare class UpdateVehicleDto {
     categoryId?: string;
     branchId?: string;
     priceListId?: string;
+    overridePriceEnabled?: boolean;
+    overrideDailyRate?: number;
+    overrideHourlyRate?: number;
+    overrideWeekendRate?: number;
+    overrideHolidayRate?: number;
+    brandId: string;
 }

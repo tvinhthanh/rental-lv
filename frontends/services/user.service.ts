@@ -8,6 +8,7 @@ export const userService = {
     create: (data: any) => api.post("/users", data).then((r) => r.data),
     update: (id: string, data: any) => api.put(`/users/${id}`, data).then((r) => r.data),
     delete: (id: string) => api.delete(`/users/${id}`).then((r) => r.data),
+    resetPassword: (data: any) => api.post("/users/reset-password", data).then((r) => r.data),
 };
 
 export const employeeService = {

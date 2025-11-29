@@ -15,11 +15,13 @@ const jwt_1 = require("@nestjs/jwt");
 const bcrypt = require("bcryptjs");
 const user_service_1 = require("../user/user.service");
 const audit_log_service_1 = require("../audit-log/audit-log.service");
+const prisma_service_1 = require("../../prisma/prisma.service");
 let AuthService = class AuthService {
-    constructor(jwtService, userService, audit) {
+    constructor(jwtService, userService, audit, prisma) {
         this.jwtService = jwtService;
         this.userService = userService;
         this.audit = audit;
+        this.prisma = prisma;
     }
     async validateUser(email, pass) {
         const user = await this.userService.findByEmail(email);
@@ -62,18 +64,39 @@ let AuthService = class AuthService {
             }
         };
     }
-    async register(dto) {
+    async register(dto, cusDto) {
+        var _a;
         const exists = await this.userService.findByEmail(dto.email);
         if (exists)
             throw new common_1.BadRequestException('Email already exists');
         const user = await this.userService.create({
             email: dto.email,
             password: dto.password,
-            name: dto.name
+            name: dto.name,
+            role: 'USER'
         });
-        await this.audit.log(user.id, 'REGISTER', 'Auth', user.id);
+        const customer = await this.prisma.customer.create({
+            data: {
+                userId: user.id,
+                fullName: (_a = cusDto.fullName) !== null && _a !== void 0 ? _a : '',
+                email: cusDto.email,
+                phone: cusDto.phone,
+                address: cusDto.address,
+                dateOfBirth: cusDto.dateOfBirth,
+                gender: cusDto.gender,
+                driverLicenseNo: cusDto.driverLicenseNo,
+                driverLicenseExpiry: cusDto.driverLicenseExpiry,
+                nationalId: cusDto.nationalId,
+                nationality: cusDto.nationality,
+                avatarUrl: cusDto.avatarUrl
+            }
+        });
+        await this.audit.log(user.id, 'REGISTER', 'Auth', user.id, {
+            customerId: customer.id
+        });
         return {
-            id: user.id,
+            userId: user.id,
+            customerId: customer.id,
             email: user.email,
             name: user.name
         };
@@ -87,6 +110,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         user_service_1.UserService,
-        audit_log_service_1.AuditLogService])
+        audit_log_service_1.AuditLogService,
+        prisma_service_1.PrismaService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

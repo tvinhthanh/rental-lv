@@ -2,6 +2,7 @@ export declare class CreateBranchDto {
     name: string;
     code?: string;
     address?: string;
+    slug: string;
     city?: string;
     country?: string;
     phone?: string;

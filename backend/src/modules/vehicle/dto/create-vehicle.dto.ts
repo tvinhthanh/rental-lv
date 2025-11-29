@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateVehicleDto {
     @IsString()
@@ -10,10 +10,6 @@ export class CreateVehicleDto {
 
     @IsString()
     licensePlate!: string;
-
-    @IsOptional()
-    @IsString()
-    brand?: string;
 
     @IsOptional()
     @IsString()
@@ -45,7 +41,7 @@ export class CreateVehicleDto {
 
     @IsOptional()
     @IsString()
-    status?: string; // AVAILABLE/...
+    status?: string; // AVAILABLE / RENTED / ...
 
     @IsOptional()
     @IsString()
@@ -64,6 +60,7 @@ export class CreateVehicleDto {
     seoDescription?: string;
 
     @IsOptional()
+    @IsArray()
     photos?: string[];
 
     @IsString()
@@ -72,6 +69,36 @@ export class CreateVehicleDto {
     @IsString()
     branchId!: string;
 
+    @IsString()
+    brandId!: string;
+
+    // --- PRICE SOURCE LOGIC ------------------------------------
+
     @IsOptional()
+    @IsString()
     priceListId?: string;
+
+    // FE bật override hay không
+    @IsOptional()
+    @IsBoolean()
+    overridePriceEnabled?: boolean;
+
+    // FE chọn "Ưu tiên dùng price list" hay "dùng override price"
+    @IsOptional()
+    @IsBoolean()
+    usePriceList?: boolean;
+
+    // --- PRICE OVERRIDE FIELDS ---------------------------------
+
+    @IsOptional()
+    overrideDailyRate?: number;
+
+    @IsOptional()
+    overrideHourlyRate?: number;
+
+    @IsOptional()
+    overrideWeekendRate?: number;
+
+    @IsOptional()
+    overrideHolidayRate?: number;
 }

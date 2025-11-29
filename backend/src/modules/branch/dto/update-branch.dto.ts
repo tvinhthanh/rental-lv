@@ -45,4 +45,16 @@ export class UpdateBranchDto {
 
     @IsOptional()
     isActive?: boolean;
+
+    @IsOptional()
+    @IsString()
+    branchId?: string;
+
+    @IsOptional()
+    @IsString()
+    slug?: string;
+
+    createdAt?: Date;
+
+    updatedAt?: Date;
 }

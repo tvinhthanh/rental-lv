@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsInt, IsBoolean } from 'class-validator';
 
 export class CreateVehicleCategoryDto {
     @IsString()
@@ -35,4 +35,13 @@ export class CreateVehicleCategoryDto {
     @IsOptional()
     @IsInt()
     displayOrder?: number;
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
+
+    @IsOptional()
+    @IsString()
+    slug?: string;
+    
 }

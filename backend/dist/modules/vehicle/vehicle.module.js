@@ -12,13 +12,14 @@ const prisma_service_1 = require("../../prisma/prisma.service");
 const audit_log_service_1 = require("../audit-log/audit-log.service");
 const vehicle_service_1 = require("./vehicle.service");
 const vehicle_controller_1 = require("./vehicle.controller");
+const vehicle_brand_service_1 = require("../brand/vehicle-brand.service");
 let VehicleModule = class VehicleModule {
 };
 exports.VehicleModule = VehicleModule;
 exports.VehicleModule = VehicleModule = __decorate([
     (0, common_1.Module)({
         controllers: [vehicle_controller_1.VehicleController],
-        providers: [vehicle_service_1.VehicleService, prisma_service_1.PrismaService, audit_log_service_1.AuditLogService],
+        providers: [vehicle_service_1.VehicleService, prisma_service_1.PrismaService, audit_log_service_1.AuditLogService, vehicle_brand_service_1.VehicleBrandService],
         exports: [vehicle_service_1.VehicleService]
     })
 ], VehicleModule);

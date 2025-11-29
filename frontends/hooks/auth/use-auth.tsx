@@ -118,3 +118,9 @@ export function useForgotPassword() {
             authService.forgotPassword(data)
     });
 }
+export function useResetPassword() {
+    return useMutation({
+        mutationFn: (data: { email: string }) =>
+            userService.resetPassword(data)
+    });
+}

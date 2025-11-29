@@ -3,7 +3,7 @@ export class CustomerDTO {
     fullName?: string;
     email?: string;
     isVerified?: boolean;
-    
+
     phone?: string;
     address?: string;
     dateOfBirth?: Date;

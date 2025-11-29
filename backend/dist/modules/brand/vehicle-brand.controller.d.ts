@@ -1,0 +1,94 @@
+import { CreateVehicleBrandDto } from './dto/create-vehicle-brand.dto';
+import { UpdateVehicleBrandDto } from './dto/update-vehicle-brand.dto';
+import { VehicleBrandQueryDto } from './dto/vehicle-brand-query.dto';
+import { VehicleBrandService } from './vehicle-brand.service';
+export declare class VehicleBrandController {
+    private service;
+    constructor(service: VehicleBrandService);
+    list(query: VehicleBrandQueryDto): Promise<{
+        items: {
+            id: string;
+            name: string;
+            slug: string;
+            country: string | null;
+            logoUrl: string | null;
+            websiteUrl: string | null;
+            description: string | null;
+            displayOrder: number | null;
+            isFeatured: boolean | null;
+            metaTitle: string | null;
+            metaDescription: string | null;
+            status: boolean | null;
+            createdAt: Date;
+            updatedAt: Date;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
+    detail(id: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    create(dto: CreateVehicleBrandDto): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    update(id: string, dto: UpdateVehicleBrandDto): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    delete(id: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+}

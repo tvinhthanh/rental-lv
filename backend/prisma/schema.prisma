@@ -135,23 +135,29 @@ model Branch {
 // VEHICLE CATEGORY
 ///////////////////////////////////////////////////////////
 model VehicleCategory {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  code        String? @unique
-  slug        String? @unique
-  description String?
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  code            String?   @unique
+  slug            String?   @unique
+  description     String?
 
   imageUrl        String?
   metaTitle       String?
   metaDescription String?
-  displayOrder    Int?    @default(0)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  seoTitle        String?
+  hTitle          String?
 
-  vehicles     Vehicle[]
-  pricingRules PricingRule[]
+  displayOrder    Int?      @default(0)
+  isActive        Boolean   @default(true)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  vehicles        Vehicle[]
+  pricingRules    PricingRule[]
 }
+
 
 ///////////////////////////////////////////////////////////
 // PRICE LIST (theo loại xe / default)
@@ -183,7 +189,6 @@ model Vehicle {
   name         String
   vehicleType  String?
   licensePlate String  @unique
-  brand        String?
   model        String?
   year         Int?
   color        String?
@@ -201,11 +206,9 @@ model Vehicle {
   reviewCount     Int?    @default(0)
   photos          String[]
 
-  // PriceList default
-  priceListId String?     @db.ObjectId
-  priceList   PriceList?  @relation(fields: [priceListId], references: [id])
+  priceListId String? @db.ObjectId
+  priceList   PriceList? @relation(fields: [priceListId], references: [id])
 
-  // Override price by vehicle
   overridePriceEnabled Boolean @default(false)
   overrideDailyRate    Float?
   overrideHourlyRate   Float?
@@ -214,9 +217,11 @@ model Vehicle {
 
   categoryId String @db.ObjectId
   branchId   String @db.ObjectId
+  brandId String @db.ObjectId
 
   category VehicleCategory @relation(fields: [categoryId], references: [id])
   branch   Branch          @relation(fields: [branchId], references: [id])
+  brand    VehicleBrand    @relation(fields: [brandId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -226,6 +231,32 @@ model Vehicle {
   bookings         Booking[]
   reviews          Review[]
 }
+
+
+///////////////////////////////////////////////////////////
+// VEHICLE BRAND
+///////////////////////////////////////////////////////////
+model VehicleBrand {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  slug            String   @unique
+  country         String?
+  logoUrl         String?
+  websiteUrl      String?
+  description     String?
+
+  displayOrder    Int?     
+  isFeatured      Boolean?  
+  metaTitle       String?
+  metaDescription String?
+  status          Boolean?  
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  vehicles Vehicle[]
+}
+
 
 ///////////////////////////////////////////////////////////
 // VEHICLE DOCUMENT

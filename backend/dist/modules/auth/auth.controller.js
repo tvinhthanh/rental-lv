@@ -19,6 +19,7 @@ const login_dto_1 = require("./dto/login.dto");
 const register_dto_1 = require("./dto/register.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 const current_user_decorator_1 = require("./decorators/current-user.decorator");
+const user_dto_1 = require("./dto/user.dto");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -26,8 +27,8 @@ let AuthController = class AuthController {
     login(dto) {
         return this.authService.login(dto);
     }
-    register(dto) {
-        return this.authService.register(dto);
+    register(dto, cusDto) {
+        return this.authService.register(dto, cusDto);
     }
     getMe(user) {
         return this.authService.me(user);
@@ -44,8 +45,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('register'),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [register_dto_1.RegisterDto]),
+    __metadata("design:paramtypes", [register_dto_1.RegisterDto, user_dto_1.CustomerDTO]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "register", null);
 __decorate([

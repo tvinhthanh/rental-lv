@@ -1,0 +1,97 @@
+import { PrismaService } from '@/prisma/prisma.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { CreateVehicleBrandDto } from './dto/create-vehicle-brand.dto';
+import { UpdateVehicleBrandDto } from './dto/update-vehicle-brand.dto';
+import { VehicleBrandQueryDto } from './dto/vehicle-brand-query.dto';
+export declare class VehicleBrandService {
+    private prisma;
+    private audit;
+    constructor(prisma: PrismaService, audit: AuditLogService);
+    findAll(query: VehicleBrandQueryDto): Promise<{
+        items: {
+            id: string;
+            name: string;
+            slug: string;
+            country: string | null;
+            logoUrl: string | null;
+            websiteUrl: string | null;
+            description: string | null;
+            displayOrder: number | null;
+            isFeatured: boolean | null;
+            metaTitle: string | null;
+            metaDescription: string | null;
+            status: boolean | null;
+            createdAt: Date;
+            updatedAt: Date;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
+    findOne(id: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    create(dto: CreateVehicleBrandDto, actorId?: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    update(id: string, dto: UpdateVehicleBrandDto, actorId?: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    delete(id: string, actorId?: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        country: string | null;
+        logoUrl: string | null;
+        websiteUrl: string | null;
+        description: string | null;
+        displayOrder: number | null;
+        isFeatured: boolean | null;
+        metaTitle: string | null;
+        metaDescription: string | null;
+        status: boolean | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    private generateSlug;
+}

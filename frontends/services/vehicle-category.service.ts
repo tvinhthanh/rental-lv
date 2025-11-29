@@ -12,7 +12,7 @@ export const vehicleCategoryService = {
     },
 
     update(id: string, data: any) {
-        return api.patch(`/vehicle-categories/${id}`, data).then((r: { data: any; }) => r.data);
+        return api.put(`/vehicle-categories/${id}`, data).then((r: { data: any; }) => r.data);
     },
 
     delete(id: string) {

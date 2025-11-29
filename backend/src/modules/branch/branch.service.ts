@@ -4,6 +4,7 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
 import { BranchQueryDto } from './dto/branch-query.dto';
+import { slugify } from "@/utils/slugify";
 
 @Injectable()
 export class BranchService {
@@ -64,52 +65,73 @@ export class BranchService {
         return branch;
     }
 
+
     async create(dto: CreateBranchDto, actorId?: string) {
-        if (dto.code) {
-            const exists = await this.prisma.branch.findUnique({ where: { code: dto.code } });
-            if (exists) throw new BadRequestException('Branch code already exists');
+        // 1. Auto slug nếu không gửi
+        const slug = dto.slug ?? slugify(dto.name);
+
+        // 2. Auto code HCM01, HCM02...
+        let code = dto.code;
+        if (!code) {
+            const prefix = slug.substring(0, 3).toUpperCase(); // HCM, DAN, HAN
+            const count = await this.prisma.branch.count({
+                where: { slug: { startsWith: slug.substring(0, 3) } }
+            });
+            code = `${prefix}${String(count + 1).padStart(2, "0")}`;
         }
+
+        // 3. Check trùng code hoặc slug
+        const existedSlug = await this.prisma.branch.findUnique({ where: { slug } });
+        if (existedSlug) throw new BadRequestException("Slug already exists");
+
+        const existedCode = await this.prisma.branch.findUnique({ where: { code } });
+        if (existedCode) throw new BadRequestException("Branch code already exists");
 
         const branch = await this.prisma.branch.create({
-            data: dto
+            data: {
+                ...dto,
+                slug,
+                code
+            }
         });
 
-        await this.audit.log(actorId ?? null, 'CREATE', 'Branch', branch.id, branch);
-
+        await this.audit.log(actorId ?? null, "CREATE", "Branch", branch.id, branch);
         return branch;
     }
 
-    async update(id: string, dto: UpdateBranchDto, actorId?: string) {
-        const before = await this.findOne(id);
 
-        if (dto.code && dto.code !== before.code) {
-            const exists = await this.prisma.branch.findUnique({ where: { code: dto.code } });
+    async update(branchId: string, dto: UpdateBranchDto, actorId?: string) {
+        const before = await this.findOne(branchId);
+
+        const { branchId: _, createdAt, updatedAt, ...dataClean } = dto;
+
+        if (dataClean.code && dataClean.code !== before.code) {
+            const exists = await this.prisma.branch.findUnique({ where: { code: dataClean.code } });
             if (exists) throw new BadRequestException('Branch code already exists');
         }
 
         const branch = await this.prisma.branch.update({
-            where: { id },
-            data: dto
+            where: { id: branchId },
+            data: dataClean
         });
 
-        await this.audit.log(actorId ?? null, 'UPDATE', 'Branch', id, { before, after: branch });
-
+        await this.audit.log(actorId ?? null, 'UPDATE', 'Branch', branchId, { before, after: branch });
         return branch;
     }
 
-    async deactivate(id: string, actorId?: string) {
+    async deactivate(branchId: string, actorId?: string) {
         const branch = await this.prisma.branch.update({
-            where: { id },
+            where: { id: branchId },
             data: { isActive: false }
         });
 
-        await this.audit.log(actorId ?? null, 'DEACTIVATE', 'Branch', id, branch);
+        await this.audit.log(actorId ?? null, 'DEACTIVATE', 'Branch', branchId, branch);
 
         return branch;
     }
 
-    async delete(id: string, actorId?: string) {
-        await this.audit.log(actorId ?? null, 'DELETE', 'Branch', id);
-        return this.prisma.branch.delete({ where: { id } });
+    async delete(branchId: string, actorId?: string) {
+        await this.audit.log(actorId ?? null, 'DELETE', 'Branch', branchId);
+        return this.prisma.branch.delete({ where: { id: branchId } });
     }
 }

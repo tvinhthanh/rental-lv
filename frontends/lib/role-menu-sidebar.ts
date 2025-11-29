@@ -19,6 +19,7 @@ export const ROLE_MENU_SIDEBAR = {
         { label: "Promotions", href: "/admin/promotions" },
         { label: "Reviews", href: "/admin/reviews" },
         { label: "Maintenance", href: "/admin/maintenance" },
+        { label: "Brands", href: "/admin/brands" },
     ],
 
     EMPLOYEE: [

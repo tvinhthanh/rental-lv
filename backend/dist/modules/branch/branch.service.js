@@ -8,11 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BranchService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const audit_log_service_1 = require("../audit-log/audit-log.service");
+const slugify_1 = require("../../utils/slugify");
 let BranchService = class BranchService {
     constructor(prisma, audit) {
         this.prisma = prisma;
@@ -65,42 +77,55 @@ let BranchService = class BranchService {
         return branch;
     }
     async create(dto, actorId) {
-        if (dto.code) {
-            const exists = await this.prisma.branch.findUnique({ where: { code: dto.code } });
-            if (exists)
-                throw new common_1.BadRequestException('Branch code already exists');
+        var _a;
+        const slug = (_a = dto.slug) !== null && _a !== void 0 ? _a : (0, slugify_1.slugify)(dto.name);
+        let code = dto.code;
+        if (!code) {
+            const prefix = slug.substring(0, 3).toUpperCase();
+            const count = await this.prisma.branch.count({
+                where: { slug: { startsWith: slug.substring(0, 3) } }
+            });
+            code = `${prefix}${String(count + 1).padStart(2, "0")}`;
         }
+        const existedSlug = await this.prisma.branch.findUnique({ where: { slug } });
+        if (existedSlug)
+            throw new common_1.BadRequestException("Slug already exists");
+        const existedCode = await this.prisma.branch.findUnique({ where: { code } });
+        if (existedCode)
+            throw new common_1.BadRequestException("Branch code already exists");
         const branch = await this.prisma.branch.create({
-            data: dto
+            data: Object.assign(Object.assign({}, dto), { slug,
+                code })
         });
-        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'CREATE', 'Branch', branch.id, branch);
+        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, "CREATE", "Branch", branch.id, branch);
         return branch;
     }
-    async update(id, dto, actorId) {
-        const before = await this.findOne(id);
-        if (dto.code && dto.code !== before.code) {
-            const exists = await this.prisma.branch.findUnique({ where: { code: dto.code } });
+    async update(branchId, dto, actorId) {
+        const before = await this.findOne(branchId);
+        const { branchId: _, createdAt, updatedAt } = dto, dataClean = __rest(dto, ["branchId", "createdAt", "updatedAt"]);
+        if (dataClean.code && dataClean.code !== before.code) {
+            const exists = await this.prisma.branch.findUnique({ where: { code: dataClean.code } });
             if (exists)
                 throw new common_1.BadRequestException('Branch code already exists');
         }
         const branch = await this.prisma.branch.update({
-            where: { id },
-            data: dto
+            where: { id: branchId },
+            data: dataClean
         });
-        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'UPDATE', 'Branch', id, { before, after: branch });
+        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'UPDATE', 'Branch', branchId, { before, after: branch });
         return branch;
     }
-    async deactivate(id, actorId) {
+    async deactivate(branchId, actorId) {
         const branch = await this.prisma.branch.update({
-            where: { id },
+            where: { id: branchId },
             data: { isActive: false }
         });
-        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'DEACTIVATE', 'Branch', id, branch);
+        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'DEACTIVATE', 'Branch', branchId, branch);
         return branch;
     }
-    async delete(id, actorId) {
-        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'DELETE', 'Branch', id);
-        return this.prisma.branch.delete({ where: { id } });
+    async delete(branchId, actorId) {
+        await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'DELETE', 'Branch', branchId);
+        return this.prisma.branch.delete({ where: { id: branchId } });
     }
 };
 exports.BranchService = BranchService;

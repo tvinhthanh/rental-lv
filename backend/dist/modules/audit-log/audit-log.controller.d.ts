@@ -5,13 +5,13 @@ export declare class AuditLogController {
     constructor(service: AuditLogService);
     getAll(query: AuditLogQueryDto): Promise<{
         items: {
+            id: string;
             userId: string | null;
             module: string;
             action: string;
             entityId: string | null;
-            id: string;
             entityType: string | null;
-            metadata: import("@prisma/client/runtime/library").JsonValue | null;
+            metadata: import(".prisma/client").Prisma.JsonValue | null;
             createdAt: Date;
         }[];
         total: number;
@@ -20,13 +20,13 @@ export declare class AuditLogController {
         totalPages: number;
     }>;
     getOne(id: string): Promise<{
+        id: string;
         userId: string | null;
         module: string;
         action: string;
         entityId: string | null;
-        id: string;
         entityType: string | null;
-        metadata: import("@prisma/client/runtime/library").JsonValue | null;
+        metadata: import(".prisma/client").Prisma.JsonValue | null;
         createdAt: Date;
     } | null>;
 }

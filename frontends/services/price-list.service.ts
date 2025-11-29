@@ -4,7 +4,7 @@ export const priceListService = {
     // GET ALL (with optional search)
     getAll(keyword?: string) {
         return api
-            .get("/price-lists", { params: { keyword } })
+            .get("/price-lists/", { params: { keyword } })
             .then((res) => res.data);
     },
 
@@ -20,7 +20,7 @@ export const priceListService = {
 
     // UPDATE
     update(id: string, data: any) {
-        return api.patch(`/price-lists/${id}`, data).then((res) => res.data);
+        return api.put(`/price-lists/${id}`, data).then((res) => res.data);
     },
 
     // DELETE

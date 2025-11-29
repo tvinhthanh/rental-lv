@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { authService } from "@/services/auth.service";
+import { userService } from "@/services/user.service";
 
 export function useCurrentUser() {
     return useQuery({
         queryKey: ["current-user"],
-        queryFn: () => authService.me(),
+        queryFn: () => userService.me(),
         retry: false,            // tránh loop nếu token sai
         refetchOnWindowFocus: false,
     });

@@ -2,7 +2,6 @@ export declare class CreateVehicleDto {
     name: string;
     vehicleType?: string;
     licensePlate: string;
-    brand?: string;
     model?: string;
     year?: number;
     color?: string;
@@ -18,5 +17,12 @@ export declare class CreateVehicleDto {
     photos?: string[];
     categoryId: string;
     branchId: string;
+    brandId: string;
     priceListId?: string;
+    overridePriceEnabled?: boolean;
+    usePriceList?: boolean;
+    overrideDailyRate?: number;
+    overrideHourlyRate?: number;
+    overrideWeekendRate?: number;
+    overrideHolidayRate?: number;
 }

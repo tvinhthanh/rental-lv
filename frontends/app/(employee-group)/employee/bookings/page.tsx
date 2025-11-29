@@ -5,85 +5,124 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { employeeService } from "@/services/employee.service";
 import { bookingService } from "@/services/booking.service";
 import BookingCard from "./_components/BookingCard";
+import BookingModal from "./_components/BookingModal";
+import { useRouter } from "next/navigation";
 
 export default function EmployeeBookingsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
+    const router = useRouter();
 
     const [employee, setEmployee] = useState<any>(null);
     const [loadingEmployee, setLoadingEmployee] = useState(true);
 
     const [bookings, setBookings] = useState<any[]>([]);
+    const [total, setTotal] = useState<number>(0);
     const [loadingBookings, setLoadingBookings] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // NEW: Modal state
+    const [selectedBooking, setSelectedBooking] = useState<any>(null);
+    const [openModal, setOpenModal] = useState(false);
+
+    function handleOpenModal(booking: any) {
+        setSelectedBooking(booking);
+        setOpenModal(true);
+    }
+
+    function handleCloseModal() {
+        setOpenModal(false);
+        setSelectedBooking(null);
+    }
 
     // Load employee
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "EMPLOYEE") return;
+        if (!user || user.role !== "EMPLOYEE") {
+            setLoadingEmployee(false);
+            return;
+        }
 
         async function loadEmployee() {
-            setLoadingEmployee(true);
+            try {
+                setLoadingEmployee(true);
 
-            const res = await employeeService.getUser(user.id);
-            const data = res?.data || res;
+                const res = await employeeService.getUser(user.id);
+                setEmployee(res?.data || res);
 
-            console.log("EMPLOYEE:", data);
-
-            setEmployee(data);
-            setLoadingEmployee(false);
+            } catch (err) {
+                console.error("Load employee failed:", err);
+                setError("Không thể tải dữ liệu nhân viên");
+            } finally {
+                setLoadingEmployee(false);
+            }
         }
 
         loadEmployee();
     }, [user, userLoading]);
 
-    // Load bookings by branch
+    // Load bookings
     useEffect(() => {
         if (!employee?.branchId) return;
 
         async function loadBookings() {
-            setLoadingBookings(true);
+            try {
+                setLoadingBookings(true);
 
-            const res = await bookingService.getByBranch(employee.branchId);
+                const res = await bookingService.getByBranch(employee.branchId);
 
-            console.log("BOOKINGS RAW:", res);
+                let items = [];
+                let totalCount = 0;
 
-            // FIX PARSER — vì API trả array thẳng
-            const items = Array.isArray(res)
-                ? res
-                : res?.data || res?.items || [];
+                if (Array.isArray(res?.items)) {
+                    items = res.items;
+                    totalCount = res.total ?? res.items.length;
+                }
 
-            console.log("BOOKINGS PARSED:", items);
+                setBookings(items);
+                setTotal(totalCount);
 
-            setBookings([...items]);
-            setLoadingBookings(false);
+            } catch (err) {
+                console.error("Load bookings failed:", err);
+                setError("Không thể tải danh sách booking");
+            } finally {
+                setLoadingBookings(false);
+            }
         }
 
         loadBookings();
     }, [employee?.branchId]);
 
-    if (userLoading || loadingEmployee) return <p>Đang tải...</p>;
-
-    if (!user || user.role !== "EMPLOYEE") return <p>Không có quyền</p>;
-
-    if (!employee) return <p>Không tìm thấy employee</p>;
-
-    if (!employee.branchId) return <p>Bạn chưa được phân chi nhánh</p>;
     return (
         <div className="p-6 text-gray-200">
             <h1 className="text-2xl font-bold mb-6">
                 Booking tại chi nhánh:{" "}
-                <span className="text-blue-400">
-                    {employee.branchId}
-                </span>
+                <span className="text-blue-400">{employee?.branch?.name || employee?.branchId}</span>
             </h1>
 
             {loadingBookings ? (
                 <p>Đang tải booking...</p>
+            ) : bookings.length === 0 ? (
+                <p className="text-gray-400">Không có booking.</p>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {bookings.map((b) => (
-                        <BookingCard key={b.id} booking={b} />
+                        <BookingCard
+                            key={b.id}
+                            booking={b}
+                            onClick={() => handleOpenModal(b)}
+                        />
                     ))}
                 </div>
+            )}
+
+            {openModal && (
+                <BookingModal
+                    booking={selectedBooking}
+                    onClose={handleCloseModal}
+                    onCreateContract={() => {
+                        router.push(`/employee/contracts/create?bookingId=${selectedBooking.id}`);
+                    }}
+                />
             )}
         </div>
     );

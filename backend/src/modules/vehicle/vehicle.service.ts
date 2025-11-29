@@ -244,4 +244,15 @@ export class VehicleService {
         await this.audit.log(actorId ?? null, 'DELETE', 'Vehicle', id);
         return this.prisma.vehicle.delete({ where: { id } });
     }
+
+    async findByBranch(branchId: string) {
+        return this.prisma.vehicle.findMany({
+            where: { branchId },
+            include: {
+                category: true,
+                brand: true,
+                priceList: true
+            }
+        });
+    }
 }

@@ -150,4 +150,8 @@ export class CustomerService {
         // Cascade không mạnh, chỉ xoá customer record
         return this.prisma.customer.delete({ where: { id } });
     }
+
+    async getByUserId(userId: string) {
+        return this.prisma.customer.findUnique({ where: { userId } });
+    }
 }

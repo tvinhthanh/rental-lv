@@ -9,4 +9,5 @@ export const customerService = {
     create: (data: any) => api.post("/customers", data),
     update: (id: string, data: any) => api.put(`/customers/${id}`, data),
     delete: (id: string) => api.delete(`/customers/${id}`),
+    getByUserId: (userId: string) => api.get(`/customers/user/${userId}`),
 };

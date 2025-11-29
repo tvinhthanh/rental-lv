@@ -205,4 +205,75 @@ export class BookingService {
         await this.audit.log(actorId ?? null, 'DELETE', 'Booking', id);
         return this.prisma.booking.delete({ where: { id } });
     }
+
+    // booking.service.ts
+
+    async getDateAvailable(vehicleId: string) {
+        const bookings = await this.prisma.booking.findMany({
+            where: {
+                vehicleId,
+                status: { in: ["PENDING", "CONFIRMED", "ONGOING"] },
+            },
+            select: {
+                pickupDate: true,
+                returnDate: true,
+            },
+            orderBy: { pickupDate: "asc" }
+        });
+
+        if (!bookings.length) {
+            return {
+                vehicleId,
+                unavailableRanges: [],
+                dates: [],
+            };
+        }
+
+        // Convert từng range
+        const ranges = bookings.map(b => ({
+            start: b.pickupDate,
+            end: b.returnDate
+        }));
+
+        // Gom ranges bị overlap thành 1 block
+        const merged = [];
+        let current = ranges[0];
+
+        for (let i = 1; i < ranges.length; i++) {
+            const next = ranges[i];
+
+            // Nếu overlap → merge
+            if (next.start <= current.end) {
+                current.end = new Date(
+                    Math.max(current.end.getTime(), next.end.getTime())
+                );
+            } else {
+                merged.push(current);
+                current = next;
+            }
+        }
+        merged.push(current);
+
+        // Flatten thành list từng ngày (nếu FE cần)
+        const unavailableDates: string[] = [];
+
+        merged.forEach(range => {
+            const cursor = new Date(range.start);
+
+            while (cursor <= range.end) {
+                unavailableDates.push(new Date(cursor).toISOString().split("T")[0]);
+                cursor.setDate(cursor.getDate() + 1);
+            }
+        });
+
+        return {
+            vehicleId,
+            unavailableRanges: merged.map(m => ({
+                start: m.start.toISOString().split("T")[0],
+                end: m.end.toISOString().split("T")[0],
+            })),
+            dates: unavailableDates
+        };
+    }
+
 }

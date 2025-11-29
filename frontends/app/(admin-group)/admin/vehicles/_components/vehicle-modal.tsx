@@ -81,7 +81,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
     // CATEGORY
     const { data: categoriesRes } = useQuery({
         queryKey: ["vehicle-categories"],
-        queryFn: () => vehicleCategoryService.getAll()
+        queryFn: () => vehicleCategoryService.list()
     });
 
     const categories = categoriesRes?.items ?? categoriesRes ?? [];

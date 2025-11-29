@@ -7,4 +7,5 @@ export const bookingService = {
     create: (data: any) => api.post("/bookings", data).then(r => r.data),
     updateStatus: (id: string, status: string) =>
         api.put(`/bookings/${id}/status/${status}`).then(r => r.data),
+    getDateAvailable: (vehicleId: string) => api.get(`/bookings/cars/${vehicleId}`).then(r => r.data),
 };  

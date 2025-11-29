@@ -11,7 +11,7 @@ import Link from "next/link";
 interface VehicleItem {
     id: string;
     name: string;
-    brand?: string;
+    brand?: { name: string };
     model?: string;
     photos?: string[];
     licensePlate?: string;
@@ -19,18 +19,10 @@ interface VehicleItem {
 
     branchId: string;
     priceListId?: string;
-
-    category?: {
-        name: string;
-    };
-
-    branch?: {
-        name: string;
-    };
-
-    priceList?: {
-        dailyRate?: number;
-    };
+    slug?: string;
+    category?: { name: string };
+    branch?: { name: string };
+    priceList?: { dailyRate?: number };
 }
 
 interface Branch {
@@ -63,22 +55,31 @@ export default function CarsPage() {
     useEffect(() => {
         (async () => {
             const v = await vehicleService.getAll();
+            const b = await branchService.getAll();
+            const p = await priceListService.getAll();
 
-            const withPhotos: VehicleItem[] = v.filter(
-                (x: VehicleItem) => Boolean(x.photos?.length)
-            );
+            const vehicleItems: VehicleItem[] = Array.isArray(v.items) ? v.items : [];
+            const branchItems: Branch[] = Array.isArray(b.items) ? b.items : [];
+            const priceListItems: PriceList[] = Array.isArray(p.items) ? p.items : [];
+
+            const withPhotos = vehicleItems.filter((x) => Boolean(x.photos?.length));
 
             setVehicles(withPhotos);
             setFiltered(withPhotos);
 
-            setBrands([
+            // Extract brand names only
+            const brandNames = [
                 ...new Set(
-                    withPhotos.map((c) => c.brand).filter((x): x is string => Boolean(x))
+                    withPhotos
+                        .map((c) => c.brand?.name) // lấy brand.name
+                        .filter((x): x is string => Boolean(x))
                 ),
-            ]);
+            ];
 
-            setBranches(await branchService.getAll());
-            setPriceLists(await priceListService.getAll());
+            setBrands(brandNames);
+
+            setBranches(branchItems);
+            setPriceLists(priceListItems);
         })();
     }, []);
 
@@ -97,12 +98,11 @@ export default function CarsPage() {
         }
 
         if (branchId) list = list.filter((x) => x.branchId === branchId);
-        if (brand) list = list.filter((x) => x.brand === brand);
+        if (brand) list = list.filter((x) => x.brand?.name === brand);
         if (priceListId) list = list.filter((x) => x.priceListId === priceListId);
         if (status) list = list.filter((x) => x.status === status);
 
-        // Sort by status priority
-        const priority: Record<string, number> = {
+        const priority = {
             AVAILABLE: 1,
             MAINTENANCE: 2,
             UNAVAILABLE: 3,
@@ -128,12 +128,10 @@ export default function CarsPage() {
 
     return (
         <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-8 text-center">
-                Danh sách xe cho thuê
-            </h1>
+            <h1 className="text-3xl font-bold mb-8 text-center">Danh sách xe cho thuê</h1>
 
+            {/* FILTERS */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
-                {/* Search */}
                 <input
                     placeholder="Tìm theo tên xe, biển số..."
                     className="input-dark border p-2 rounded"
@@ -141,7 +139,6 @@ export default function CarsPage() {
                     onChange={(e) => setSearch(e.target.value)}
                 />
 
-                {/* Branch */}
                 <select
                     className="input-dark border p-2 rounded"
                     value={branchId}
@@ -155,7 +152,6 @@ export default function CarsPage() {
                     ))}
                 </select>
 
-                {/* Brand */}
                 <select
                     className="input-dark border p-2 rounded"
                     value={brand}
@@ -169,7 +165,6 @@ export default function CarsPage() {
                     ))}
                 </select>
 
-                {/* Price list */}
                 <select
                     className="input-dark border p-2 rounded"
                     value={priceListId}
@@ -183,7 +178,6 @@ export default function CarsPage() {
                     ))}
                 </select>
 
-                {/* Status */}
                 <select
                     className="input-dark border p-2 rounded"
                     value={status}
@@ -196,64 +190,62 @@ export default function CarsPage() {
                 </select>
             </div>
 
-            {/* RESULTS */}
-            {filtered.length === 0 ? (
-                <p className="text-center text-gray-400">
-                    Không tìm thấy xe phù hợp.
-                </p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filtered.map((car) => {
-                        const price = car.priceList?.dailyRate
-                            ? formatVND(car.priceList.dailyRate) + " / ngày"
-                            : "—";
+            {/* RESULT LIST */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filtered.map((car) => {
+                    const price = car.priceList?.dailyRate
+                        ? `${formatVND(car.priceList.dailyRate)} / ngày`
+                        : "—";
 
-                        return (
-                            <div
-                                key={car.id}
-                                className="relative bg-white dark:bg-zinc-900 rounded-xl shadow hover:shadow-lg transition border border-gray-200 dark:border-zinc-800"
+                    return (
+                        <div
+                            key={car.id}
+                            className="relative bg-white dark:bg-zinc-900 rounded-xl shadow hover:shadow-lg transition border border-gray-200 dark:border-zinc-800"
+                        >
+                            <span
+                                className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-white rounded-full ${getStatusColor(
+                                    car.status
+                                )}`}
                             >
-                                <span
-                                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-white rounded-full ${getStatusColor(
-                                        car.status
-                                    )}`}
+                                {car.status === "AVAILABLE" && "Sẵn sàng"}
+                                {car.status === "MAINTENANCE" && "Bảo dưỡng"}
+                                {car.status === "UNAVAILABLE" && "Hết xe"}
+                            </span>
+
+                            <img
+                                src={car.photos?.[0] || "/no-image.png"}
+                                alt={car.name}
+                                className="w-full h-56 object-cover rounded-t-xl"
+                            />
+
+                            <div className="p-4">
+                                <h3 className="text-xl font-bold mb-1">{car.name}</h3>
+
+                                <p className="text-blue-600 font-semibold mb-3">{price}</p>
+
+                                <p className="text-sm text-gray-600 mb-2">
+                                    Danh mục: {car.category?.name}
+                                </p>
+
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Chi nhánh: {car.branch?.name}
+                                </p>
+
+                                <p className="text-sm text-gray-600 mb-2">
+                                    Hãng xe: {car.brand?.name}
+                                </p>
+
+                                <Link
+                                    href={`/user/cars/${car.slug}`}
+                                    className="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
                                 >
-                                    {car.status === "AVAILABLE" && "Sẵn sàng"}
-                                    {car.status === "MAINTENANCE" && "Bảo dưỡng"}
-                                    {car.status === "UNAVAILABLE" && "Hết xe"}
-                                </span>
-
-                                <img
-                                    src={car.photos?.[0] || "/no-image.png"}
-                                    alt={car.name}
-                                    className="w-full h-56 object-cover rounded-t-xl"
-                                />
-
-
-                                <div className="p-4">
-                                    <h3 className="text-xl font-bold mb-1">{car.name}</h3>
-
-                                    <p className="text-blue-600 font-semibold mb-3">{price}</p>
-
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        Danh mục: {car.category?.name}
-                                    </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                        Chi nhánh: {car.branch?.name}
-                                    </p>
-
-                                    <Link
-                                        href={`/user/cars/${car.id}`}
-                                        className="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
-                                    >
-                                        Xem ngay
-                                    </Link>
-                                </div>
+                                    Xem ngay
+                                </Link>
                             </div>
-                        );
-                    })}
-                </div>
-            )}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

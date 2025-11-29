@@ -37,4 +37,9 @@ export class CustomerController {
     delete(@Param('id') id: string) {
         return this.service.delete(id);
     }
+
+    @Get('user/:userId')
+    getByUserId(@Param('userId') userId: string) {
+        return this.service.getByUserId(userId);
+    }
 }

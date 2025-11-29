@@ -42,4 +42,9 @@ export class BookingController {
     delete(@Param('id') id: string) {
         return this.service.delete(id);
     }
+
+    @Get('cars/:carId')
+    getDateAvailable(@Param('carId') carId: string) {
+        return this.service.getDateAvailable(carId);
+    }
 }

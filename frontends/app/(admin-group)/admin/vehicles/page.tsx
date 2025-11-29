@@ -25,9 +25,12 @@ export default function VehiclePage() {
     }
 
     return (
-        <div className="p-4 text-gray-200">
-            <div className="flex justify-between mb-6">
-                <h1 className="text-2xl font-bold">Vehicles</h1>
+        <div className="p-4 text-gray-200 space-y-4">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold">Vehicles</h1>
+                    <p className="text-sm text-gray-400">Manage fleet with brand, branch, price source.</p>
+                </div>
                 <button
                     onClick={() => {
                         setSelected(null);
@@ -39,24 +42,26 @@ export default function VehiclePage() {
                 </button>
             </div>
 
-            <input
-                placeholder="Search by name / plate..."
-                className="bg-slate-800 border border-slate-700 text-gray-200 p-2 rounded w-72 mb-4"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="flex items-center gap-3">
+                <input
+                    placeholder="Search by name / plate..."
+                    className="bg-slate-800 border border-slate-700 text-gray-200 p-2 rounded w-72 focus:bg-white focus:text-black"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
 
-            <div className="border border-slate-700 rounded-lg overflow-hidden">
+            <div className="border border-slate-700 rounded-lg overflow-hidden shadow">
                 <table className="w-full bg-slate-900">
                     <thead className="bg-slate-800 text-gray-300">
                         <tr>
-                            <th className="p-3 text-left">Name</th>
+                            <th className="p-3 text-left">Vehicle</th>
                             <th className="p-3 text-left">Plate</th>
                             <th className="p-3 text-left">Brand</th>
                             <th className="p-3 text-left">Category</th>
                             <th className="p-3 text-left">Branch</th>
                             <th className="p-3 text-left">Status</th>
-                            <th className="p-3 text-left">Override</th>
+                            <th className="p-3 text-left">Pricing</th>
                             <th className="p-3 text-left">Actions</th>
                         </tr>
                     </thead>
@@ -91,7 +96,12 @@ export default function VehiclePage() {
                                 key={item.id}
                                 className="border-b border-slate-700 hover:bg-slate-800"
                             >
-                                <td className="p-3">{item.name}</td>
+                                <td className="p-3">
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold">{item.name}</span>
+                                        <span className="text-xs text-gray-400">{item.model ?? ""}</span>
+                                    </div>
+                                </td>
                                 <td className="p-3">{item.licensePlate}</td>
 
                                 <td className="p-3">
@@ -105,22 +115,22 @@ export default function VehiclePage() {
                                 </td>
 
                                 <td className="p-3">
-                                    <span className="uppercase text-sm">
+                                    <span className="uppercase text-xs px-2 py-1 rounded bg-slate-800 border border-slate-700">
                                         {item.status ?? "AVAILABLE"}
                                     </span>
                                 </td>
 
                                 <td className="p-3">
                                     {item.overridePriceEnabled ? (
-                                        <span className="text-emerald-300">
+                                        <div className="text-emerald-300 text-sm">
                                             Custom: {item.overrideDailyRate ?? "-"} /day
-                                        </span>
+                                        </div>
                                     ) : (
-                                        <span className="text-gray-400">From price list</span>
+                                        <div className="text-gray-400 text-sm">From price list</div>
                                     )}
                                 </td>
 
-                                <td className="p-3 flex gap-4">
+                                <td className="p-3 flex gap-3">
                                     <button
                                         className="text-blue-400"
                                         onClick={() => {

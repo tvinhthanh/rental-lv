@@ -43,7 +43,8 @@ export class VehicleService {
                 include: {
                     category: true,
                     branch: true,
-                    priceList: true
+                    priceList: true,
+                    brand: true
                 }
             }),
             this.prisma.vehicle.count({ where })
@@ -67,6 +68,7 @@ export class VehicleService {
             include: {
                 category: true,
                 branch: true,
+                brand: true,
                 priceList: true,
                 maintenances: true,
                 bookings: true,

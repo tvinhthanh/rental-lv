@@ -168,45 +168,47 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                 <form onSubmit={formHandle(onSubmit)} className="space-y-3">
 
                     {/* BASIC */}
-                    <input
-                        {...register("name")}
-                        className="input-dark"
-                        placeholder="Name *"
-                        required
-                        onBlur={(e) => {
-                            if (!selected) {
-                                setValue("slug", generateSlug(e.target.value));
-                            }
-                        }}
-                    />
-
-                    <input
-                        {...register("slug")}
-                        className="input-dark"
-                        placeholder="Slug"
-                        readOnly={!!selected}
-                    />
-
                     <div className="grid grid-cols-2 gap-3">
-                        <input {...register("vehicleType")} className="input-dark" placeholder="Type (SUV, Sedan...)" />
-                        <input {...register("licensePlate")} className="input-dark" placeholder="License plate *" required />
+                        <input
+                            {...register("name")}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Name *"
+                            required
+                            onBlur={(e) => {
+                                if (!selected) {
+                                    setValue("slug", generateSlug(e.target.value));
+                                }
+                            }}
+                        />
+
+                        <input
+                            {...register("slug")}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Slug"
+                            readOnly={!!selected}
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        <input {...register("model")} className="input-dark" placeholder="Model" />
-                        <input type="number" {...register("year")} className="input-dark" placeholder="Year" />
+                        <input {...register("vehicleType")} className="input-dark focus:bg-white focus:text-black" placeholder="Type (SUV, Sedan...)" />
+                        <input {...register("licensePlate")} className="input-dark focus:bg-white focus:text-black" placeholder="License plate *" required />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <input {...register("model")} className="input-dark focus:bg-white focus:text-black" placeholder="Model" />
+                        <input type="number" {...register("year")} className="input-dark focus:bg-white focus:text-black" placeholder="Year" />
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                        <input {...register("color")} className="input-dark" placeholder="Color" />
-                        <input type="number" {...register("seatCount")} className="input-dark" placeholder="Seats" />
-                        <input type="number" {...register("mileage")} className="input-dark" placeholder="Mileage (km)" />
+                        <input {...register("color")} className="input-dark focus:bg-white focus:text-black" placeholder="Color" />
+                        <input type="number" {...register("seatCount")} className="input-dark focus:bg-white focus:text-black" placeholder="Seats" />
+                        <input type="number" {...register("mileage")} className="input-dark focus:bg-white focus:text-black" placeholder="Mileage (km)" />
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                        <input {...register("transmission")} className="input-dark" placeholder="Transmission (AT/MT)" />
-                        <input {...register("fuelType")} className="input-dark" placeholder="Fuel (Gasoline/Diesel)" />
-                        <select {...register("status")} className="input-dark bg-slate-800">
+                        <input {...register("transmission")} className="input-dark focus:bg-white focus:text-black" placeholder="Transmission (AT/MT)" />
+                        <input {...register("fuelType")} className="input-dark focus:bg-white focus:text-black" placeholder="Fuel (Gasoline/Diesel)" />
+                        <select {...register("status")} className="input-dark bg-slate-800 focus:bg-white focus:text-black">
                             {STATUS_OPTIONS.map((s) => (
                                 <option key={s} value={s}>{s}</option>
                             ))}
@@ -217,7 +219,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     <div className="grid grid-cols-3 gap-3">
 
                         {/* BRAND */}
-                        <select {...register("brandId")} className="input-dark bg-slate-800" required>
+                        <select {...register("brandId")} className="input-dark bg-slate-800 focus:bg-white focus:text-black" required>
                             <option value="">Select brand</option>
                             {brands.map((b: any) => (
                                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -225,7 +227,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         </select>
 
                         {/* BRANCH */}
-                        <select {...register("branchId")} className="input-dark bg-slate-800" required>
+                        <select {...register("branchId")} className="input-dark bg-slate-800 focus:bg-white focus:text-black" required>
                             <option value="">Select branch</option>
                             {branches.map((b: any) => (
                                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -233,7 +235,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         </select>
 
                         {/* CATEGORY */}
-                        <select {...register("categoryId")} className="input-dark bg-slate-800" required>
+                        <select {...register("categoryId")} className="input-dark bg-slate-800 focus:bg-white focus:text-black" required>
                             <option value="">Select category</option>
                             {categories.map((c: any) => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -267,7 +269,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                                 <label className="block text-xs text-gray-400 mb-1">Price List</label>
                                 <select
                                     {...register("priceListId")}
-                                    className="input-dark bg-slate-800 w-full"
+                                    className="input-dark bg-slate-800 w-full focus:bg-white focus:text-black"
                                 >
                                     <option value="">Select price list</option>
                                     {priceLists.map((pl: any) => (
@@ -335,15 +337,15 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     {/* PHOTOS TEXTAREA */}
                     <textarea
                         {...register("photos")}
-                        className="input-dark"
+                        className="input-dark focus:bg-white focus:text-black"
                         placeholder="Photo URLs, separated by comma"
                         defaultValue={photosValue}
                     />
 
                     {/* SEO */}
-                    <input {...register("metaTitle")} className="input-dark" placeholder="Meta title" />
-                    <textarea {...register("metaDescription")} className="input-dark" placeholder="Meta description" />
-                    <textarea {...register("seoDescription")} className="input-dark" placeholder="SEO description" />
+                    <input {...register("metaTitle")} className="input-dark focus:bg-white focus:text-black" placeholder="Meta title" />
+                    <textarea {...register("metaDescription")} className="input-dark focus:bg-white focus:text-black" placeholder="Meta description" />
+                    <textarea {...register("seoDescription")} className="input-dark focus:bg-white focus:text-black" placeholder="SEO description" />
 
                     <div className="flex justify-end gap-3 pt-4">
                         <button type="button" onClick={onClose} className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700">

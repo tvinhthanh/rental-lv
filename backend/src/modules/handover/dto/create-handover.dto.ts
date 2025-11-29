@@ -5,6 +5,10 @@ export class CreateHandoverDto {
     bookingId!: string;
 
     @IsOptional()
+    @IsString()
+    employeeId?: string;
+
+    @IsOptional()
     @IsInt()
     odoStart?: number;
 

@@ -3,7 +3,7 @@ import api from "@/lib/api";
 export const branchService = {
     // GET /branches?keyword=...
     async getAll(keyword?: string) {
-        const res = await api.get("/branches", { params: { keyword } });
+        const res = await api.get("/branches", { params: { search: keyword } });
         return Array.isArray(res.data) ? res.data : res.data?.items ?? [];
     },
 

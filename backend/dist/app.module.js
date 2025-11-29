@@ -24,6 +24,7 @@ const deposit_module_1 = require("./modules/deposit/deposit.module");
 const handover_module_1 = require("./modules/handover/handover.module");
 const customer_module_1 = require("./modules/customer/customer.module");
 const vehicle_brand_module_1 = require("./modules/brand/vehicle-brand.module");
+const employee_module_1 = require("./modules/employee/employee.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -45,7 +46,8 @@ exports.AppModule = AppModule = __decorate([
             price_list_module_1.PriceListModule,
             deposit_module_1.DepositModule,
             handover_module_1.HandoverModule,
-            customer_module_1.CustomerModule
+            customer_module_1.CustomerModule,
+            employee_module_1.EmployeeModule
         ],
     })
 ], AppModule);

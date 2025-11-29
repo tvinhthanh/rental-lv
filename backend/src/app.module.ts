@@ -18,6 +18,7 @@ import { DepositModule } from './modules/deposit/deposit.module';
 import { HandoverModule } from './modules/handover/handover.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { VehicleBrandModule } from './modules/brand/vehicle-brand.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { VehicleBrandModule } from './modules/brand/vehicle-brand.module';
     PriceListModule,
     DepositModule,
     HandoverModule,
-    CustomerModule
+    CustomerModule,
+    EmployeeModule
   ],
 })
 export class AppModule { }

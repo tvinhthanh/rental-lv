@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { employeeService } from "@/services/employee.service";
 import EmployeeModal from "./EmployeeModal";
 
+const STATUS_COLORS: Record<string, string> = {
+    ACTIVE: "text-green-400",
+    INACTIVE: "text-red-400",
+    ON_LEAVE: "text-yellow-300",
+};
+
 export default function EmployeeList() {
     const [employees, setEmployees] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -12,6 +18,7 @@ export default function EmployeeList() {
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selected, setSelected] = useState<any>(null);
     const [search, setSearch] = useState("");
+
     const loadData = async () => {
         setLoading(true);
         const res = await employeeService.list({ search });
@@ -42,10 +49,16 @@ export default function EmployeeList() {
         }
     };
 
+    const formatDate = (value?: string) => {
+        if (!value) return "-";
+        const d = new Date(value);
+        return d.toLocaleDateString();
+    };
+
     return (
-        <div className="bg-transparent shadow rounded p-4">
+        <div className="p-4 text-gray-200">
             <div className="flex justify-between mb-4">
-                {/* <h2 className="text-xl font-semibold">Employee List</h2> */}
+                <h2 className="text-xl font-semibold">Employees</h2>
                 <button
                     onClick={handleAdd}
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
@@ -56,52 +69,72 @@ export default function EmployeeList() {
 
             <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search name / phone / email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="border p-2 rounded"
+                className="input-dark w-72 mb-4"
             />
 
             {loading ? (
-                <p>Loading...</p>
+                <p className="text-gray-400">Loading...</p>
             ) : (
-                <table className="w-full border text-center text-white">
-                    <thead>
-                        <tr className="bg-transparent text-left">
-                            <th className="p-2 border">Full Name</th>
-                            <th className="p-2 border">Phone</th>
-                            <th className="p-2 border">Email</th>
-                            <th className="p-2 border">Department</th>
-                            <th className="p-2 border">Position</th>
-                            <th className="p-2 border w-32">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {employees?.map(emp => (
-                            <tr key={emp.id} className="border">
-                                <td className="p-2 border">{emp.fullName}</td>
-                                <td className="p-2 border">{emp.phone}</td>
-                                <td className="p-2 border">{emp.email}</td>
-                                <td className="p-2 border">{emp.department}</td>
-                                <td className="p-2 border">{emp.position}</td>
-                                <td className="p-2 border text-center space-x-2">
-                                    <button
-                                        className="text-blue-600 hover:underline"
-                                        onClick={() => handleEdit(emp)}
-                                    >   
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="text-red-600 hover:underline"
-                                        onClick={() => handleDelete(emp.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
+                <div className="border border-slate-700 rounded-lg overflow-hidden">
+                    <table className="w-full bg-slate-900">
+                        <thead className="bg-slate-800 text-left text-gray-300">
+                            <tr>
+                                <th className="p-3">Full Name</th>
+                                <th className="p-3">Phone</th>
+                                <th className="p-3">Email</th>
+                                <th className="p-3">Branch</th>
+                                <th className="p-3">Department</th>
+                                <th className="p-3">Position</th>
+                                <th className="p-3">Status</th>
+                                <th className="p-3">Hire Date</th>
+                                <th className="p-3 w-32">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {employees?.length === 0 && (
+                                <tr>
+                                    <td colSpan={9} className="p-4 text-center text-gray-400">
+                                        No employees found.
+                                    </td>
+                                </tr>
+                            )}
+
+                            {employees?.map(emp => (
+                                <tr key={emp.id} className="border-b border-slate-700 hover:bg-slate-800">
+                                    <td className="p-3">{emp.fullName}</td>
+                                    <td className="p-3">{emp.phone || "-"}</td>
+                                    <td className="p-3">{emp.email || "-"}</td>
+                                    <td className="p-3">{emp.branch?.name || "-"}</td>
+                                    <td className="p-3">{emp.department || "-"}</td>
+                                    <td className="p-3">{emp.position || "-"}</td>
+                                    <td className="p-3">
+                                        <span className={STATUS_COLORS[emp.status || "ACTIVE"] || "text-gray-300"}>
+                                            {emp.status || "ACTIVE"}
+                                        </span>
+                                    </td>
+                                    <td className="p-3">{formatDate(emp.hireDate)}</td>
+                                    <td className="p-3 text-center space-x-3">
+                                        <button
+                                            className="text-blue-400 hover:underline"
+                                            onClick={() => handleEdit(emp)}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            className="text-red-400 hover:underline"
+                                            onClick={() => handleDelete(emp.id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
 
             {open && (

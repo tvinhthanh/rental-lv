@@ -1,3 +1,5 @@
+import EmployeeList from "./_components/EmployeeList";
+
 export default function EmployeePage() {
-    return <h1 className="text-2xl font-bold">Employee</h1>;
+    return <EmployeeList />;
 }

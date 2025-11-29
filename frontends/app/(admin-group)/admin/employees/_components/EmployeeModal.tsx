@@ -1,17 +1,44 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { employeeService } from "@/services/employee.service";
+import { branchService } from "@/services/branch.service";
+
+const STATUS_OPTIONS = ["ACTIVE", "INACTIVE", "ON_LEAVE"];
 
 export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
+    const [branches, setBranches] = useState<any[]>([]);
     const [form, setForm] = useState({
         fullName: data?.fullName || "",
         phone: data?.phone || "",
         email: data?.email || "",
         department: data?.department || "",
         position: data?.position || "",
-        salary: data?.salary || "",
+        salary: data?.salary ?? "",
+        status: data?.status || "ACTIVE",
+        hireDate: data?.hireDate ? data.hireDate.slice(0, 10) : "",
+        branchId: data?.branchId || "",
+        avatarUrl: data?.avatarUrl || "",
     });
+
+    useEffect(() => {
+        branchService.getAll().then(setBranches);
+    }, []);
+
+    useEffect(() => {
+        setForm({
+            fullName: data?.fullName || "",
+            phone: data?.phone || "",
+            email: data?.email || "",
+            department: data?.department || "",
+            position: data?.position || "",
+            salary: data?.salary ?? "",
+            status: data?.status || "ACTIVE",
+            hireDate: data?.hireDate ? data.hireDate.slice(0, 10) : "",
+            branchId: data?.branchId || "",
+            avatarUrl: data?.avatarUrl || "",
+        });
+    }, [data]);
 
     const handleChange = (e: any) => {
         setForm({
@@ -21,17 +48,24 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     };
 
     const handleSubmit = async () => {
+        const payload: any = {
+            ...form,
+            salary: form.salary === "" ? undefined : Number(form.salary),
+            hireDate: form.hireDate || undefined,
+            branchId: form.branchId || undefined,
+        };
+
         if (mode === "create") {
-            await employeeService.create(form);
+            await employeeService.create(payload);
         } else {
-            await employeeService.update(data.id, form);
+            await employeeService.update(data.id, payload);
         }
         onSuccess();
     };
 
     return (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-            <div className="bg-slate-900/50 p-6 rounded shadow w-96">
+            <div className="bg-slate-900 border border-slate-700 p-6 rounded-lg shadow w-[420px] text-gray-200">
                 <h2 className="text-xl font-semibold mb-4">
                     {mode === "create" ? "Add Employee" : "Edit Employee"}
                 </h2>
@@ -39,44 +73,97 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                 <div className="flex flex-col space-y-3">
                     <input
                         name="fullName"
-                        placeholder="Full Name"
+                        placeholder="Full Name *"
                         value={form.fullName}
                         onChange={handleChange}
-                        className="border p-2 rounded"
+                        className="input-dark"
+                        required
                     />
                     <input
                         name="phone"
                         placeholder="Phone"
                         value={form.phone}
                         onChange={handleChange}
-                        className="border p-2 rounded"
+                        className="input-dark"
                     />
                     <input
                         name="email"
                         placeholder="Email"
                         value={form.email}
                         onChange={handleChange}
-                        className="border p-2 rounded"
+                        className="input-dark"
                     />
+                    <div className="grid grid-cols-2 gap-3">
+                        <input
+                            name="department"
+                            placeholder="Department"
+                            value={form.department}
+                            onChange={handleChange}
+                            className="input-dark"
+                        />
+                        <input
+                            name="position"
+                            placeholder="Position"
+                            value={form.position}
+                            onChange={handleChange}
+                            className="input-dark"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <input
+                            name="salary"
+                            type="number"
+                            placeholder="Salary"
+                            value={form.salary}
+                            onChange={handleChange}
+                            className="input-dark"
+                        />
+                        <select
+                            name="status"
+                            value={form.status}
+                            onChange={handleChange}
+                            className="input-dark bg-slate-800"
+                        >
+                            {STATUS_OPTIONS.map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <select
+                            name="branchId"
+                            value={form.branchId}
+                            onChange={handleChange}
+                            className="input-dark bg-slate-800"
+                        >
+                            <option value="">Assign branch (optional)</option>
+                            {branches.map((b: any) => (
+                                <option key={b.id} value={b.id}>{b.name}</option>
+                            ))}
+                        </select>
+
+                        <input
+                            name="hireDate"
+                            type="date"
+                            value={form.hireDate}
+                            onChange={handleChange}
+                            className="input-dark"
+                        />
+                    </div>
+
                     <input
-                        name="department"
-                        placeholder="Department"
-                        value={form.department}
+                        name="avatarUrl"
+                        placeholder="Avatar URL"
+                        value={form.avatarUrl}
                         onChange={handleChange}
-                        className="border p-2 rounded"
-                    />
-                    <input
-                        name="position"
-                        placeholder="Position"
-                        value={form.position}
-                        onChange={handleChange}
-                        className="border p-2 rounded"
+                        className="input-dark"
                     />
 
-                    <div className="flex justify-end space-x-3 mt-4">
+                    <div className="flex justify-end space-x-3 pt-4">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300"
+                            className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
                         >
                             Cancel
                         </button>

@@ -5,5 +5,6 @@ export declare class UpdatePriceListDto {
     dailyRate?: number;
     hourlyRate?: number;
     weekendRate?: number;
+    holidayRate?: number;
     isActive?: boolean;
 }

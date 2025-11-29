@@ -58,6 +58,22 @@ export declare class VehicleService {
                 createdAt: Date;
                 updatedAt: Date;
             };
+            brand: {
+                id: string;
+                name: string;
+                slug: string;
+                country: string | null;
+                logoUrl: string | null;
+                websiteUrl: string | null;
+                description: string | null;
+                displayOrder: number | null;
+                isFeatured: boolean | null;
+                metaTitle: string | null;
+                metaDescription: string | null;
+                status: boolean | null;
+                createdAt: Date;
+                updatedAt: Date;
+            };
         } & {
             id: string;
             name: string;
@@ -142,6 +158,22 @@ export declare class VehicleService {
             metaTitle: string | null;
             metaDescription: string | null;
             isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        brand: {
+            id: string;
+            name: string;
+            slug: string;
+            country: string | null;
+            logoUrl: string | null;
+            websiteUrl: string | null;
+            description: string | null;
+            displayOrder: number | null;
+            isFeatured: boolean | null;
+            metaTitle: string | null;
+            metaDescription: string | null;
+            status: boolean | null;
             createdAt: Date;
             updatedAt: Date;
         };

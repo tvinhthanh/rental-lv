@@ -10,7 +10,8 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CustomerDTO } from './dto/user.dto';
+import { CustomerDTO, EmployeeDTO } from './dto/user.dto';
+import { CreateEmployeeDto } from '../employee/dto/create-employee.dto';
 
 @Injectable()
 export class AuthService {
@@ -113,6 +114,45 @@ export class AuthService {
     };
   }
 
+  async createEmployee(dto: RegisterDto, empDto: CreateEmployeeDto) {
+    // 1) Check email tồn tại trong User
+    const exists = await this.userService.findByEmail(dto.email);
+    if (exists) {
+      throw new BadRequestException("Email already exists");
+    }
+
+    // 2) Tạo User với role = EMPLOYEE
+    const user = await this.userService.create({
+      email: dto.email,
+      password: "123456",
+      name: dto.name,
+      role: "EMPLOYEE",
+    });
+
+    // 3) Tạo Employee record mapping userId
+    const employee = await this.prisma.employee.create({
+      data: {
+        userId: user.id,
+        fullName: dto.name || empDto.fullName || "",
+        phone: empDto.phone,
+        email: dto.email,
+        nationalId: empDto.nationalId,
+        department: empDto.department,
+        position: empDto.position,
+        salary: empDto.salary,
+        status: empDto.status ?? "ACTIVE",
+        hireDate: empDto.hireDate ? new Date(empDto.hireDate) : undefined,
+        avatarUrl: empDto.avatarUrl,
+        branchId: empDto.branchId,
+      },
+    });
+
+    return {
+      message: "Employee created successfully",
+      user,
+      employee,
+    };
+  }
 
   async me(user: any) {
     return this.userService.findOne(user.id);

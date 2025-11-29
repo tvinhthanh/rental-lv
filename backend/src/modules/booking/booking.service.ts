@@ -276,4 +276,20 @@ export class BookingService {
         };
     }
 
+    async getByBranch(branchId: string) {
+        return this.prisma.booking.findMany({
+            where: { branchId },
+            include: {
+                customer: true,
+                vehicle: {
+                    include: {
+                        category: true,
+                        branch: true,
+                    },
+                },
+                branch: true,
+            }
+        });
+    }
+
 }

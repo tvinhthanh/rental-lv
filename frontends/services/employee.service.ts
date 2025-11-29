@@ -17,4 +17,7 @@ export const employeeService = {
 
     delete: (id: string) =>
         api.delete(`/employees/${id}`),
+
+    getUser: (id: string) =>
+        api.get(`/employees/user/${id}`),
 };

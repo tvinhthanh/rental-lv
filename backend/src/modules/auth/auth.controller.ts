@@ -11,6 +11,7 @@ import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { CustomerDTO } from './dto/user.dto';
+import { CreateEmployeeDto } from '../employee/dto/create-employee.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +31,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getMe(@CurrentUser() user: any) {
     return this.authService.me(user);
+  }
+
+  @Post('create-employee')
+  createEmployee(@Body() dto: RegisterDto, @Body() empDto: CreateEmployeeDto) {
+    return this.authService.createEmployee(dto, empDto);
   }
 }

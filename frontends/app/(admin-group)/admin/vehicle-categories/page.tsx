@@ -13,7 +13,7 @@ export default function VehicleCategoryPage() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["vehicle-categories", search],
-        queryFn: () => vehicleCategoryService.getAll(search),
+        queryFn: () => vehicleCategoryService.list(),
     });
 
     const categories = Array.isArray(data) ? data : data?.items ?? [];

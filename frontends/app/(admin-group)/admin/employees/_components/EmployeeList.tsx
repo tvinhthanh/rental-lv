@@ -4,6 +4,20 @@ import { useEffect, useState } from "react";
 import { employeeService } from "@/services/employee.service";
 import EmployeeModal from "./EmployeeModal";
 
+// =====================================
+// NORMALIZE HÀM DÙNG CHUNG
+// =====================================
+const normalizeList = (res: any) => {
+    if (!res) return [];
+
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res?.items)) return res.items;
+    if (Array.isArray(res?.data)) return res.data;
+    if (Array.isArray(res?.list)) return res.list;
+
+    return []; // fallback
+};
+
 const STATUS_COLORS: Record<string, string> = {
     ACTIVE: "text-green-400",
     INACTIVE: "text-red-400",
@@ -19,10 +33,16 @@ export default function EmployeeList() {
     const [selected, setSelected] = useState<any>(null);
     const [search, setSearch] = useState("");
 
+    // =====================================
+    // LOAD EMPLOYEES
+    // =====================================
     const loadData = async () => {
         setLoading(true);
-        const res = await employeeService.list({ search });
-        setEmployees(res.items ?? res);
+
+        const res = await employeeService.getAll();
+        const items = normalizeList(res);
+
+        setEmployees(items);
         setLoading(false);
     };
 
@@ -30,6 +50,9 @@ export default function EmployeeList() {
         loadData();
     }, [search]);
 
+    // =====================================
+    // ACTION HANDLERS
+    // =====================================
     const handleAdd = () => {
         setSelected(null);
         setMode("create");
@@ -55,6 +78,9 @@ export default function EmployeeList() {
         return d.toLocaleDateString();
     };
 
+    // =====================================
+    // RENDER
+    // =====================================
     return (
         <div className="p-4 text-gray-200">
             <div className="flex justify-between mb-4">
@@ -93,29 +119,44 @@ export default function EmployeeList() {
                                 <th className="p-3 w-32">Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            {employees?.length === 0 && (
+                            {employees.length === 0 && (
                                 <tr>
-                                    <td colSpan={9} className="p-4 text-center text-gray-400">
+                                    <td
+                                        colSpan={9}
+                                        className="p-4 text-center text-gray-400"
+                                    >
                                         No employees found.
                                     </td>
                                 </tr>
                             )}
 
-                            {employees?.map(emp => (
-                                <tr key={emp.id} className="border-b border-slate-700 hover:bg-slate-800">
+                            {employees.map(emp => (
+                                <tr
+                                    key={emp.id}
+                                    className="border-b border-slate-700 hover:bg-slate-800"
+                                >
                                     <td className="p-3">{emp.fullName}</td>
                                     <td className="p-3">{emp.phone || "-"}</td>
                                     <td className="p-3">{emp.email || "-"}</td>
                                     <td className="p-3">{emp.branch?.name || "-"}</td>
                                     <td className="p-3">{emp.department || "-"}</td>
                                     <td className="p-3">{emp.position || "-"}</td>
+
                                     <td className="p-3">
-                                        <span className={STATUS_COLORS[emp.status || "ACTIVE"] || "text-gray-300"}>
-                                            {emp.status || "ACTIVE"}
+                                        <span
+                                            className={
+                                                STATUS_COLORS[emp.status || "ACTIVE"] ||
+                                                "text-gray-300"
+                                            }
+                                        >
+                                            {emp.status}
                                         </span>
                                     </td>
+
                                     <td className="p-3">{formatDate(emp.hireDate)}</td>
+
                                     <td className="p-3 text-center space-x-3">
                                         <button
                                             className="text-blue-400 hover:underline"

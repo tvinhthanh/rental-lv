@@ -19,6 +19,8 @@ import { HandoverModule } from './modules/handover/handover.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { VehicleBrandModule } from './modules/brand/vehicle-brand.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { ReturnReportModule } from './modules/return-report/return-report.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -38,7 +40,9 @@ import { EmployeeModule } from './modules/employee/employee.module';
     DepositModule,
     HandoverModule,
     CustomerModule,
-    EmployeeModule
+    EmployeeModule,
+    ReturnReportModule,
+    MaintenanceModule
   ],
 })
 export class AppModule { }

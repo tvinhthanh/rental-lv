@@ -21,6 +21,7 @@ import { VehicleBrandModule } from './modules/brand/vehicle-brand.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { ReturnReportModule } from './modules/return-report/return-report.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
+import { ContractModule } from './modules/contact/contract.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { MaintenanceModule } from './modules/maintenance/maintenance.module';
     CustomerModule,
     EmployeeModule,
     ReturnReportModule,
-    MaintenanceModule
+    MaintenanceModule,
+    ContractModule
   ],
 })
 export class AppModule { }

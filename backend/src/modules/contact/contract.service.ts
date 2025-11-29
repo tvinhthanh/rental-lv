@@ -4,12 +4,14 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { randomBytes } from 'crypto';
+import { CloudinaryService } from '@/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ContractService {
     constructor(
         private prisma: PrismaService,
-        private audit: AuditLogService
+        private audit: AuditLogService,
+        private cloudinary: CloudinaryService
     ) { }
 
     generateContractNo() {
@@ -19,7 +21,15 @@ export class ContractService {
     async findOne(id: string) {
         const c = await this.prisma.contract.findUnique({
             where: { id },
-            include: { booking: true }
+            include: {
+                booking: {
+                    include: {
+                        customer: true,
+                        vehicle: true,
+                        branch: true
+                    }
+                }
+            }
         });
         if (!c) throw new NotFoundException('Contract not found');
         return c;
@@ -27,13 +37,27 @@ export class ContractService {
 
     async findByBooking(bookingId: string) {
         return this.prisma.contract.findUnique({
-            where: { bookingId }
+            where: { bookingId },
+            include: {
+                booking: {
+                    include: {
+                        customer: true,
+                        vehicle: true,
+                        branch: true
+                    }
+                }
+            }
         });
     }
 
     async create(dto: CreateContractDto, actorId?: string) {
         const booking = await this.prisma.booking.findUnique({
-            where: { id: dto.bookingId }
+            where: { id: dto.bookingId },
+            include: {
+                customer: true,
+                vehicle: true,
+                branch: true
+            }
         });
 
         if (!booking) throw new NotFoundException('Booking not found');
@@ -51,6 +75,10 @@ export class ContractService {
                 depositAmount: dto.depositAmount,
                 terms: dto.terms ?? 'Default rental contract terms...',
                 notes: dto.notes,
+                customerSignature: dto.customerSignature,
+                employeeSignature: dto.employeeSignature,
+                signedBy: dto.signedBy,
+                fileUrl: dto.fileUrl,
                 status: 'DRAFT'
             }
         });
@@ -91,8 +119,45 @@ export class ContractService {
         return contract;
     }
 
+    async sign(id: string, body: { customerSignature?: string; employeeSignature?: string; signedBy?: string; fileUrl?: string }, actorId?: string) {
+        const before = await this.findOne(id);
+
+        const contract = await this.prisma.contract.update({
+            where: { id },
+            data: {
+                customerSignature: body.customerSignature ?? before.customerSignature,
+                employeeSignature: body.employeeSignature ?? before.employeeSignature,
+                signedBy: body.signedBy ?? before.signedBy,
+                fileUrl: body.fileUrl ?? before.fileUrl,
+                status: 'SIGNED'
+            }
+        });
+
+        await this.audit.log(actorId ?? null, 'SIGN', 'Contract', id, { before, after: contract });
+        return contract;
+    }
+
     async delete(id: string, actorId?: string) {
         await this.audit.log(actorId ?? null, 'DELETE', 'Contract', id);
         return this.prisma.contract.delete({ where: { id } });
+    }
+
+    async attachFile(id: string, file: Express.Multer.File, actorId?: string) {
+        const before = await this.findOne(id);
+        if (!file) throw new BadRequestException('File is required');
+
+        const uploaded = await this.cloudinary.uploadFile(file);
+
+        const contract = await this.prisma.contract.update({
+            where: { id },
+            data: { fileUrl: uploaded.secure_url }
+        });
+
+        await this.audit.log(actorId ?? null, 'ATTACH_FILE', 'Contract', id, {
+            before,
+            after: contract
+        });
+
+        return contract;
     }
 }

@@ -1,8 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateDepositDetailDto } from './dto/create-deposit-detail.dto';
+import { RefundDepositDto } from './dto/refund-deposit.dto';
+import { ApplySurchargeDto } from './dto/apply-surcharge.dto';
 
 @Injectable()
 export class DepositService {
@@ -41,6 +44,9 @@ export class DepositService {
                 bookingId: dto.bookingId,
                 customerId: dto.customerId,
                 totalAmount: dto.totalAmount,
+                usedAmount: 0,
+                refundedAmount: 0,
+                paymentMethod: dto.paymentMethod,
                 status: dto.status ?? 'HELD',
                 notes: dto.notes
             }
@@ -78,5 +84,93 @@ export class DepositService {
             where: { depositId },
             orderBy: { createdAt: 'desc' }
         });
+    }
+
+    async refund(id: string, dto: RefundDepositDto, actorId?: string) {
+        const deposit = await this.prisma.deposit.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                totalAmount: true,
+                usedAmount: true,
+                refundedAmount: true,
+                status: true
+            }
+        });
+        if (!deposit) throw new NotFoundException('Deposit not found');
+
+        const remaining = deposit.totalAmount - deposit.usedAmount - deposit.refundedAmount;
+        if (dto.amount > remaining) throw new BadRequestException('Refund exceeds remaining deposit');
+
+        const updateData: Prisma.DepositUpdateInput = {
+            refundedAmount: deposit.refundedAmount + dto.amount,
+            status: deposit.refundedAmount + dto.amount >= deposit.totalAmount ? 'REFUNDED' : deposit.status
+        };
+
+        const updated = await this.prisma.deposit.update({
+            where: { id },
+            data: updateData
+        });
+
+        await this.prisma.depositDetail.create({
+            data: {
+                depositId: id,
+                itemType: 'REFUND',
+                amount: -dto.amount,
+                notes: dto.note ?? 'Refund to customer'
+            }
+        });
+
+        await this.audit.log(actorId ?? null, 'REFUND', 'Deposit', id, {
+            amount: dto.amount,
+            before: deposit,
+            after: updated
+        });
+
+        return updated;
+    }
+
+    async applySurcharge(id: string, dto: ApplySurchargeDto, actorId?: string) {
+        const deposit = await this.prisma.deposit.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                totalAmount: true,
+                usedAmount: true,
+                refundedAmount: true,
+                status: true
+            }
+        });
+        if (!deposit) throw new NotFoundException('Deposit not found');
+
+        const remaining = deposit.totalAmount - deposit.usedAmount - deposit.refundedAmount;
+        if (dto.amount > remaining) throw new BadRequestException('Amount exceeds remaining deposit');
+
+        const updated = await this.prisma.deposit.update({
+            where: { id },
+            data: {
+                usedAmount: deposit.usedAmount + dto.amount
+            } as Prisma.DepositUpdateInput
+        });
+
+        await this.prisma.depositDetail.create({
+            data: {
+                depositId: id,
+                itemType: 'SURCHARGE',
+                surchargeId: dto.surchargeId,
+                identifier: dto.surchargeId,
+                amount: -dto.amount,
+                notes: dto.note ?? 'Applied to surcharge'
+            }
+        });
+
+        await this.audit.log(actorId ?? null, 'APPLY_SURCHARGE', 'Deposit', id, {
+            surchargeId: dto.surchargeId,
+            amount: dto.amount,
+            before: deposit,
+            after: updated
+        });
+
+        return updated;
     }
 }

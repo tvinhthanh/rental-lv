@@ -364,6 +364,9 @@ model Deposit {
   customerId String @db.ObjectId
 
   totalAmount Float
+  usedAmount Float @default(0)
+  refundedAmount Float @default(0)
+  paymentMethod String?
   status      String  @default("HELD")
   notes       String?
 
@@ -383,6 +386,7 @@ model DepositDetail {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   depositId String @db.ObjectId
+  surchargeId String? @db.ObjectId
 
   itemType   String
   itemName   String?

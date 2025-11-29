@@ -16,5 +16,9 @@ export class CreateDepositDto {
 
     @IsOptional()
     @IsString()
+    paymentMethod?: string;
+
+    @IsOptional()
+    @IsString()
     notes?: string;
 }

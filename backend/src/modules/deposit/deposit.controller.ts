@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { DepositService } from './deposit.service';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateDepositDetailDto } from './dto/create-deposit-detail.dto';
+import { RefundDepositDto } from './dto/refund-deposit.dto';
+import { ApplySurchargeDto } from './dto/apply-surcharge.dto';
 
 @Controller('deposit')
 export class DepositController {
@@ -25,5 +27,15 @@ export class DepositController {
     @Post('detail')
     addDetail(@Body() dto: CreateDepositDetailDto) {
         return this.service.addDetail(dto);
+    }
+
+    @Post(':id/refund')
+    refund(@Param('id') id: string, @Body() dto: RefundDepositDto) {
+        return this.service.refund(id, dto);
+    }
+
+    @Post(':id/apply-surcharge')
+    applySurcharge(@Param('id') id: string, @Body() dto: ApplySurchargeDto) {
+        return this.service.applySurcharge(id, dto);
     }
 }

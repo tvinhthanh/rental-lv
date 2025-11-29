@@ -25,15 +25,22 @@ export class BillingService {
   async createInvoice(dto: CreateInvoiceDto) {
     const invoiceNo = 'INV-' + randomUUID().slice(0, 8).toUpperCase();
 
+    const subtotal = dto.baseAmount;
+    const surchargeTotal = dto.surchargeTotal ?? 0;
+    const discountTotal = dto.discountTotal ?? 0;
+    const depositApplied = dto.depositApplied ?? 0;
+    const totalAmount = subtotal + surchargeTotal - discountTotal - depositApplied;
+
     return this.prisma.invoice.create({
       data: {
         invoiceNo,
         bookingId: dto.bookingId,
         customerId: dto.customerId,
-        subtotal: dto.subtotal,
-        surchargeTotal: dto.surchargeTotal ?? 0,
-        discountTotal: dto.discountTotal ?? 0,
-        totalAmount: dto.totalAmount
+        subtotal,
+        surchargeTotal,
+        discountTotal,
+        depositApplied,
+        totalAmount
       }
     });
   }
@@ -54,6 +61,7 @@ export class BillingService {
       }
     });
 
+    await this.recalcInvoiceTotals(dto.invoiceId);
     return { message: 'Payment recorded successfully' };
   }
 
@@ -61,6 +69,19 @@ export class BillingService {
     return this.prisma.payment.findMany({
       where: { invoiceId }
     });
+  }
+
+  async applyDeposit(invoiceId: string, depositApplied: number) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
+    if (!invoice) throw new NotFoundException('Invoice not found');
+
+    await this.prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { depositApplied }
+    });
+
+    await this.recalcInvoiceTotals(invoiceId);
+    return { message: 'Deposit applied' };
   }
 
   // ==========================
@@ -97,15 +118,26 @@ export class BillingService {
       _sum: { amount: true }
     });
 
+    const paymentAgg = await this.prisma.payment.aggregate({
+      where: { invoiceId },
+      _sum: { amount: true }
+    });
+
     const surchargeTotal = surchargeAgg._sum.amount ?? 0;
+    const paymentsTotal = paymentAgg._sum.amount ?? 0;
     const subtotal = invoice.subtotal ?? 0;
     const discountTotal = invoice.discountTotal ?? 0;
+    const depositApplied = invoice.depositApplied ?? 0;
+
+    const totalAmount = subtotal + surchargeTotal - discountTotal - depositApplied;
+    const status = paymentsTotal >= totalAmount ? 'PAID' : invoice.status;
 
     await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: {
         surchargeTotal,
-        totalAmount: subtotal + surchargeTotal - discountTotal
+        totalAmount,
+        status
       }
     });
   }

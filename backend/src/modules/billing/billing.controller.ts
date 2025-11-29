@@ -36,6 +36,11 @@ export class BillingController {
         return this.billing.createInvoice(dto);
     }
 
+    @Post('invoices/:id/deposit')
+    applyDeposit(@Param('id') id: string, @Body() body: { depositApplied: number }) {
+        return this.billing.applyDeposit(id, body.depositApplied);
+    }
+
     // ============ PAYMENT ============
     @Post('payments')
     createPayment(@Body() dto: CreatePaymentDto) {

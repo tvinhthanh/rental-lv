@@ -468,6 +468,7 @@ model Invoice {
   subtotal       Float
   surchargeTotal Float @default(0)
   discountTotal  Float @default(0)
+  depositApplied Float @default(0)
   vatPercent     Float @default(0)
   vatAmount      Float @default(0)
   totalAmount    Float

@@ -76,59 +76,64 @@ export default function PriceListModal({ open, selected, onClose }: any) {
 
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-slate-900 border border-slate-700 p-6 w-96 rounded shadow">
-                <h2 className="text-lg font-semibold mb-4 text-gray-200">
+            <div className="bg-slate-900 border border-slate-700 p-6 w-[520px] rounded-lg shadow-xl">
+                <h2 className="text-xl font-semibold mb-4 text-gray-200">
                     {selected ? "Edit Price List" : "Add Price List"}
                 </h2>
 
-                <form onSubmit={formHandle(onSubmit)} className="space-y-3">
+                <form onSubmit={formHandle(onSubmit)} className="space-y-4">
 
-                    <input
-                        {...register("name")}
-                        className="input-dark"
-                        placeholder="Name *"
-                        required
-                    />
+                    <div className="grid grid-cols-2 gap-3">
+                        <input
+                            {...register("name")}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Name *"
+                            required
+                        />
 
-                    <input
-                        {...register("description")}
-                        className="input-dark"
-                        placeholder="Description"
-                    />
+                        <input
+                            {...register("description")}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Description"
+                        />
+                    </div>
 
-                    <input
-                        {...register("currency")}
-                        className="input-dark"
-                        placeholder="Currency (VND/USD)"
-                    />
+                    <div className="grid grid-cols-2 gap-3">
+                        <input
+                            {...register("currency")}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Currency (VND/USD)"
+                        />
 
-                    <input
-                        type="number"
-                        {...register("dailyRate", { valueAsNumber: true })}
-                        className="input-dark"
-                        placeholder="Daily Rate *"
-                        required
-                    />
+                        <input
+                            type="number"
+                            {...register("dailyRate", { valueAsNumber: true })}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Daily Rate *"
+                            required
+                        />
+                    </div>
 
-                    <input
-                        type="number"
-                        {...register("hourlyRate", { valueAsNumber: true })}
-                        className="input-dark"
-                        placeholder="Hourly Rate"
-                    />
+                    <div className="grid grid-cols-2 gap-3">
+                        <input
+                            type="number"
+                            {...register("hourlyRate", { valueAsNumber: true })}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Hourly Rate"
+                        />
 
-                    <input
-                        type="number"
-                        {...register("weekendRate", { valueAsNumber: true })}
-                        className="input-dark"
-                        placeholder="Weekend Rate"
-                    />
+                        <input
+                            type="number"
+                            {...register("weekendRate", { valueAsNumber: true })}
+                            className="input-dark focus:bg-white focus:text-black"
+                            placeholder="Weekend Rate"
+                        />
+                    </div>
 
-                    {/* NEW: HOLIDAY RATE */}
                     <input
                         type="number"
                         {...register("holidayRate", { valueAsNumber: true })}
-                        className="input-dark"
+                        className="input-dark focus:bg-white focus:text-black"
                         placeholder="Holiday Rate (optional)"
                     />
 

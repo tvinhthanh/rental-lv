@@ -124,7 +124,7 @@ export default function PriceListPage() {
                                                 return;
 
                                             await priceListService.delete(p.id);
-                                            queryClient.invalidateQueries(["price-lists"]);
+                                            queryClient.invalidateQueries({ queryKey: ["price-lists"] });
                                         }}
                                     >
                                         Delete

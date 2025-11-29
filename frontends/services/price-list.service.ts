@@ -4,7 +4,7 @@ export const priceListService = {
     // GET ALL (with optional search)
     getAll(keyword?: string) {
         return api
-            .get("/price-lists/", { params: { keyword } })
+            .get("/price-lists/", { params: { search: keyword } })
             .then((res) => res.data);
     },
 

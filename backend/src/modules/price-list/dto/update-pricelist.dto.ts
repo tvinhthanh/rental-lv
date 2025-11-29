@@ -26,5 +26,9 @@ export class UpdatePriceListDto {
     weekendRate?: number;
 
     @IsOptional()
+    @IsNumber()
+    holidayRate?: number;
+
+    @IsOptional()
     isActive?: boolean;
 }

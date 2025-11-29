@@ -21,7 +21,7 @@ export default function VehicleCategoryPage() {
     async function handleDelete(id: string) {
         if (!confirm("Delete this category?")) return;
         await vehicleCategoryService.delete(id);
-        queryClient.invalidateQueries(["vehicle-categories"]);
+        queryClient.invalidateQueries({ queryKey: ["vehicle-categories"] });
     }
 
     return (
@@ -138,7 +138,7 @@ export default function VehicleCategoryPage() {
                     selected={selected}
                     onClose={() => {
                         setOpen(false);
-                        queryClient.invalidateQueries(["vehicle-categories"]);
+                        queryClient.invalidateQueries({ queryKey: ["vehicle-categories"] });
                     }}
                 />
             )}

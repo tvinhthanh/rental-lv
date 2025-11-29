@@ -68,6 +68,7 @@ let PriceListService = class PriceListService {
                 dailyRate: dto.dailyRate,
                 hourlyRate: dto.hourlyRate,
                 weekendRate: dto.weekendRate,
+                holidayRate: dto.holidayRate,
                 isActive: (_b = dto.isActive) !== null && _b !== void 0 ? _b : true
             }
         });

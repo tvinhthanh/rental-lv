@@ -22,7 +22,7 @@ export default function BranchPage() {
         if (!confirm("Delete this branch?")) return;
 
         await branchService.delete(id);
-        queryClient.invalidateQueries(["branches"]);
+        queryClient.invalidateQueries({ queryKey: ["branches"] });
     }
 
     return (
@@ -127,7 +127,7 @@ export default function BranchPage() {
                     selected={selected}
                     onClose={() => {
                         setOpen(false);
-                        queryClient.invalidateQueries(["branches"]);
+                        queryClient.invalidateQueries({ queryKey: ["branches"] });
                     }}
                 />
             )}

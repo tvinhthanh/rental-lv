@@ -67,6 +67,7 @@ export class PriceListService {
                 dailyRate: dto.dailyRate,
                 hourlyRate: dto.hourlyRate,
                 weekendRate: dto.weekendRate,
+                holidayRate: dto.holidayRate,
                 isActive: dto.isActive ?? true
             }
         });

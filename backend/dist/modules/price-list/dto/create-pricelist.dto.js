@@ -46,6 +46,11 @@ __decorate([
 ], CreatePriceListDto.prototype, "weekendRate", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreatePriceListDto.prototype, "holidayRate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], CreatePriceListDto.prototype, "isActive", void 0);
 //# sourceMappingURL=create-pricelist.dto.js.map

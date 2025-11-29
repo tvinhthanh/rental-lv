@@ -22,7 +22,7 @@ export default function BrandPage() {
         if (!confirm("Delete this brand?")) return;
 
         await brandService.delete(id);
-        queryClient.invalidateQueries(["brands"]);
+        queryClient.invalidateQueries({ queryKey: ["brands"] });
     }
 
     return (
@@ -158,7 +158,7 @@ export default function BrandPage() {
                     selected={selected}
                     onClose={() => {
                         setOpen(false);
-                        queryClient.invalidateQueries(["brands"]);
+                        queryClient.invalidateQueries({ queryKey: ["brands"] });
                     }}
                 />
             )}

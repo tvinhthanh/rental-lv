@@ -1,91 +1,36 @@
-export interface MenuItem {
-    label: string;
-    href?: string;
-    children?: MenuItem[];
-}
-
-export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
+export const ROLE_MENU_SIDEBAR = {
     ADMIN: [
-        { label: "Chi nhánh", href: "/admin/branches" },
-        { label: "Danh mục giá", href: "/admin/price-lists" },
+        { label: "Branches", href: "/admin/branches" },
+        { label: "Price Lists", href: "/admin/price-lists" },
 
-        {
-            label: "Đơn đặt xe",
-            children: [
-        { label: "Đơn đặt xe", href: "/admin/bookings" },
-                { label: "Hợp đồng", href: "/admin/contracts" },
-                { label: "Giao xe", href: "/admin/handover" },
-                { label: "Nhận xe", href: "/admin/returns" },
-            ]
-        },
-        
-        {
-            label: "Tài chính",
-            children: [
-                { label: "Hóa đơn", href: "/admin/invoices" },
-                { label: "Thanh toán", href: "/admin/payments" },
-                { label: "Tiền cọc", href: "/admin/deposits" },
-                { label: "Phụ phí", href: "/admin/surcharges" },
-            ]
-        },
-        
-        {
-            label: "Người dùng",
-            children: [
-        { label: "Người dùng", href: "/admin/users" },
-        { label: "Khách hàng", href: "/admin/customers" },
-            ]
-        },
-        
-        {
-            label: "Marketing",
-            children: [
-                { label: "Notification Templates", href: "/admin/notification-templates" },
-                { label: "Customer Segments", href: "/admin/customer-segments" },
-                { label: "Marketing Campaigns", href: "/admin/marketing-campaigns" },
-            ]
-        },
-        
-        {
-            label: "Loyalty",
-            children: [
-                { label: "Loyalty Programs", href: "/admin/loyalty-programs" },
-                { label: "Loyalty Transactions", href: "/admin/loyalty-transactions" },
-            ]
-        },
-        
-        {
-            label: "Khác",
-            children: [
-                { label: "Blog", href: "/admin/blog" },
-                { label: "Khuyến mãi", href: "/admin/promotions" },
-                { label: "Đánh giá", href: "/admin/reviews" },
-        { label: "Bảo dưỡng", href: "/admin/maintenance" },
-        { label: "Thương hiệu", href: "/admin/brands" },
-                { label: "Pricing Rules", href: "/admin/pricing-rules" },
-                { label: "Partners", href: "/admin/partners" },
-            ]
-        },
-        
-        "---",
-        
-        {
-            label: "Hệ thống",
-            children: [
-                { label: "Cài đặt", href: "/admin/settings" },
-                { label: "Nhật ký hệ thống", href: "/admin/audit-logs" },
-            ]
-        },
+        { label: "Bookings", href: "/admin/bookings" },
+        { label: "Contracts", href: "/admin/contracts" },
+        { label: "Deposits", href: "/admin/deposits" },
+        { label: "Handover", href: "/admin/handover" },
+        { label: "Returns", href: "/admin/returns" },
+
+        { label: "Invoices", href: "/admin/invoices" },
+        { label: "Payments", href: "/admin/payments" },
+        { label: "Surcharges", href: "/admin/surcharges" },
+
+        { label: "Users", href: "/admin/users" },
+        { label: "Customers", href: "/admin/customers" },
+
+        { label: "Promotions", href: "/admin/promotions" },
+        { label: "Reviews", href: "/admin/reviews" },
+        { label: "Maintenance", href: "/admin/maintenance" },
+        { label: "Brands", href: "/admin/brands" },
     ],
 
     EMPLOYEE: [
-        { label: "Xe", href: "/employee/vehicles" },
-        { label: "Bảo dưỡng", href: "/employee/maintenance" },
-        { label: "Giao xe", href: "/employee/handover" },
-        { label: "Tiền cọc", href: "/employee/deposits" },
-        { label: "Nhận xe", href: "/employee/returns" },
-        { label: "Hóa đơn", href: "/employee/invoices" },
-        { label: "Phụ phí", href: "/employee/surcharges" },
-        { label: "Thanh toán", href: "/employee/payments" },
+        { label: "Handover", href: "/employee/handover" },
+        { label: "Returns", href: "/employee/returns" },
+        { label: "Deposits", href: "/employee/deposits" },
+        { label: "Payments", href: "/employee/payments" },
+        { label: "Checkout", href: "/employee/checkout" },
+        { label: "Surcharges", href: "/employee/surcharges" },
+        { label: "Vehicles", href: "/employee/vehicles" },
+        { label: "Invoices", href: "/employee/invoices" },
+        { label: "Maintenance", href: "/employee/maintenance" },
     ],
 };

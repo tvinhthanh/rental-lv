@@ -8,28 +8,27 @@ export default function BookingModal({ booking, onClose, onCreateContract }: any
     const branch = booking.branch;
 
     return (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] flex">
-            {/* FULL PAGE */}
-            <div className="bg-slate-900 w-full h-full overflow-y-auto p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[999]">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-xl shadow-xl">
 
                 {/* HEADER */}
-                <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                    <h2 className="text-2xl font-bold text-white">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-white">
                         Chi tiết Booking #{booking.bookingCode}
                     </h2>
 
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-white text-2xl"
+                        className="text-gray-400 hover:text-white text-xl"
                     >
                         ✕
                     </button>
                 </div>
 
-                <div className="space-y-8 text-gray-300">
+                <div className="space-y-6 text-gray-300">
 
-                    {/* CUSTOMER */}
-                    <section>
+                    {/* SECTION: CUSTOMER */}
+                    <div>
                         <h3 className="font-semibold text-lg text-blue-300">Thông tin khách hàng</h3>
                         <div className="mt-2 space-y-1 text-sm">
                             <p><b>Họ tên:</b> {customer?.fullName}</p>
@@ -37,10 +36,10 @@ export default function BookingModal({ booking, onClose, onCreateContract }: any
                             <p><b>Email:</b> {customer?.email}</p>
                             <p><b>Địa chỉ:</b> {customer?.address || "—"}</p>
                         </div>
-                    </section>
+                    </div>
 
-                    {/* VEHICLE */}
-                    <section>
+                    {/* SECTION: VEHICLE */}
+                    <div>
                         <h3 className="font-semibold text-lg text-blue-300">Thông tin xe</h3>
                         <div className="mt-2 space-y-1 text-sm">
                             <p><b>Tên xe:</b> {vehicle?.name}</p>
@@ -50,10 +49,10 @@ export default function BookingModal({ booking, onClose, onCreateContract }: any
                             <p><b>Số ghế:</b> {vehicle?.seatCount}</p>
                             <p><b>Nhiên liệu:</b> {vehicle?.fuelType}</p>
                         </div>
-                    </section>
+                    </div>
 
-                    {/* BRANCH */}
-                    <section>
+                    {/* SECTION: BRANCH */}
+                    <div>
                         <h3 className="font-semibold text-lg text-blue-300">Chi nhánh</h3>
                         <div className="mt-2 space-y-1 text-sm">
                             <p><b>Tên:</b> {branch?.name}</p>
@@ -61,19 +60,19 @@ export default function BookingModal({ booking, onClose, onCreateContract }: any
                             <p><b>Điện thoại:</b> {branch?.phone}</p>
                             <p><b>Giờ làm việc:</b> {branch?.businessHours}</p>
                         </div>
-                    </section>
+                    </div>
 
-                    {/* DATE */}
-                    <section>
+                    {/* SECTION: DATE */}
+                    <div>
                         <h3 className="font-semibold text-lg text-blue-300">Thời gian thuê</h3>
                         <div className="mt-2 space-y-1 text-sm">
                             <p><b>Ngày nhận xe:</b> {new Date(booking.pickupDate).toLocaleDateString("vi-VN")}</p>
                             <p><b>Ngày trả xe:</b> {new Date(booking.returnDate).toLocaleDateString("vi-VN")}</p>
                         </div>
-                    </section>
+                    </div>
 
-                    {/* PAYMENT */}
-                    <section>
+                    {/* SECTION: PAYMENT */}
+                    <div>
                         <h3 className="font-semibold text-lg text-blue-300">Thanh toán</h3>
                         <div className="mt-2 space-y-1 text-sm">
                             <p><b>Giá gốc:</b> {booking.baseAmount?.toLocaleString("vi-VN")} đ</p>
@@ -82,21 +81,24 @@ export default function BookingModal({ booking, onClose, onCreateContract }: any
                                 Tổng: {booking.totalAmount?.toLocaleString("vi-VN")} đ
                             </p>
                         </div>
-                    </section>
+                    </div>
+
                 </div>
 
                 {/* ACTIONS */}
-                <div className="flex justify-end gap-3 mt-10">
+                <div className="flex justify-end gap-3 mt-8">
+
+                    {/* CREATE CONTRACT */}
                     <button
                         onClick={() => onCreateContract?.(booking)}
-                        className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold"
                     >
                         Tạo hợp đồng
                     </button>
 
                     <button
                         onClick={onClose}
-                        className="px-5 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
                     >
                         Đóng
                     </button>

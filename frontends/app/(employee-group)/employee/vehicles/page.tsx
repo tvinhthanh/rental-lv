@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { employeeService } from "@/services/employee.service";
 import { vehicleService } from "@/services/vehicle.service";
-import { getPlaceholderImage } from "@/lib/image-placeholder";
 import VehicleModal from "./_components/VehicleModal";
 
 export default function VehiclesPage() {
@@ -99,7 +98,7 @@ export default function VehiclesPage() {
                             className="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow hover:border-blue-400/40 transition cursor-pointer"
                         >
                             <img
-                                src={v.photos?.[0] || getPlaceholderImage()}
+                                src={v.photos?.[0] || "/no-image.png"}
                                 className="w-full h-40 object-cover rounded-lg mb-3 border border-slate-700"
                                 alt={v.name}
                             />

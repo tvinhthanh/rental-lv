@@ -52,7 +52,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
             const res = await branchService.getAll();
             const items = normalizeList(res);
             setBranches(items);
-        })();
+        }).catch(() => setBranches([]));
     }, []);
 
     //  UPDATE FORM WHEN EDIT

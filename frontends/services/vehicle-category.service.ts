@@ -3,7 +3,7 @@ import api from "@/lib/api";
 export const vehicleCategoryService = {
     getAll(keyword?: string) {
         return api
-            .get("/vehicle-categories", { params: { keyword } })
+            .get("/vehicle-categories", { params: { search: keyword } })
             .then((r: { data: any; }) => r.data);
     },
 

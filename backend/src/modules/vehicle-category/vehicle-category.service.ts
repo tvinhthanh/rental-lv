@@ -69,6 +69,9 @@ export class VehicleCategoryService {
                 imageUrl: dto.imageUrl || null,
                 metaTitle: dto.metaTitle || null,
                 metaDescription: dto.metaDescription || null,
+                seoTitle: dto.seoTitle || null,
+                hTitle: dto.hTitle || null,
+                isActive: dto.isActive ?? true,
                 displayOrder: dto.displayOrder ?? 0
             }
         });

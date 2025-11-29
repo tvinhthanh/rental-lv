@@ -57,7 +57,7 @@ let VehicleCategoryService = class VehicleCategoryService {
         return category;
     }
     async create(dto, actorId) {
-        var _a;
+        var _a, _b;
         if (dto.code) {
             const exists = await this.prisma.vehicleCategory.findUnique({ where: { code: dto.code } });
             if (exists)
@@ -72,7 +72,10 @@ let VehicleCategoryService = class VehicleCategoryService {
                 imageUrl: dto.imageUrl || null,
                 metaTitle: dto.metaTitle || null,
                 metaDescription: dto.metaDescription || null,
-                displayOrder: (_a = dto.displayOrder) !== null && _a !== void 0 ? _a : 0
+                seoTitle: dto.seoTitle || null,
+                hTitle: dto.hTitle || null,
+                isActive: (_a = dto.isActive) !== null && _a !== void 0 ? _a : true,
+                displayOrder: (_b = dto.displayOrder) !== null && _b !== void 0 ? _b : 0
             }
         });
         await this.audit.log(actorId !== null && actorId !== void 0 ? actorId : null, 'CREATE', 'VehicleCategory', category.id, category);

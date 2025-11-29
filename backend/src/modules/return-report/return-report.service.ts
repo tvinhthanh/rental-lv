@@ -207,7 +207,7 @@ export class ReturnReportService {
                 const allSurcharges = await this.prisma.surcharge.findMany({
                     where: { invoiceId }
                 });
-                const totalSurcharge = allSurcharges.reduce((sum, s) => sum + (s.amount || 0), 0);
+                const totalSurcharge = allSurcharges.reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
                 
                 const invoice = await this.prisma.invoice.findUnique({
                     where: { id: invoiceId }

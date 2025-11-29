@@ -28,6 +28,10 @@ export class MaintenanceService {
     }
 
     async create(dto: CreateMaintenanceDto, actorId?: string) {
+        // Validate vehicle exists
+        const vehicle = await this.prisma.vehicle.findUnique({ where: { id: dto.vehicleId } });
+        if (!vehicle) throw new NotFoundException('Vehicle not found');
+
         const maintenance = await this.prisma.maintenance.create({
             data: {
                 vehicleId: dto.vehicleId,

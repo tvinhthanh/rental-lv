@@ -4,7 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { vehicleService } from "@/services/vehicle.service";
 
-export default function CreateBookingPage() {
+import { Suspense } from "react";
+
+function CreateBookingContent() {
     const params = useSearchParams();
     const vehicleId = params.get("vehicleId");
 
@@ -67,5 +69,13 @@ export default function CreateBookingPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function CreateBookingPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CreateBookingContent />
+        </Suspense>
     );
 }

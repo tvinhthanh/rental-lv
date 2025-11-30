@@ -2,7 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 
-export default function CreateContractPage() {
+import { Suspense } from "react";
+
+function CreateContractContent() {
     const params = useSearchParams();
     const bookingId = params.get("bookingId");
 
@@ -30,5 +32,13 @@ export default function CreateContractPage() {
                 </button>
             </div>
         </div>
+    );
+}
+
+export default function CreateContractPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CreateContractContent />
+        </Suspense>
     );
 }

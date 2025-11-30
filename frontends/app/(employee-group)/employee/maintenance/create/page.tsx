@@ -8,7 +8,9 @@ import { MAINTENANCE_REASONS } from "@/constants/maintenance-reasons";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export default function CreateMaintenancePage() {
+import { Suspense } from "react";
+
+function CreateMaintenanceContent() {
     const params = useSearchParams();
     const vehicleId = params.get("vehicleId");
     const router = useRouter();
@@ -149,5 +151,13 @@ export default function CreateMaintenancePage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function CreateMaintenancePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CreateMaintenanceContent />
+        </Suspense>
     );
 }

@@ -13,7 +13,7 @@ export default function BrandPage() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["brands", search],
-        queryFn: () => brandService.getAll(search),
+        queryFn: () => brandService.getAll(),
     });
 
     const brands = Array.isArray(data) ? data : data?.items ?? [];

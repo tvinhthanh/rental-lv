@@ -6,7 +6,7 @@ import { brandService } from "@/services/brand.service";
 import { useFormSubmit } from "@/hooks/useHooks";
 
 export default function BrandModal({ open, selected, onClose }: any) {
-    const [logoPreview, setLogoPreview] = useState(null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
     const defaultValues = selected ?? {
         name: "",

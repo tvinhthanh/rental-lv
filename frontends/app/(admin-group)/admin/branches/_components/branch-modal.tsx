@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { branchService } from "@/services/branch.service";
 import { useFormSubmit } from "@/hooks/useHooks";
-import MapPicker from "@/components/add-ons/map-picker";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("@/components/add-ons/map-picker"), {
+    ssr: false,
+    loading: () => <p>Loading Map...</p>,
+});
 
 interface BranchModalProps {
     open: boolean;

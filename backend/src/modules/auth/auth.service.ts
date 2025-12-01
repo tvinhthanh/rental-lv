@@ -80,7 +80,7 @@ export class AuthService {
       email: dto.email,
       password: dto.password,
       name: dto.name,
-      role: 'USER' //ROLE BASE : USER => GÁN CUSTOMERS
+      role: 'USER' //ROLE : USER => GÁN CUSTOMERS
     });
 
     const customer = await this.prisma.customer.create({

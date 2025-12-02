@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { CalendarClock, Gauge, Headset, ShieldCheck } from "lucide-react";
+import { CalendarClock, Gauge, Headset, ShieldCheck, MapPin } from "lucide-react";
 import Hero from "@/components/layouts/hero";
 import QuickBooking from "@/components/home/quick-booking";
 

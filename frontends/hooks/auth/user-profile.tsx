@@ -29,11 +29,11 @@ export function useProfile() {
         error: profileError
     } = useQuery({
         queryKey: ["profile", endpoint],
-        enabled: !!endpoint,        // chỉ fetch khi có endpoint hợp lệ
+        enabled: !!endpoint,
         queryFn: async () => {
             if (!endpoint) return null;
             const res = await api.get(endpoint);
-            return res.data;
+            return res?.data ?? res;
         }
     });
 

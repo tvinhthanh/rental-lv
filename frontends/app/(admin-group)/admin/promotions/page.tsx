@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { promotionService } from "@/services/promotion.service";
 import { Tag } from "lucide-react";
-import PromotionModal from "./_components/promotion-modal";
-import { toast } from "sonner";
 
 export default function AdminPromotionsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -13,40 +11,29 @@ export default function AdminPromotionsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
-    const [editingPromotion, setEditingPromotion] = useState<any | null>(null);
-    const [openForm, setOpenForm] = useState(false);
-
-    const loadPromotions = async () => {
-        try {
-            setLoading(true);
-            const res = await promotionService.list();
-            const items = Array.isArray(res) ? res : (res?.items || []);
-            setPromotions(items);
-            setTotal(items.length);
-        } catch (err) {
-            console.error("Load promotions failed:", err);
-            setError("Không thể tải danh sách khuyến mãi");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (promotion: any) => {
-        if (!confirm("Xóa khuyến mãi này?")) return;
-        try {
-            await promotionService.delete(promotion.id);
-            toast.success("Đã xóa khuyến mãi");
-            loadPromotions();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Xóa khuyến mãi thất bại");
-        }
-    };
+    const [selectedPromotion, setSelectedPromotion] = useState<any | null>(null);
+    const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         if (userLoading) return;
         if (!user || user.role !== "ADMIN") {
             setLoading(false);
             return;
+        }
+
+        async function loadPromotions() {
+            try {
+                setLoading(true);
+                const res = await promotionService.list();
+                const items = Array.isArray(res) ? res : (res?.items || []);
+                setPromotions(items);
+                setTotal(items.length);
+            } catch (err) {
+                console.error("Load promotions failed:", err);
+                setError("Không thể tải danh sách khuyến mãi");
+            } finally {
+                setLoading(false);
+            }
         }
 
         loadPromotions();
@@ -87,15 +74,6 @@ export default function AdminPromotionsPage() {
                             {total.toLocaleString("vi-VN")}
                         </p>
                     </div>
-                    <button
-                        className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:-translate-y-0.5 transition"
-                        onClick={() => {
-                            setEditingPromotion(null);
-                            setOpenForm(true);
-                        }}
-                    >
-                        + Thêm khuyến mãi
-                    </button>
                 </div>
 
                 {error && (
@@ -114,21 +92,24 @@ export default function AdminPromotionsPage() {
                         {promotions.map((promotion) => (
                             <div
                                 key={promotion.id}
-                                className="bg-slate-900 border border-slate-700 rounded-xl p-5 hover:border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-200 flex flex-col gap-3"
+                                onClick={() => {
+                                    setSelectedPromotion(promotion);
+                                    setOpenModal(true);
+                                }}
+                                className="bg-slate-900 border border-slate-700 rounded-xl p-5 cursor-pointer 
+                                           hover:border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/10 
+                                           transition-all duration-200"
                             >
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <Tag className="w-5 h-5 text-purple-400" />
                                         <span className="text-sm font-semibold text-purple-400">
                                             {promotion.code || promotion.name || "—"}
                                         </span>
                                     </div>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200">
-                                        {promotion.status || "ACTIVE"}
-                                    </span>
                                 </div>
 
-                                <div className="space-y-1 text-sm flex-1">
+                                <div className="space-y-2 text-sm">
                                     <p className="text-gray-300 font-medium">
                                         {promotion.name || "—"}
                                     </p>
@@ -145,61 +126,88 @@ export default function AdminPromotionsPage() {
                                             Giảm {promotion.discountAmount.toLocaleString("vi-VN")} đ
                                         </p>
                                     )}
-                                    <div className="text-xs text-slate-400 flex flex-wrap gap-2">
-                                        {promotion.startDate && (
-                                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10">
-                                                Bắt đầu: {new Date(promotion.startDate).toLocaleDateString("vi-VN")}
-                                            </span>
-                                        )}
-                                        {promotion.endDate && (
-                                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10">
-                                                Hết hạn: {new Date(promotion.endDate).toLocaleDateString("vi-VN")}
-                                            </span>
-                                        )}
-                                        {promotion.usageLimit && (
-                                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10">
-                                                Đã dùng: {promotion.usedCount ?? 0}/{promotion.usageLimit}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-sm">
-                                    <button
-                                        onClick={() => {
-                                            setEditingPromotion(promotion);
-                                            setOpenForm(true);
-                                        }}
-                                        className="px-3 py-2 rounded bg-white/10 hover:bg-white/20 text-white"
-                                    >
-                                        Sửa
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(promotion)}
-                                        className="px-3 py-2 rounded bg-rose-600/80 hover:bg-rose-600 text-white"
-                                    >
-                                        Xóa
-                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
 
-                {openForm && (
-                    <PromotionModal
-                        open={openForm}
-                        selected={editingPromotion}
-                        onClose={() => {
-                            setOpenForm(false);
-                            setEditingPromotion(null);
-                        }}
-                        onSaved={() => {
-                            setOpenForm(false);
-                            setEditingPromotion(null);
-                            loadPromotions();
-                        }}
-                    />
+                {openModal && selectedPromotion && (
+                    <div className="fixed inset-0 z-[999] flex bg-black/75 backdrop-blur-sm" onClick={() => setOpenModal(false)}>
+                        <div className="m-auto max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950/95 p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-start justify-between border-b border-slate-800 pb-4 mb-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white">Chi Tiết Khuyến Mãi</h2>
+                                    <p className="mt-1 text-sm text-slate-400">
+                                        Mã: {selectedPromotion.code || selectedPromotion.name || "—"}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setOpenModal(false)}
+                                    className="rounded-full bg-slate-800 px-3 py-1 text-lg text-slate-300 hover:bg-slate-700 hover:text-white"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className="space-y-4 text-sm">
+                                <div>
+                                    <p className="text-slate-400">Tên</p>
+                                    <p className="text-white text-lg font-semibold">{selectedPromotion.name || "—"}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-slate-400">Mô tả</p>
+                                    <p className="text-white">{selectedPromotion.description || "—"}</p>
+                                </div>
+
+                                {selectedPromotion.discountPercent && (
+                                    <div>
+                                        <p className="text-slate-400">Giảm giá</p>
+                                        <p className="text-2xl font-bold text-purple-400">
+                                            {selectedPromotion.discountPercent}%
+                                        </p>
+                                    </div>
+                                )}
+
+                                {selectedPromotion.discountAmount && (
+                                    <div>
+                                        <p className="text-slate-400">Giảm giá</p>
+                                        <p className="text-2xl font-bold text-purple-400">
+                                            {selectedPromotion.discountAmount.toLocaleString("vi-VN")} đ
+                                        </p>
+                                    </div>
+                                )}
+
+                                {selectedPromotion.startDate && (
+                                    <div>
+                                        <p className="text-slate-400">Ngày bắt đầu</p>
+                                        <p className="text-white">
+                                            {new Date(selectedPromotion.startDate).toLocaleDateString("vi-VN")}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {selectedPromotion.endDate && (
+                                    <div>
+                                        <p className="text-slate-400">Ngày kết thúc</p>
+                                        <p className="text-white">
+                                            {new Date(selectedPromotion.endDate).toLocaleDateString("vi-VN")}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {selectedPromotion.createdAt && (
+                                    <div>
+                                        <p className="text-slate-400">Ngày tạo</p>
+                                        <p className="text-white">
+                                            {new Date(selectedPromotion.createdAt).toLocaleDateString("vi-VN")}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

@@ -23,14 +23,13 @@ export const ROLE_MENU_SIDEBAR = {
     ],
 
     EMPLOYEE: [
-        { label: "Handover", href: "/employee/handover" },
-        { label: "Returns", href: "/employee/returns" },
-        { label: "Deposits", href: "/employee/deposits" },
-        { label: "Payments", href: "/employee/payments" },
-        { label: "Checkout", href: "/employee/checkout" },
-        { label: "Surcharges", href: "/employee/surcharges" },
-        { label: "Vehicles", href: "/employee/vehicles" },
-        { label: "Invoices", href: "/employee/invoices" },
-        { label: "Maintenance", href: "/employee/maintenance" },
+        { label: "Xe", href: "/employee/vehicles" },
+        { label: "Bảo dưỡng", href: "/employee/maintenance" },
+        { label: "Giao xe", href: "/employee/handover" },
+        { label: "Tiền cọc", href: "/employee/deposits" },
+        { label: "Nhận xe", href: "/employee/returns" },
+        { label: "Hóa đơn", href: "/employee/invoices" },
+        { label: "Phụ phí", href: "/employee/surcharges" },
+        { label: "Thanh toán", href: "/employee/payments" },
     ],
 };

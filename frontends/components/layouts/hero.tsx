@@ -46,7 +46,7 @@ export default function Hero() {
                             Xem danh sách xe
                         </a>
                         <a
-                            href="/auth"
+                            href="/user/bookings"
                             className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow"
                         >
                             Bắt đầu đặt xe

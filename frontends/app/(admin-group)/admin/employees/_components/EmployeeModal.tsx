@@ -39,10 +39,15 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     // LOAD BRANCHES (normalized)
     // ==============================
     useEffect(() => {
-        branchService.getAll().then((res: any) => {
-            const items = Array.isArray(res) ? res : res?.items ?? [];
-            setBranches(items);
-        }).catch(() => setBranches([]));
+        (async () => {
+            try {
+                const res = await branchService.getAll();
+                const items = normalizeList(res);
+                setBranches(items);
+            } catch {
+                setBranches([]);
+            }
+        })();
     }, []);
 
     // ==============================

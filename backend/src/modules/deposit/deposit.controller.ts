@@ -14,6 +14,11 @@ export class DepositController {
         return this.service.listDetails(depositId);
     }
 
+    @Get('branch/:branchId')
+    findByBranch(@Param('branchId') branchId: string) {
+        return this.service.findByBranch(branchId);
+    }
+
     @Get(':bookingId')
     findByBooking(@Param('bookingId') bookingId: string) {
         return this.service.findByBooking(bookingId);

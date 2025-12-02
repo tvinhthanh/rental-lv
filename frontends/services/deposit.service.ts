@@ -13,4 +13,7 @@ export const depositService = {
 
     details: (depositId: string) =>
         api.get(`/deposit/detail/${depositId}`),
+
+    findByBranch: (branchId: string) =>
+        api.get(`/deposit/branch/${branchId}`),
 };

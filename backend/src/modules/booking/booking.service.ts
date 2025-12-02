@@ -81,7 +81,12 @@ export class BookingService {
                     customer: true,
                     vehicle: true,
                     branch: true,
-                    returnBranch: true
+                    returnBranch: true,
+                    contract: true,
+                    deposit: true,
+                    handover: true,
+                    returnReport: true,
+                    invoice: true
                 }
             }),
             this.prisma.booking.count({ where })
@@ -289,7 +294,14 @@ export class BookingService {
                         },
                     },
                     branch: true,
-                }
+                    returnBranch: true,
+                    contract: true,
+                    deposit: true,
+                    handover: true,
+                    returnReport: true,
+                    invoice: true
+                },
+                orderBy: { createdAt: 'desc' }
             }),
             this.prisma.booking.count({
                 where: { branchId }

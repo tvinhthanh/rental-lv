@@ -15,4 +15,9 @@ export class ReturnReportController {
     create(@Body() dto: CreateReturnReportDto) {
         return this.service.create(dto);
     }
+
+    @Get('branch/:branchId')
+    findByBranch(@Param('branchId') branchId: string) {
+        return this.service.findByBranch(branchId);
+    }
 }

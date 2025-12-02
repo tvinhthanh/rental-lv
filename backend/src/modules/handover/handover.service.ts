@@ -13,18 +13,37 @@ export class HandoverService {
     async findByBooking(bookingId: string) {
         return this.prisma.handover.findUnique({
             where: { bookingId },
-            include: { booking: true, employee: true }
+            include: {
+                booking: {
+                    include: {
+                        customer: true,
+                        vehicle: {
+                            include: {
+                                category: true,
+                                branch: true
+                            }
+                        },
+                        branch: true
+                    }
+                },
+                employee: true
+            }
         });
     }
 
     async create(dto: CreateHandoverDto, actorId?: string) {
         const booking = await this.prisma.booking.findUnique({
-            where: { id: dto.bookingId }
+            where: { id: dto.bookingId },
+            include: { deposit: true }
         });
         if (!booking) throw new NotFoundException('Booking not found');
 
-        if (booking.status !== 'CONFIRMED') {
-            throw new BadRequestException('Booking must be CONFIRMED before handover');
+        if (booking.status !== 'CONTRACTED') {
+            throw new BadRequestException('Booking must be CONTRACTED before handover');
+        }
+
+        if (!booking.deposit) {
+            throw new BadRequestException('Deposit must be created before handover');
         }
 
         const existing = await this.prisma.handover.findUnique({
@@ -58,6 +77,59 @@ export class HandoverService {
         });
 
         await this.audit.log(actorId ?? null, 'CREATE', 'Handover', handover.id, handover);
+
+        // Check nếu đã có deposit → chuyển booking sang ONGOING
+        const deposit = await this.prisma.deposit.findUnique({
+            where: { bookingId: dto.bookingId }
+        });
+
+        if (deposit) {
+            await this.prisma.booking.update({
+                where: { id: dto.bookingId },
+                data: { status: 'ONGOING' }
+            });
+        }
+
         return handover;
+    }
+
+    async findByBranch(branchId: string) {
+        const [items, total] = await Promise.all([
+            this.prisma.handover.findMany({
+                where: {
+                    booking: {
+                        branchId
+                    }
+                },
+                include: {
+                    booking: {
+                        include: {
+                            customer: true,
+                            vehicle: {
+                                include: {
+                                    category: true,
+                                    branch: true
+                                }
+                            },
+                            branch: true
+                        }
+                    },
+                    employee: true
+                },
+                orderBy: { createdAt: 'desc' }
+            }),
+            this.prisma.handover.count({
+                where: {
+                    booking: {
+                        branchId
+                    }
+                }
+            })
+        ]);
+
+        return {
+            items,
+            total
+        };
     }
 }

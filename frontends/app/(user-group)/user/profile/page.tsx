@@ -1,77 +1,246 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useProfile } from "@/hooks/auth/user-profile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useFormatDate } from "@/hooks/useFormatDate";
+import { customerService } from "@/services/customer.service";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const { format } = useFormatDate();
-
-    // Lấy customer hoặc employee
     const { profile, isLoading: profileLoading } = useProfile();
 
+    const [form, setForm] = useState<any>({});
+    const [avatarPreview, setAvatarPreview] = useState<string>("");
+    const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    useEffect(() => {
+        if (profile) {
+            setForm(profile);
+            setAvatarPreview(profile.avatarUrl || "");
+        }
+    }, [profile]);
+
+    const isCustomer = useMemo(() => user?.role === "CUSTOMER", [user]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setForm((prev: any) => ({ ...prev, [name]: value }));
+    };
+
+    const handleUpload = async (file?: File) => {
+        if (!file) return;
+        try {
+            setUploading(true);
+            const baseURL = process.env.NEXT_PUBLIC_API_ENDPOINT;
+            if (!baseURL) throw new Error("Thiếu cấu hình NEXT_PUBLIC_API_ENDPOINT");
+
+            const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : "";
+            const fd = new FormData();
+            fd.append("files", file);
+
+            const res = await fetch(`${baseURL}/upload/images`, {
+                method: "POST",
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: fd
+            });
+
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || "Upload thất bại");
+            }
+            const json = await res.json();
+            const url = json?.urls?.[0];
+
+            setForm((prev: any) => ({ ...prev, avatarUrl: url }));
+            setAvatarPreview(url);
+            toast.success("Tải ảnh lên thành công");
+        } catch (err: any) {
+            toast.error(err?.message || "Upload thất bại");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!profile?.id) return;
+        try {
+            setSaving(true);
+            await customerService.update(profile.id, form);
+            toast.success("Cập nhật hồ sơ thành công");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || err?.message || "Cập nhật thất bại");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     if (userLoading || profileLoading) {
-        return <div className="p-4 text-gray-400">Đang tải thông tin...</div>;
+        return (
+            <div className="min-h-screen bg-[#0b1424] text-blue-100 flex items-center justify-center">
+                <div className="loader" />
+            </div>
+        );
     }
 
     return (
-        <div className="p-4 text-gray-200 max-w-2xl">
-            <h1 className="text-2xl font-bold mb-4">Thông tin cá nhân</h1>
+        <div className="min-h-screen bg-[#0b1424] text-white">
+            <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                        <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Hồ sơ cá nhân</p>
+                        <h1 className="text-3xl md:text-4xl font-bold">Thông tin tài khoản</h1>
+                        <p className="text-blue-100 mt-1">Cập nhật avatar, thông tin liên hệ và giấy tờ tùy thân.</p>
+                    </div>
+                    <div className="text-right text-blue-100 text-sm">
+                        <p>Email: {user?.email}</p>
+                        <p>Vai trò: {user?.role}</p>
+                        <p>Ngày tạo: {format(user?.createdAt)}</p>
+                    </div>
+                </div>
 
-            <div className="bg-gray-800/40 p-4 rounded-xl w-full max-w-xl space-y-2">
-                {/* USER */}
-                <h2 className="text-lg font-semibold mb-2 text-cyan-300">Tài khoản</h2>
-                <p><b>Email:</b> {user?.email}</p>
-                <p><b>Tên đăng nhập:</b> {user?.name ?? "—"}</p>
-                <p><b>Vai trò:</b> {user?.role}</p>
-                <p><b>Ngày tạo:</b> {format(user?.createdAt)}</p>
-
-                {user.role !== "ADMIN" && (
-                    <>
-                        <hr className="my-3 border-gray-600" />
-
-                        {/* CUSTOMER / EMPLOYEE */}
-                        <h2 className="text-lg font-semibold mb-2 text-indigo-300">
-                            {user.role === "CUSTOMER" ? "Hồ sơ khách hàng" : "Thông tin nhân viên"}
-                        </h2>
-
-                        <p><b>Họ tên:</b> {profile?.fullName ?? "—"}</p>
-                        <p><b>Số điện thoại:</b> {profile?.phone ?? "—"}</p>
-                        <p><b>Giới tính:</b> {profile?.gender ?? "—"}</p>
-                        <p><b>Địa chỉ:</b> {profile?.address ?? "—"}</p>
-                        <p><b>Ngày sinh:</b> {format(profile?.dateOfBirth)}</p>
-
-                        {user.role === "CUSTOMER" && (
-                            <>
-                                <hr className="my-3 border-gray-600" />
-                                <h2 className="text-lg font-semibold mb-2 text-purple-300">
-                                    Giấy tờ tuỳ thân
-                                </h2>
-                                <p><b>CMND/CCCD:</b> {profile?.nationalId ?? "—"}</p>
-                                <p><b>Quốc tịch:</b> {profile?.nationality ?? "—"}</p>
-                                <p><b>Số GPLX:</b> {profile?.driverLicenseNo ?? "—"}</p>
-                                <p><b>GPLX hết hạn:</b> {format(profile?.driverLicenseExpiry)}</p>
-                            </>
-                        )}
-
-                        <hr className="my-3 border-gray-600" />
-
-                        <p>
-                            <b>Ảnh đại diện:</b>{" "}
-                            {profile?.avatarUrl ? (
-                                <img
-                                    src={profile.avatarUrl}
-                                    alt="avatar"
-                                    className="w-24 h-24 rounded-full mt-2 border"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-1">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-2xl backdrop-blur space-y-4">
+                            <p className="text-sm uppercase tracking-[0.15em] text-blue-200">Ảnh đại diện</p>
+                            <div className="w-36 h-36 rounded-full overflow-hidden border border-white/20 bg-white/10 mx-auto">
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-blue-100 text-sm">Chưa có ảnh</div>
+                                )}
+                            </div>
+                            <label className="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg border border-white/20 bg-white/10 text-sm font-semibold cursor-pointer hover:bg-white/15 transition">
+                                {uploading ? "Đang tải..." : "Tải ảnh lên"}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleUpload(e.target.files?.[0])}
+                                    disabled={uploading}
                                 />
-                            ) : (
-                                "—"
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Field label="Họ tên" name="fullName" value={form.fullName || ""} onChange={handleChange} />
+                                <Field label="Số điện thoại" name="phone" value={form.phone || ""} onChange={handleChange} />
+                                <SelectField
+                                    label="Giới tính"
+                                    name="gender"
+                                    value={form.gender || ""}
+                                    onChange={handleChange}
+                                    options={[
+                                        { value: "", label: "Chọn giới tính" },
+                                        { value: "MALE", label: "Nam" },
+                                        { value: "FEMALE", label: "Nữ" },
+                                        { value: "OTHER", label: "Khác" },
+                                    ]}
+                                />
+                                <Field label="Địa chỉ" name="address" value={form.address || ""} onChange={handleChange} />
+                                <Field label="Quốc tịch" name="nationality" value={form.nationality || ""} onChange={handleChange} />
+                                <Field label="Ngày sinh" name="dateOfBirth" type="date" value={form.dateOfBirth ? form.dateOfBirth.substring(0, 10) : ""} onChange={handleChange} />
+                            </div>
+
+                            {isCustomer && (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Field label="CMND/CCCD" name="nationalId" value={form.nationalId || ""} onChange={handleChange} />
+                                        <Field label="Số GPLX" name="driverLicenseNo" value={form.driverLicenseNo || ""} onChange={handleChange} />
+                                        <Field
+                                            label="GPLX hết hạn"
+                                            name="driverLicenseExpiry"
+                                            type="date"
+                                            value={form.driverLicenseExpiry ? form.driverLicenseExpiry.substring(0, 10) : ""}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </>
                             )}
-                        </p>
-                    </>
-                )}
+
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={saving}
+                                    className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition disabled:opacity-60"
+                                >
+                                    {saving ? "Đang lưu..." : "Lưu thay đổi"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    );
+}
+
+function Field({
+    label,
+    name,
+    value,
+    onChange,
+    type = "text",
+    placeholder
+}: {
+    label: string;
+    name: string;
+    value: any;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    type?: string;
+    placeholder?: string;
+}) {
+    return (
+        <label className="space-y-1 text-sm text-blue-100">
+            <span className="block text-xs uppercase tracking-[0.12em] text-blue-200">{label}</span>
+            <input
+                name={name}
+                type={type}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15 text-white placeholder:text-blue-200 focus:outline-none focus:border-white/40"
+            />
+        </label>
+    );
+}
+
+function SelectField({
+    label,
+    name,
+    value,
+    onChange,
+    options
+}: {
+    label: string;
+    name: string;
+    value: any;
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    options: { value: string; label: string }[];
+}) {
+    return (
+        <label className="space-y-1 text-sm text-blue-100">
+            <span className="block text-xs uppercase tracking-[0.12em] text-blue-200">{label}</span>
+            <select
+                name={name}
+                value={value}
+                onChange={onChange}
+                className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/15 text-white placeholder:text-blue-200 focus:outline-none focus:border-white/40"
+            >
+                {options.map((opt) => (
+                    <option key={opt.value} value={opt.value} className="bg-[#0b1424] text-white">
+                        {opt.label}
+                    </option>
+                ))}
+            </select>
+        </label>
     );
 }

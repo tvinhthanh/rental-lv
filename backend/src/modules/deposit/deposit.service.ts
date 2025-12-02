@@ -17,7 +17,22 @@ export class DepositService {
     async findByBooking(bookingId: string) {
         return this.prisma.deposit.findUnique({
             where: { bookingId },
-            include: { items: true }
+            include: {
+                items: true,
+                booking: {
+                    include: {
+                        customer: true,
+                        vehicle: {
+                            include: {
+                                category: true,
+                                branch: true
+                            }
+                        },
+                        branch: true
+                    }
+                },
+                customer: true
+            }
         });
     }
 
@@ -53,6 +68,19 @@ export class DepositService {
         });
 
         await this.audit.log(actorId ?? null, 'CREATE', 'Deposit', deposit.id, deposit);
+
+        // Check nếu đã có handover → chuyển booking sang ONGOING
+        const handover = await this.prisma.handover.findUnique({
+            where: { bookingId: dto.bookingId }
+        });
+
+        if (handover) {
+            await this.prisma.booking.update({
+                where: { id: dto.bookingId },
+                data: { status: 'ONGOING' }
+            });
+        }
+
         return deposit;
     }
 
@@ -172,5 +200,46 @@ export class DepositService {
         });
 
         return updated;
+    }
+
+    async findByBranch(branchId: string) {
+        const [items, total] = await Promise.all([
+            this.prisma.deposit.findMany({
+                where: {
+                    booking: {
+                        branchId
+                    }
+                },
+                include: {
+                    booking: {
+                        include: {
+                            customer: true,
+                            vehicle: {
+                                include: {
+                                    category: true,
+                                    branch: true
+                                }
+                            },
+                            branch: true
+                        }
+                    },
+                    customer: true,
+                    items: true
+                },
+                orderBy: { createdAt: 'desc' }
+            }),
+            this.prisma.deposit.count({
+                where: {
+                    booking: {
+                        branchId
+                    }
+                }
+            })
+        ]);
+
+        return {
+            items,
+            total
+        };
     }
 }

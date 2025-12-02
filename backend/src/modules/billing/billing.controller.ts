@@ -26,6 +26,11 @@ export class BillingController {
         return this.billing.findAllInvoices();
     }
 
+    @Get('invoices/branch/:branchId')
+    findByBranch(@Param('branchId') branchId: string) {
+        return this.billing.findByBranch(branchId);
+    }
+
     @Get('invoices/:id')
     findInvoice(@Param('id') id: string) {
         return this.billing.findInvoice(id);
@@ -53,6 +58,16 @@ export class BillingController {
     }
 
     // ============ SURCHARGE ============
+    @Get('surcharges')
+    findAllSurcharges() {
+        return this.billing.findAllSurcharges();
+    }
+
+    @Get('surcharges/branch/:branchId')
+    findSurchargesByBranch(@Param('branchId') branchId: string) {
+        return this.billing.findSurchargesByBranch(branchId);
+    }
+
     @Post('surcharges')
     addSurcharge(@Body() dto: CreateSurchargeDto) {
         return this.billing.addSurcharge(dto);

@@ -13,7 +13,63 @@ export class BillingService {
   // INVOICE
   // ==========================
   findAllInvoices() {
-    return this.prisma.invoice.findMany();
+    return this.prisma.invoice.findMany({
+      include: {
+        booking: {
+          include: {
+            customer: true,
+            vehicle: true,
+            branch: true
+          }
+        },
+        customer: true,
+        payments: true,
+        surcharges: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async findByBranch(branchId: string) {
+    const [items, total] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where: {
+          booking: {
+            branchId
+          }
+        },
+        include: {
+          booking: {
+            include: {
+              customer: true,
+              vehicle: {
+                include: {
+                  category: true,
+                  branch: true
+                }
+              },
+              branch: true
+            }
+          },
+          customer: true,
+          payments: true,
+          surcharges: true
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.invoice.count({
+        where: {
+          booking: {
+            branchId
+          }
+        }
+      })
+    ]);
+
+    return {
+      items,
+      total
+    };
   }
 
   async findInvoice(id: string) {
@@ -109,6 +165,63 @@ export class BillingService {
     });
   }
 
+  findAllSurcharges() {
+    return this.prisma.surcharge.findMany({
+      include: {
+        invoice: {
+          include: {
+            booking: {
+              include: {
+                customer: true,
+                vehicle: {
+                  include: {
+                    category: true,
+                    branch: true
+                  }
+                },
+                branch: true
+              }
+            },
+            customer: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  findSurchargesByBranch(branchId: string) {
+    return this.prisma.surcharge.findMany({
+      where: {
+        invoice: {
+          booking: {
+            branchId
+          }
+        }
+      },
+      include: {
+        invoice: {
+          include: {
+            booking: {
+              include: {
+                customer: true,
+                vehicle: {
+                  include: {
+                    category: true,
+                    branch: true
+                  }
+                },
+                branch: true
+              }
+            },
+            customer: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   private async recalcInvoiceTotals(invoiceId: string) {
     const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
     if (!invoice) return;
@@ -132,7 +245,7 @@ export class BillingService {
     const totalAmount = subtotal + surchargeTotal - discountTotal - depositApplied;
     const status = paymentsTotal >= totalAmount ? 'PAID' : invoice.status;
 
-    await this.prisma.invoice.update({
+    const updatedInvoice = await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: {
         surchargeTotal,
@@ -140,5 +253,19 @@ export class BillingService {
         status
       }
     });
+
+    // Nếu invoice đã PAID → chuyển booking sang COMPLETED
+    if (status === 'PAID') {
+      const booking = await this.prisma.booking.findUnique({
+        where: { id: updatedInvoice.bookingId }
+      });
+
+      if (booking && booking.status !== 'COMPLETED') {
+        await this.prisma.booking.update({
+          where: { id: booking.id },
+          data: { status: 'COMPLETED' }
+        });
+      }
+    }
   }
 }

@@ -1,3 +1,5 @@
+import { Star } from "lucide-react";
+
 const reviews = [
     {
         name: "Nguyễn Văn A",
@@ -14,7 +16,10 @@ const reviews = [
 export default function ReviewSection() {
     return (
         <section className="py-20 bg-white dark:bg-black">
-            <h2 className="text-3xl font-bold text-center mb-10">⭐ Đánh giá khách hàng</h2>
+            <h2 className="text-3xl font-bold text-center mb-10 flex items-center justify-center gap-2">
+                <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
+                Đánh giá khách hàng
+            </h2>
 
             <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                 {reviews.map((r, idx) => (

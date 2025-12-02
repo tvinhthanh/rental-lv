@@ -9,7 +9,6 @@ export default function BranchMap() {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Lazy load map when section is visible
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -18,7 +17,7 @@ export default function BranchMap() {
           }
         });
       },
-      { rootMargin: "200px" } // Start loading 200px before visible
+      { rootMargin: "200px" }
     );
 
     if (mapRef.current) {
@@ -87,12 +86,12 @@ export default function BranchMap() {
                   </div>
                 </div>
               )}
-          <iframe
-            width="100%"
-            height="420"
-            style={{ border: 0 }}
-            loading="lazy"
-            allowFullScreen
+              <iframe
+                width="100%"
+                height="420"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
                 src={mapUrl}
                 onLoad={() => setMapLoaded(true)}
                 className={mapLoaded ? "opacity-100 transition-opacity duration-500" : "opacity-0"}

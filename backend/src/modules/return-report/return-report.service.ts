@@ -207,8 +207,7 @@ export class ReturnReportService {
                 const allSurcharges = await this.prisma.surcharge.findMany({
                     where: { invoiceId }
                 });
-                const totalSurcharge = allSurcharges.reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
-                
+                const totalSurcharge = allSurcharges.reduce((sum, s) => sum + (s.amount || 0), 0);
                 const invoice = await this.prisma.invoice.findUnique({
                     where: { id: invoiceId }
                 });
@@ -234,6 +233,8 @@ export class ReturnReportService {
     }
 
     async findByBranch(branchId: string) {
+        console.log(`[ReturnReportService] findByBranch called with branchId: ${branchId}`);
+        
         // Hiển thị return reports của bookings thuộc branch này HOẶC được trả về tại branch này
         const [items, total] = await Promise.all([
             this.prisma.returnReport.findMany({
@@ -281,6 +282,11 @@ export class ReturnReportService {
                 }
             })
         ]);
+
+        console.log(`[ReturnReportService] Found ${items.length} return reports for branch ${branchId}`);
+        if (items.length > 0) {
+            console.log(`[ReturnReportService] Sample booking branchId: ${items[0]?.booking?.branchId}, returnBranchId: ${items[0]?.returnBranchId}`);
+        }
 
         return {
             items,

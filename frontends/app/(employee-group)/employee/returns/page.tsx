@@ -58,7 +58,6 @@ function ReturnsContent() {
                 
                 const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
                 const totalCount = res?.total ?? items.length;
-
                 setReturns(items);
                 setTotal(totalCount);
             } catch (e) {

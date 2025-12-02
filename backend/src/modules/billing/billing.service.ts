@@ -344,7 +344,6 @@ export class BillingService {
     const totalAmount = subtotal + surchargeTotal - discountTotal - depositApplied;
     const status = paymentsTotal >= totalAmount ? 'PAID' : invoice.status;
 
-
     const updatedInvoice = await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: {
@@ -354,7 +353,6 @@ export class BillingService {
       }
     });
 
-    // if invoice is PAID → change booking to COMPLETED
     if (status === 'PAID') {
       const booking = await this.prisma.booking.findUnique({
         where: { id: updatedInvoice.bookingId }

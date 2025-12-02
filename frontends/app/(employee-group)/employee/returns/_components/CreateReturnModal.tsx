@@ -670,4 +670,3 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
         </div>
     );
 }
-

@@ -1,5 +1,4 @@
 import { getPlaceholderImage } from "@/lib/image-placeholder";
-
 export default function BookingCard({ booking, onClick }: any) {
     const vehicle = booking.vehicle;
     const customer = booking.customer;

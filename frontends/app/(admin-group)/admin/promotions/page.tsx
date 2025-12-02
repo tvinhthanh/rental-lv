@@ -81,21 +81,23 @@ export default function AdminPromotionsPage() {
                         </p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng khuyến mãi</p>
-                        <p className="text-lg font-semibold text-purple-400">
-                            {total.toLocaleString("vi-VN")}
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
+                            <p className="text-xs uppercase text-slate-500">Tổng khuyến mãi</p>
+                            <p className="text-lg font-semibold text-purple-400">
+                                {total.toLocaleString("vi-VN")}
+                            </p>
+                        </div>
+                        <button
+                            className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:-translate-y-0.5 transition"
+                            onClick={() => {
+                                setEditingPromotion(null);
+                                setOpenForm(true);
+                            }}
+                        >
+                            + Thêm khuyến mãi
+                        </button>
                     </div>
-                    <button
-                        className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:-translate-y-0.5 transition"
-                        onClick={() => {
-                            setEditingPromotion(null);
-                            setOpenForm(true);
-                        }}
-                    >
-                        + Thêm khuyến mãi
-                    </button>
                 </div>
 
                 {error && (

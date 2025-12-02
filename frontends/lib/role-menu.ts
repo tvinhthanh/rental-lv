@@ -22,5 +22,6 @@ export const ROLE_MENU_HEADER = {
         { label: "Xe", href: "/admin/vehicles" },
         { label: "Danh mục xe", href: "/admin/vehicle-categories" },
         { label: "Nhân viên", href: "/admin/employees" },
+        { label: "Nhật ký hệ thống", href: "/admin/audit-logs" },
     ],
 } as const;

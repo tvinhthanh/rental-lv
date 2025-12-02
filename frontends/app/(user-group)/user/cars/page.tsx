@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { vehicleService } from "@/services/vehicle.service";
 import { branchService } from "@/services/branch.service";
 import { priceListService } from "@/services/price-list.service";
@@ -36,6 +37,8 @@ interface PriceList {
 }
 
 export default function CarsPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [vehicles, setVehicles] = useState<VehicleItem[]>([]);
     const [filtered, setFiltered] = useState<VehicleItem[]>([]);
 
@@ -43,45 +46,48 @@ export default function CarsPage() {
     const [priceLists, setPriceLists] = useState<PriceList[]>([]);
     const [brands, setBrands] = useState<string[]>([]);
 
-    const [search, setSearch] = useState("");
-    const [branchId, setBranchId] = useState("");
+    const [search, setSearch] = useState(searchParams.get("search") || "");
+    const [branchId, setBranchId] = useState(searchParams.get("branchId") || "");
     const [brand, setBrand] = useState("");
     const [priceListId, setPriceListId] = useState("");
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState(searchParams.get("status") || "");
 
     const { formatVND } = useFormatVND();
 
     // LOAD DATA
     useEffect(() => {
         (async () => {
-            const v = await vehicleService.getAll();
+            const params: any = {};
+            if (search) params.search = search;
+            if (branchId) params.branchId = branchId;
+            if (status) params.status = status;
+
+            const v = await vehicleService.getAll(params);
             const b = await branchService.getAll();
             const p = await priceListService.getAll();
 
-            const vehicleItems: VehicleItem[] = Array.isArray(v.items) ? v.items : [];
-            const branchItems: Branch[] = Array.isArray(b.items) ? b.items : [];
-            const priceListItems: PriceList[] = Array.isArray(p.items) ? p.items : [];
+            const vehicleItems: VehicleItem[] = Array.isArray(v.items) ? v.items : Array.isArray(v) ? v : [];
+            const branchItems: Branch[] = Array.isArray(b.items) ? b.items : Array.isArray(b) ? b : [];
+            const priceListItems: PriceList[] = Array.isArray(p.items) ? p.items : Array.isArray(p) ? p : [];
 
             const withPhotos = vehicleItems.filter((x) => Boolean(x.photos?.length));
 
             setVehicles(withPhotos);
             setFiltered(withPhotos);
 
-            // Extract brand names only
             const brandNames = [
                 ...new Set(
                     withPhotos
-                        .map((c) => c.brand?.name) // lấy brand.name
+                        .map((c) => c.brand?.name)
                         .filter((x): x is string => Boolean(x))
                 ),
             ];
 
             setBrands(brandNames);
-
             setBranches(branchItems);
             setPriceLists(priceListItems);
         })();
-    }, []);
+    }, [search, branchId, status]);
 
     // FILTER
     useEffect(() => {
@@ -112,6 +118,17 @@ export default function CarsPage() {
 
         setFiltered(list);
     }, [search, branchId, brand, priceListId, status, vehicles]);
+
+    // update query string when filters change
+    useEffect(() => {
+        const params = new URLSearchParams();
+        if (search.trim()) params.set("search", search.trim());
+        if (branchId) params.set("branchId", branchId);
+        if (status) params.set("status", status);
+        const qs = params.toString();
+        const url = qs ? `/user/cars?${qs}` : "/user/cars";
+        router.replace(url, { scroll: false });
+    }, [search, branchId, status, router]);
 
     const getStatusColor = (s: string) => {
         switch (s) {

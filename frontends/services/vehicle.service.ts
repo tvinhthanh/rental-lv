@@ -3,8 +3,9 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const vehicleService = {
-    getAll() {
-        return api.get(`/vehicles`);
+    getAll(params?: Record<string, any>) {
+        const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+        return api.get(`/vehicles${qs}`);
     },
 
     get(id: string) {

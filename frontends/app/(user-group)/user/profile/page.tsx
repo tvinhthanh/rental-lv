@@ -23,20 +23,13 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (profile) {
-            // ⚡ Format dateOfBirth và driverLicenseExpiry từ Date object hoặc string
             const formatDate = (date: any) => {
                 if (!date) return "";
-                if (typeof date === 'string') {
-                    // Nếu là string ISO, lấy phần date
-                    return date.substring(0, 10);
-                }
-                if (date instanceof Date) {
-                    return date.toISOString().substring(0, 10);
-                }
+                if (typeof date === "string") return date.substring(0, 10);
+                if (date instanceof Date) return date.toISOString().substring(0, 10);
                 return "";
             };
 
-            // Đảm bảo tất cả các field được điền với dữ liệu cũ
             setForm({
                 fullName: profile.fullName || "",
                 phone: profile.phone || "",
@@ -52,7 +45,6 @@ export default function ProfilePage() {
             });
             setAvatarPreview(profile.avatarUrl || "");
         } else if (!profileLoading && user) {
-            // ⚡ Nếu không có profile nhưng đã load xong, reset form với user data
             setForm({
                 fullName: user.name || "",
                 phone: "",
@@ -112,7 +104,6 @@ export default function ProfilePage() {
         }
     };
 
-    // ⚡ Tạo customer mới
     const handleCreate = async () => {
         if (!form.fullName || !form.phone) {
             toast.error("Vui lòng điền họ tên và số điện thoại");
@@ -120,13 +111,13 @@ export default function ProfilePage() {
         }
         try {
             setSaving(true);
-            
+
             const createData: any = {
                 fullName: form.fullName,
                 phone: form.phone,
                 userId: user?.id,
             };
-            
+
             if (form.email) createData.email = form.email;
             if (form.address) createData.address = form.address;
             if (form.dateOfBirth) createData.dateOfBirth = form.dateOfBirth;
@@ -136,16 +127,14 @@ export default function ProfilePage() {
             if (form.driverLicenseNo) createData.driverLicenseNo = form.driverLicenseNo;
             if (form.driverLicenseExpiry) createData.driverLicenseExpiry = form.driverLicenseExpiry;
             if (form.avatarUrl) createData.avatarUrl = form.avatarUrl;
-            
+
             await customerService.create(createData);
-            
-            // Invalidate queries để refresh data
+
             queryClient.invalidateQueries({ queryKey: ["profile"] });
             queryClient.invalidateQueries({ queryKey: ["current-user"] });
-            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] }); // Refresh header user data
-            
+            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] });
+
             toast.success("Tạo hồ sơ khách hàng thành công!");
-            // Reload để refresh profile
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -158,13 +147,11 @@ export default function ProfilePage() {
         }
     };
 
-    // ⚡ Cập nhật customer
     const handleSubmit = async () => {
         if (!profile?.id) return;
         try {
             setSaving(true);
-            
-            // Chuẩn bị data để gửi (loại bỏ các field rỗng)
+
             const updateData: any = {};
             if (form.fullName) updateData.fullName = form.fullName;
             if (form.phone) updateData.phone = form.phone;
@@ -177,14 +164,13 @@ export default function ProfilePage() {
             if (form.driverLicenseNo !== undefined) updateData.driverLicenseNo = form.driverLicenseNo || null;
             if (form.driverLicenseExpiry) updateData.driverLicenseExpiry = form.driverLicenseExpiry;
             if (form.avatarUrl !== undefined) updateData.avatarUrl = form.avatarUrl || null;
-            
+
             await customerService.update(profile.id, updateData);
-            
-            // Invalidate queries để refresh data
+
             queryClient.invalidateQueries({ queryKey: ["profile"] });
             queryClient.invalidateQueries({ queryKey: ["current-user"] });
-            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] }); // Refresh header user data
-            
+            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] });
+
             toast.success("Cập nhật hồ sơ thành công");
         } catch (err: any) {
             const errorMsg = err?.response?.data?.message || err?.message || "Cập nhật thất bại";
@@ -203,8 +189,7 @@ export default function ProfilePage() {
         );
     }
 
-    // ⚡ Xác định là đang tạo mới hay cập nhật
-    const isCreating = !profile && (user?.role === "CUSTOMER" || user?.role === "USER");
+    const isCreating = !profile && isCustomer;
 
     return (
         <div className="min-h-screen bg-[#0b1424] text-white">
@@ -216,7 +201,7 @@ export default function ProfilePage() {
                             {isCreating ? "Tạo hồ sơ khách hàng" : "Thông tin tài khoản"}
                         </h1>
                         <p className="text-blue-100 mt-1">
-                            {isCreating 
+                            {isCreating
                                 ? "Điền thông tin để tạo hồ sơ khách hàng và sử dụng dịch vụ"
                                 : "Cập nhật avatar, thông tin liên hệ và giấy tờ tùy thân."
                             }
@@ -271,29 +256,39 @@ export default function ProfilePage() {
                                 />
                                 <Field label="Địa chỉ" name="address" value={form.address || ""} onChange={handleChange} />
                                 <Field label="Quốc tịch" name="nationality" value={form.nationality || ""} onChange={handleChange} />
-                                <Field 
-                                    label="Ngày sinh" 
-                                    name="dateOfBirth" 
-                                    type="date" 
-                                    value={form.dateOfBirth ? (typeof form.dateOfBirth === 'string' ? form.dateOfBirth.substring(0, 10) : new Date(form.dateOfBirth).toISOString().substring(0, 10)) : ""} 
-                                    onChange={handleChange} 
+                                <Field
+                                    label="Ngày sinh"
+                                    name="dateOfBirth"
+                                    type="date"
+                                    value={
+                                        form.dateOfBirth
+                                            ? typeof form.dateOfBirth === "string"
+                                                ? form.dateOfBirth.substring(0, 10)
+                                                : new Date(form.dateOfBirth).toISOString().substring(0, 10)
+                                            : ""
+                                    }
+                                    onChange={handleChange}
                                 />
                             </div>
 
                             {isCustomer && (
-                                <>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Field label="CMND/CCCD" name="nationalId" value={form.nationalId || ""} onChange={handleChange} />
-                                        <Field label="Số GPLX" name="driverLicenseNo" value={form.driverLicenseNo || ""} onChange={handleChange} />
-                                        <Field
-                                            label="GPLX hết hạn"
-                                            name="driverLicenseExpiry"
-                                            type="date"
-                                            value={form.driverLicenseExpiry ? (typeof form.driverLicenseExpiry === 'string' ? form.driverLicenseExpiry.substring(0, 10) : new Date(form.driverLicenseExpiry).toISOString().substring(0, 10)) : ""}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Field label="CMND/CCCD" name="nationalId" value={form.nationalId || ""} onChange={handleChange} />
+                                    <Field label="Số GPLX" name="driverLicenseNo" value={form.driverLicenseNo || ""} onChange={handleChange} />
+                                    <Field
+                                        label="GPLX hết hạn"
+                                        name="driverLicenseExpiry"
+                                        type="date"
+                                        value={
+                                            form.driverLicenseExpiry
+                                                ? typeof form.driverLicenseExpiry === "string"
+                                                    ? form.driverLicenseExpiry.substring(0, 10)
+                                                    : new Date(form.driverLicenseExpiry).toISOString().substring(0, 10)
+                                                : ""
+                                        }
+                                        onChange={handleChange}
+                                    />
+                                </div>
                             )}
 
                             <div className="flex justify-end">
@@ -302,8 +297,8 @@ export default function ProfilePage() {
                                     disabled={saving}
                                     className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition disabled:opacity-60"
                                 >
-                                    {saving 
-                                        ? (isCreating ? "Đang tạo..." : "Đang lưu...") 
+                                    {saving
+                                        ? (isCreating ? "Đang tạo..." : "Đang lưu...")
                                         : (isCreating ? "Tạo hồ sơ" : "Lưu thay đổi")
                                     }
                                 </button>

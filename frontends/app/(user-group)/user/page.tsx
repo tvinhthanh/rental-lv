@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { CalendarClock, Gauge, Headset, ShieldCheck, MapPin } from "lucide-react";
 import Hero from "@/components/layouts/hero";
 import QuickBooking from "@/components/home/quick-booking";
+import BlogSection from "@/components/home/blog-section";
 
 const LazyCarSlider = dynamic(() => import("@/components/home/car-slider"), {
     loading: () => (
@@ -76,6 +77,7 @@ export default function HomeUserPage() {
                 </div>
             </section>
 
+            <BlogSection />
             <LazyCarSlider />
             <LazyPricing />
             <LazyReview />

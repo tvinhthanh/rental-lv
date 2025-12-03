@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { vehicleCategoryService } from "@/services/vehicle-category.service";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import CategoryModal from "./_component/category-modal";
+import CategoryCard from "./_component/CategoryCard";
 
 export default function VehicleCategoryPage() {
     const queryClient = useQueryClient();
@@ -11,137 +12,155 @@ export default function VehicleCategoryPage() {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState<any>(null);
 
-    const { data, isLoading, isError } = useQuery({
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isError,
+        refetch
+    } = useInfiniteQuery({
         queryKey: ["vehicle-categories", search],
-        queryFn: () => vehicleCategoryService.list(),
+        queryFn: async ({ pageParam = 1 }) => {
+            const res = await vehicleCategoryService.list({
+                page: pageParam,
+                limit: 12,
+                search: search || undefined
+            });
+            return res?.data || res;
+        },
+        getNextPageParam: (lastPage: any) => {
+            const currentPage = lastPage?.page || 1;
+            const totalPages = lastPage?.totalPages || 1;
+            return currentPage < totalPages ? currentPage + 1 : undefined;
+        },
+        initialPageParam: 1,
     });
 
-    const categories = Array.isArray(data) ? data : data?.items ?? [];
+    // Flatten all pages into single array
+    const categories = data?.pages.flatMap((page: any) => page?.items || []) || [];
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            refetch();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, refetch]);
+
+    // Load more handler
+    const handleLoadMore = useCallback(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     async function handleDelete(id: string) {
-        if (!confirm("Delete this category?")) return;
+        if (!confirm("Bạn có chắc muốn xóa danh mục này?")) return;
         await vehicleCategoryService.delete(id);
-        queryClient.invalidateQueries({ queryKey: ["vehicle-categories"] });
+        refetch();
     }
 
+    const handleEdit = (category: any) => {
+        setSelected(category);
+        setOpen(true);
+    };
+
     return (
-        <div className="p-4 text-gray-200">
+        <div className="min-h-screen bg-slate-950/90 text-gray-100 p-4 md:p-6">
+            <div className="mx-auto max-w-7xl">
+                {/* Header */}
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
+                            Danh Mục Xe
+                        </h1>
+                        <p className="mt-1 text-sm text-slate-400">
+                            Quản lý danh mục loại xe trong hệ thống.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => { setSelected(null); setOpen(true); }}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+                    >
+                        + Thêm Danh Mục
+                    </button>
+                </div>
 
-            <div className="flex justify-between mb-6">
-                <h1 className="text-2xl font-bold">Vehicle Categories</h1>
+                {/* Search */}
+                <div className="mb-6">
+                    <input
+                        placeholder="Tìm kiếm theo tên, code hoặc slug..."
+                        className="w-full sm:w-80 bg-slate-800/70 border border-slate-700 text-gray-200 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
 
-                <button
-                    onClick={() => { setSelected(null); setOpen(true); }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-                >
-                    + Add Category
-                </button>
-            </div>
-
-            <input
-                placeholder="Search..."
-                className="bg-slate-800 border border-slate-700 text-gray-200 p-2 rounded w-60 mb-4"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <div className="border border-slate-700 rounded-lg overflow-x-auto">
-                <table className="w-full bg-slate-900 min-w-[900px]">
-                    <thead className="bg-slate-800 text-gray-300">
-                        <tr>
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Code</th>
-                            <th className="p-3 text-left">Slug</th>
-                            <th className="p-3 text-left">Description</th>
-                            <th className="p-3 text-left">Image</th>
-                            <th className="p-3 text-left">Order</th>
-                            <th className="p-3 text-left">Status</th>
-                            <th className="p-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {isLoading && (
-                            <tr>
-                                <td colSpan={8} className="p-4 text-center text-gray-400">
-                                    Loading categories...
-                                </td>
-                            </tr>
-                        )}
-
-                        {isError && (
-                            <tr>
-                                <td colSpan={8} className="p-4 text-center text-red-400">
-                                    Failed to load categories.
-                                </td>
-                            </tr>
-                        )}
-
-                        {!isLoading && categories.length === 0 && (
-                            <tr>
-                                <td colSpan={8} className="p-4 text-center text-gray-600">
-                                    No categories found.
-                                </td>
-                            </tr>
-                        )}
-
-                        {categories.map((item: any) => (
-                            <tr key={item.id} className="border-b border-slate-700 hover:bg-slate-800">
-
-                                <td className="p-3">{item.name}</td>
-                                <td className="p-3">{item.code}</td>
-                                <td className="p-3">{item.slug}</td>
-                                <td className="p-3">{item.description}</td>
-
-                                <td className="p-3">
-                                    {item.imageUrl ? (
-                                        <img src={item.imageUrl} className="w-16 h-12 object-cover rounded" />
+                {/* Body */}
+                {isLoading ? (
+                    <div className="mt-10 flex justify-center">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
+                            <span className="text-gray-400">Đang tải danh mục...</span>
+                        </div>
+                    </div>
+                ) : isError ? (
+                    <div className="mt-10 rounded-2xl border border-red-700 bg-red-900/20 py-12 text-center">
+                        <p className="text-red-400">Không thể tải danh mục.</p>
+                    </div>
+                ) : categories.length === 0 ? (
+                    <div className="mt-10 rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 py-12 text-center">
+                        <p className="text-slate-400">Không tìm thấy danh mục nào.</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                            {categories.map((category: any) => (
+                                <CategoryCard
+                                    key={category.id}
+                                    category={category}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+                        
+                        {/* Load More Button */}
+                        {hasNextPage && (
+                            <div className="mt-8 flex justify-center">
+                                <button
+                                    onClick={handleLoadMore}
+                                    disabled={isFetchingNextPage}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isFetchingNextPage ? (
+                                        <span className="flex items-center gap-2">
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            Đang tải...
+                                        </span>
                                     ) : (
-                                        <span className="text-gray-500">—</span>
+                                        "Tải thêm"
                                     )}
-                                </td>
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
 
-                                <td className="p-3">{item.displayOrder ?? 0}</td>
-
-                                <td className="p-3">
-                                    {item.isActive ? (
-                                        <span className="text-green-400">Active</span>
-                                    ) : (
-                                        <span className="text-red-400">Inactive</span>
-                                    )}
-                                </td>
-
-                                <td className="p-3 flex gap-4 justify-center">
-                                    <button
-                                        className="text-blue-400 hover:underline"
-                                        onClick={() => { setSelected(item); setOpen(true); }}
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
-                                        className="text-red-400 hover:underline"
-                                        onClick={() => handleDelete(item.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                {/* Modal */}
+                {open && (
+                    <CategoryModal
+                        open={open}
+                        selected={selected}
+                        onClose={() => {
+                            setOpen(false);
+                            refetch();
+                        }}
+                    />
+                )}
             </div>
-
-            {open && (
-                <CategoryModal
-                    open={open}
-                    selected={selected}
-                    onClose={() => {
-                        setOpen(false);
-                        queryClient.invalidateQueries({ queryKey: ["vehicle-categories"] });
-                    }}
-                />
-            )}
         </div>
     );
 }

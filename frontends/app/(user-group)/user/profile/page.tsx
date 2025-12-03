@@ -19,7 +19,20 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (profile) {
-            setForm(profile);
+            // Đảm bảo tất cả các field được điền với dữ liệu cũ
+            setForm({
+                fullName: profile.fullName || "",
+                phone: profile.phone || "",
+                email: profile.email || "",
+                address: profile.address || "",
+                gender: profile.gender || "",
+                nationality: profile.nationality || "",
+                dateOfBirth: profile.dateOfBirth || "",
+                nationalId: profile.nationalId || "",
+                driverLicenseNo: profile.driverLicenseNo || "",
+                driverLicenseExpiry: profile.driverLicenseExpiry || "",
+                avatarUrl: profile.avatarUrl || "",
+            });
             setAvatarPreview(profile.avatarUrl || "");
         }
     }, [profile]);
@@ -99,7 +112,6 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-right text-blue-100 text-sm">
                         <p>Email: {user?.email}</p>
-                        <p>Vai trò: {user?.role}</p>
                         <p>Ngày tạo: {format(user?.createdAt)}</p>
                     </div>
                 </div>
@@ -147,7 +159,13 @@ export default function ProfilePage() {
                                 />
                                 <Field label="Địa chỉ" name="address" value={form.address || ""} onChange={handleChange} />
                                 <Field label="Quốc tịch" name="nationality" value={form.nationality || ""} onChange={handleChange} />
-                                <Field label="Ngày sinh" name="dateOfBirth" type="date" value={form.dateOfBirth ? form.dateOfBirth.substring(0, 10) : ""} onChange={handleChange} />
+                                <Field 
+                                    label="Ngày sinh" 
+                                    name="dateOfBirth" 
+                                    type="date" 
+                                    value={form.dateOfBirth ? (typeof form.dateOfBirth === 'string' ? form.dateOfBirth.substring(0, 10) : new Date(form.dateOfBirth).toISOString().substring(0, 10)) : ""} 
+                                    onChange={handleChange} 
+                                />
                             </div>
 
                             {isCustomer && (
@@ -159,7 +177,7 @@ export default function ProfilePage() {
                                             label="GPLX hết hạn"
                                             name="driverLicenseExpiry"
                                             type="date"
-                                            value={form.driverLicenseExpiry ? form.driverLicenseExpiry.substring(0, 10) : ""}
+                                            value={form.driverLicenseExpiry ? (typeof form.driverLicenseExpiry === 'string' ? form.driverLicenseExpiry.substring(0, 10) : new Date(form.driverLicenseExpiry).toISOString().substring(0, 10)) : ""}
                                             onChange={handleChange}
                                         />
                                     </div>

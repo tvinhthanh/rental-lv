@@ -2,10 +2,23 @@
 import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
+const buildQuery = (params?: Record<string, any>) => {
+    if (!params) return "";
+    const qp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && `${v}` !== "") {
+            qp.append(k, `${v}`);
+        }
+    });
+    const s = qp.toString();
+    return s ? `?${s}` : "";
+};
+
 export const brandService = {
     // GET /brands
-    getAll() {
-        return api.get(`/brands`);
+    getAll(params?: Record<string, any>) {
+        const query = buildQuery(params);
+        return api.get(`/brands${query}`);
     },
 
     // GET /brands/:id

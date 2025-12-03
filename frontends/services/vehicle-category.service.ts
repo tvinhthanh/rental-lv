@@ -1,8 +1,22 @@
 import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
+
+const buildQuery = (params?: Record<string, any>) => {
+    if (!params) return "";
+    const qp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && `${v}` !== "") {
+            qp.append(k, `${v}`);
+        }
+    });
+    const s = qp.toString();
+    return s ? `?${s}` : "";
+};
+
 export const vehicleCategoryService = {
-    list() {
-        return api.get(`/vehicle-categories`);
+    list(params?: Record<string, any>) {
+        const query = buildQuery(params);
+        return api.get(`/vehicle-categories${query}`);
     },
 
     create(data: any) {

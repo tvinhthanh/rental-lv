@@ -638,6 +638,305 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
               setUploading={setUploadingPhotos}
             />
           )}
+=======
+
+          <form onSubmit={formHandle(onSubmit)} className="space-y-4">
+            {/* BASIC INFO */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Thông tin cơ bản</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Tên xe *</label>
+                  <input
+                    {...register("name")}
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
+                    placeholder="Tên xe"
+                    required
+                    onBlur={(e) => {
+                      if (!selected) setValue("slug", generateSlug(e.target.value));
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Slug</label>
+                  <input 
+                    {...register("slug")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/30 border border-slate-700 text-slate-400 rounded-lg focus:outline-none placeholder:text-slate-600" 
+                    placeholder="slug-tu-dong" 
+                    readOnly={!!selected} 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Loại xe</label>
+                  <input 
+                    {...register("vehicleType")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="SUV, Sedan..." 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Biển số *</label>
+                  <input 
+                    {...register("licensePlate")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="30A-12345" 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Model</label>
+                  <input 
+                    {...register("model")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="Model" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Năm sản xuất</label>
+                  <input 
+                    type="number" 
+                    {...register("year")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="2024" 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Màu sắc</label>
+                  <input 
+                    {...register("color")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="Màu" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Số ghế</label>
+                  <input 
+                    type="number" 
+                    {...register("seatCount")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="5" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Số km</label>
+                  <input 
+                    type="number" 
+                    {...register("mileage")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="0" 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Hộp số</label>
+                  <input 
+                    {...register("transmission")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="AT/MT" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Nhiên liệu</label>
+                  <input 
+                    {...register("fuelType")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                    placeholder="Xăng/Dầu" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Trạng thái</label>
+                  <select 
+                    {...register("status")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s} className="bg-slate-800">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* RELATIONS */}
+            <div className="space-y-4 pt-4 border-t border-slate-700/50">
+              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Liên kết</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Thương hiệu *</label>
+                  <select 
+                    {...register("brandId")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    required
+                  >
+                    <option value="" className="bg-slate-800">Chọn thương hiệu</option>
+                    {brands.map((b: any) => (
+                      <option key={b.id} value={b.id} className="bg-slate-800">
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Chi nhánh *</label>
+                  <select 
+                    {...register("branchId")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    required
+                  >
+                    <option value="" className="bg-slate-800">Chọn chi nhánh</option>
+                    {branches.map((b: any) => (
+                      <option key={b.id} value={b.id} className="bg-slate-800">
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Danh mục *</label>
+                  <select 
+                    {...register("categoryId")} 
+                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    required
+                  >
+                    <option value="" className="bg-slate-800">Chọn danh mục</option>
+                    {categories.map((c: any) => (
+                      <option key={c.id} value={c.id} className="bg-slate-800">
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* PRICING */}
+            <div className="space-y-4 pt-4 border-t border-slate-700/50">
+              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Cấu hình giá</h3>
+              <div className="rounded-xl border border-slate-700/80 bg-slate-800/30 p-4 space-y-4">
+                <label className="flex items-center gap-2 p-3 bg-slate-800/50 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/70 transition-colors">
+                  <input
+                    type="checkbox"
+                    {...register("overridePriceEnabled")}
+                    onChange={(e) => {
+                      setValue("overridePriceEnabled", e.target.checked);
+                      if (e.target.checked) setValue("priceListId", "");
+                    }}
+                    className="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-300">Tùy chỉnh giá (ghi đè bảng giá)</span>
+                </label>
+
+                {!overridePriceEnabled ? (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Bảng giá</label>
+                    <select 
+                      {...register("priceListId")} 
+                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="" className="bg-slate-800">Chọn bảng giá</option>
+                      {priceLists.map((pl: any) => (
+                        <option key={pl.id} value={pl.id} className="bg-slate-800">
+                          {pl.name} - Ngày: {pl.dailyRate || 0}đ | Giờ: {pl.hourlyRate || 0}đ
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Chọn bảng giá để sử dụng giá chuẩn, hoặc bật tùy chỉnh để đặt giá riêng
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá theo ngày (đ)</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        {...register("overrideDailyRate")} 
+                        className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                        placeholder="0" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá theo giờ (đ)</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        {...register("overrideHourlyRate")} 
+                        className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                        placeholder="0" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá cuối tuần (đ)</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        {...register("overrideWeekendRate")} 
+                        className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                        placeholder="0" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá ngày lễ (đ)</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        {...register("overrideHolidayRate")} 
+                        className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
+                        placeholder="0" 
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* PHOTOS */}
+            <div className="space-y-4 pt-4 border-t border-slate-700/50">
+              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Hình ảnh</h3>
+              <textarea
+                {...register("photos")}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500 min-h-[80px]"
+                placeholder="URLs hình ảnh, phân cách bằng dấu phẩy"
+                defaultValue={photosValue}
+              />
+            </div>
+
+            {/* ACTION BUTTONS */}
+            <div className="border-t border-slate-700/50 pt-4 mt-6">
+              <div className="flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={onClose} 
+                  className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isPending} 
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
+                >
+                  {isPending ? "Đang lưu..." : "Lưu"}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

@@ -130,7 +130,6 @@ export default function BrandPage() {
                                 />
                             ))}
                         </div>
-
                         {/* Load More Button */}
                         {hasNextPage && (
                             <div className="mt-8 flex justify-center">
@@ -148,22 +147,23 @@ export default function BrandPage() {
                                         "Tải thêm"
                                     )}
                                     </button>
+                                </button>
                             </div>
                         )}
                     </>
                 )}
 
                 {/* Modal */}
-            {open && (
-                <BrandModal
-                    open={open}
-                    selected={selected}
-                    onClose={() => {
-                        setOpen(false);
+                {open && (
+                    <BrandModal
+                        open={open}
+                        selected={selected}
+                        onClose={() => {
+                            setOpen(false);
                             refetch();
-                    }}
-                />
-            )}
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

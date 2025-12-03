@@ -80,22 +80,22 @@ export default function VehicleCategoryPage() {
                             Quản lý danh mục loại xe trong hệ thống.
                         </p>
                     </div>
-                <button
-                    onClick={() => { setSelected(null); setOpen(true); }}
+                    <button
+                        onClick={() => { setSelected(null); setOpen(true); }}
                         className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-                >
+                    >
                         + Thêm Danh Mục
-                </button>
-            </div>
+                    </button>
+                </div>
 
                 {/* Search */}
                 <div className="mb-6">
-            <input
+                    <input
                         placeholder="Tìm kiếm theo tên, code hoặc slug..."
                         className="w-full sm:w-80 bg-slate-800/70 border border-slate-700 text-gray-200 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                 </div>
 
                 {/* Body */}
@@ -143,23 +143,23 @@ export default function VehicleCategoryPage() {
                                     ) : (
                                         "Tải thêm"
                                     )}
-                                    </button>
-            </div>
+                                </button>
+                            </div>
                         )}
                     </>
                 )}
 
                 {/* Modal */}
-            {open && (
-                <CategoryModal
-                    open={open}
-                    selected={selected}
-                    onClose={() => {
-                        setOpen(false);
+                {open && (
+                    <CategoryModal
+                        open={open}
+                        selected={selected}
+                        onClose={() => {
+                            setOpen(false);
                             refetch();
-                    }}
-                />
-            )}
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

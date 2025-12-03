@@ -39,15 +39,15 @@ export default function QuickBooking() {
     };
 
     return (
-        <section className="max-w-6xl mx-auto -mt-24 px-4">
-            <div className="rounded-2xl bg-white/10 border border-white/10 backdrop-blur shadow-xl p-6 flex flex-col gap-4 md:grid md:grid-cols-4">
-                <div className="col-span-1">
-                    <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Đặt xe nhanh</p>
-                    <h3 className="text-xl font-bold">Chọn xe trong 60 giây</h3>
-                    <p className="text-blue-100 text-sm mt-2">Lọc theo chi nhánh và từ khóa (tên xe/biển số).</p>
+        <section className="max-w-6xl mx-auto -mt-20 px-4">
+            <div className="rounded-2xl bg-white/10 border border-white/10 backdrop-blur shadow-xl p-4 md:p-5 flex flex-col gap-3 md:grid md:grid-cols-4">
+                <div className="col-span-1 space-y-1">
+                    <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-blue-200">Đặt xe nhanh</p>
+                    <h3 className="text-lg md:text-xl font-bold leading-tight">Chọn xe trong 60 giây</h3>
+                    <p className="text-blue-100 text-sm">Lọc theo chi nhánh và từ khóa (tên xe/biển số).</p>
                 </div>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-3 md:col-span-3">
-                    <div className="flex items-center bg-white text-slate-900 rounded-lg px-3 py-2 shadow-inner">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-2.5 md:col-span-3 items-center">
+                    <div className="flex items-center bg-white text-slate-900 rounded-lg px-3 py-2 shadow-inner h-[52px]">
                         <Search className="w-4 h-4 text-slate-500" />
                         <input
                             className="flex-1 px-2 py-1 outline-none"
@@ -56,7 +56,7 @@ export default function QuickBooking() {
                             onChange={(e) => setKeyword(e.target.value)}
                         />
                     </div>
-                    <div className="flex items-center bg-white text-slate-900 rounded-lg px-3 py-2 shadow-inner">
+                    <div className="flex items-center bg-white text-slate-900 rounded-lg px-3 py-2 shadow-inner h-[52px]">
                         <MapPin className="w-4 h-4 text-slate-500" />
                         <select
                             className="flex-1 px-2 py-1 outline-none bg-transparent"
@@ -71,7 +71,7 @@ export default function QuickBooking() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#0b5ca7] hover:bg-[#0a4f8f] transition text-white font-semibold rounded-lg py-3 shadow-lg"
+                        className="w-full bg-[#0b5ca7] hover:bg-[#0a4f8f] transition text-white font-semibold rounded-lg py-2.5 shadow-lg h-[52px]"
                         disabled={loading}
                     >
                         {loading ? "Đang tải..." : "Tìm xe ngay"}

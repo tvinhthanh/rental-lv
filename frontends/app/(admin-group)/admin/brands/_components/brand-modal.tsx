@@ -68,112 +68,147 @@ export default function BrandModal({ open, selected, onClose }: any) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-slate-900 border border-slate-700 p-6 w-[420px] rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                    <div className="mb-6 pb-4 border-b border-slate-700/50">
+                        <h2 className="text-2xl font-bold text-white">
+                            {selected ? "Chỉnh sửa Thương hiệu" : "Thêm Thương hiệu"}
+                        </h2>
+                        <p className="text-sm text-slate-400 mt-1">
+                            {selected ? "Cập nhật thông tin thương hiệu" : "Thêm thương hiệu mới vào hệ thống"}
+                        </p>
+                    </div>
 
-                <h2 className="text-xl font-semibold mb-4 text-gray-200">
-                    {selected ? "Edit Brand" : "Add Brand"}
-                </h2>
+                    <form onSubmit={formHandle(onSubmit)} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                    Tên thương hiệu *
+                                </label>
+                                <input
+                                    {...register("name")}
+                                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500"
+                                    placeholder="Nhập tên thương hiệu"
+                                    required
+                                    onBlur={(e) => {
+                                        if (!selected) {
+                                            setValue("slug", generateSlug(e.target.value));
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                    Slug
+                                </label>
+                                <input
+                                    {...register("slug")}
+                                    className="w-full px-4 py-2.5 bg-slate-800/30 border border-slate-700 text-slate-400 rounded-lg focus:outline-none placeholder:text-slate-600"
+                                    placeholder="slug-tu-dong"
+                                    readOnly={!!selected}
+                                />
+                            </div>
+                        </div>
 
-                <form onSubmit={formHandle(onSubmit)} className="space-y-3">
-
-                    <input
-                        {...register("name")}
-                        className="input-dark"
-                        placeholder="Name *"
-                        required
-                        onBlur={(e) => {
-                            if (!selected) {
-                                setValue("slug", generateSlug(e.target.value));
-                            }
-                        }}
-                    />
-
-                    <input
-                        {...register("slug")}
-                        className="input-dark"
-                        placeholder="Slug"
-                        readOnly={!!selected}
-                    />
-
-                    <textarea
-                        {...register("description")}
-                        className="input-dark"
-                        placeholder="Description"
-                    />
-
-                    <input {...register("country")} className="input-dark" placeholder="Country" />
-
-                    <input
-                        {...register("websiteUrl")}
-                        className="input-dark"
-                        placeholder="Website (https://...)"
-                    />
-
-                    <input
-                        {...register("logoUrl")}
-                        className="input-dark"
-                        placeholder="Logo URL"
-                        onBlur={(e) => setLogoPreview(e.target.value)}
-                    />
-
-                    {logoPreview && (
-                        <div className="mt-2 flex justify-center">
-                            <img
-                                src={logoPreview}
-                                alt="Logo preview"
-                                className="h-16 object-contain"
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                Mô tả
+                            </label>
+                            <textarea
+                                {...register("description")}
+                                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500 min-h-[80px]"
+                                placeholder="Mô tả về thương hiệu"
                             />
                         </div>
-                    )}
 
-                    <input
-                        type="number"
-                        {...register("sortOrder")}
-                        className="input-dark"
-                        placeholder="Sort Order"
-                    />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                    Quốc gia
+                                </label>
+                                <input 
+                                    {...register("country")} 
+                                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500"
+                                    placeholder="Việt Nam"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                    Thứ tự sắp xếp
+                                </label>
+                                <input
+                                    type="number"
+                                    {...register("sortOrder")}
+                                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500"
+                                    placeholder="0"
+                                />
+                            </div>
+                        </div>
 
-                    <label className="flex items-center gap-2 text-gray-300">
-                        <input type="checkbox" {...register("isFeatured")} />
-                        Featured brand
-                    </label>
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                Website
+                            </label>
+                            <input
+                                {...register("websiteUrl")}
+                                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500"
+                                placeholder="https://example.com"
+                            />
+                        </div>
 
-                    <input
-                        {...register("metaTitle")}
-                        className="input-dark"
-                        placeholder="Meta Title (SEO)"
-                    />
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">
+                                Logo URL
+                            </label>
+                            <input
+                                {...register("logoUrl")}
+                                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-slate-500"
+                                placeholder="https://example.com/logo.png"
+                                onBlur={(e) => setLogoPreview(e.target.value)}
+                            />
+                            {logoPreview && (
+                                <div className="mt-3 flex justify-center p-3 bg-slate-800/30 rounded-lg border border-slate-700">
+                                    <img
+                                        src={logoPreview}
+                                        alt="Logo preview"
+                                        className="h-20 object-contain"
+                                    />
+                                </div>
+                            )}
+                        </div>
 
-                    <textarea
-                        {...register("metaDescription")}
-                        className="input-dark"
-                        placeholder="Meta Description (SEO)"
-                    />
+                        <div className="grid grid-cols-2 gap-3">
+                            <label className="flex items-center gap-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/50 transition-colors">
+                                <input type="checkbox" {...register("isFeatured")} className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
+                                <span className="text-sm text-gray-300">Thương hiệu nổi bật</span>
+                            </label>
+                            <label className="flex items-center gap-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/50 transition-colors">
+                                <input type="checkbox" {...register("isActive")} className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" defaultChecked />
+                                <span className="text-sm text-gray-300">Kích hoạt</span>
+                            </label>
+                        </div>
 
-                    <label className="flex items-center gap-2 text-gray-300">
-                        <input type="checkbox" {...register("isActive")} />
-                        Active
-                    </label>
-
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50"
-                        >
-                            {isPending ? "Saving..." : "Save"}
-                        </button>
-                    </div>
-                </form>
+                        <div className="border-t border-slate-700/50 pt-4 mt-6">
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isPending}
+                                    className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
+                                >
+                                    {isPending ? "Đang lưu..." : "Lưu"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

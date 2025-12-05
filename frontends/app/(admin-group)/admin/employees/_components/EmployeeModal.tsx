@@ -7,6 +7,7 @@ import { authService } from "@/services/auth.service";
 
 const STATUS_OPTIONS = ["ACTIVE", "INACTIVE", "ON_LEAVE"];
 
+// Normalize
 const normalizeList = (res: any) => {
     if (!res) return [];
     if (Array.isArray(res)) return res;
@@ -18,6 +19,7 @@ const normalizeList = (res: any) => {
 
 export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     const [branches, setBranches] = useState<any[]>([]);
+
     const [form, setForm] = useState({
         fullName: data?.fullName || "",
         phone: data?.phone || "",
@@ -31,17 +33,29 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         avatarUrl: data?.avatarUrl || "",
     });
 
+    //  LOAD BRANCHES (normalized)
     useEffect(() => {
         (async () => {
             try {
                 const res = await branchService.getAll();
-                setBranches(normalizeList(res));
+                const items = normalizeList(res);
+                setBranches(items);
             } catch {
                 setBranches([]);
             }
         })();
+        branchService.getAll().then((res: any) => {
+            const items = Array.isArray(res) ? res : res?.items ?? [];
+            setBranches(items);
+        }).catch(() => setBranches([]));
+        (async () => {
+            const res = await branchService.getAll();
+            const items = normalizeList(res);
+            setBranches(items);
+        })();
     }, []);
 
+    //  UPDATE FORM WHEN EDIT
     useEffect(() => {
         setForm({
             fullName: data?.fullName || "",
@@ -57,10 +71,12 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         });
     }, [data]);
 
+    //  HANDLE CHANGE
     const handleChange = (e: any) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    //  SUBMIT
     const handleSubmit = async () => {
         const payload: any = {
             ...form,
@@ -215,24 +231,22 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
                     />
                         </div>
-                    </div>
 
-                    <div className="border-t border-slate-700/50 pt-4 mt-6">
-                        <div className="flex justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSubmit}
-                                className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
-                            >
-                                {mode === "create" ? "Tạo mới" : "Lưu thay đổi"}
-                            </button>
+                        <div className="border-t border-slate-700/50 pt-4 mt-6">
+                            <div className="flex justify-end gap-3">
+                        <button
+                            onClick={onClose}
+                                    className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
+                        >
+                                    Hủy
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl"
+                        >
+                                    {mode === "create" ? "Tạo" : "Lưu"}
+                        </button>
+                            </div>
                         </div>
                     </div>
                 </div>

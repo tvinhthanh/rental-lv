@@ -12,7 +12,7 @@ export class BillingService {
 
   // =====
   // INVOICE
-  // ==========================
+  // =====
   async findAllInvoices(query: BillingQueryDto = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;
@@ -353,6 +353,7 @@ export class BillingService {
       }
     });
 
+    // if invoice is PAID → change booking to COMPLETED
     if (status === 'PAID') {
       const booking = await this.prisma.booking.findUnique({
         where: { id: updatedInvoice.bookingId }

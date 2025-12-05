@@ -23,8 +23,8 @@ export function useProfile() {
             : user?.role === "USER"
                 ? `/customers/user/${user.id}` // Fetch customer by userId
                 : user?.role === "EMPLOYEE" && refId
-                ? `/employees/${refId}`
-                : null;
+                    ? `/employees/${refId}`
+                    : null;
 
     const {
         data: profile,

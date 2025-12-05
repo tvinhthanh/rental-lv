@@ -3,7 +3,6 @@ const api = new APIRequest();
 
 export const settingsService = {
     getAll: () => api.get("/settings"),
-<<<<<<< HEAD
     getPublic: async () => {
         try {
             return await api.get("/settings/public"); // No auth required
@@ -16,10 +15,6 @@ export const settingsService = {
             throw err;
         }
     },
-=======
-    getPublic: () => api.get("/settings/public"), // No auth required
->>>>>>> b9b3026 (update layout)
     update: (data: any) => api.put("/settings", data),
     getByKey: (key: string) => api.get(`/settings/key/${key}`),
 };
-

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ReactNode } from "react";
 import "./globals.css";
 
 import Header from "@/components/layouts/header";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   description: "Car Rental Platform using Next.js 16",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -28,10 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryProvider>
               <SettingsProvider>
                 <AuthProvider>
-<<<<<<< HEAD
                   <SocketNotificationProvider>
-=======
->>>>>>> b9b3026 (update layout)
                   <Header />
                   <GlobalLoading />
                   <main className="min-h-screen">
@@ -39,10 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </main>
                   <Footer />
                   <Toaster />
-<<<<<<< HEAD
                   </SocketNotificationProvider>
-=======
->>>>>>> b9b3026 (update layout)
                 </AuthProvider>
               </SettingsProvider>
             </QueryProvider>

@@ -72,10 +72,7 @@ function CarsPageContent() {
             const priceListItems: PriceList[] = Array.isArray(p.items) ? p.items : Array.isArray(p) ? p : [];
 
             // Backend đã filter document rồi, chỉ filter photos để hiển thị
-            const withPhotos = vehicleItems.filter((x) => {
-                const hasPhotos = Boolean(x.photos?.length);
-                return hasPhotos;
-            });
+            const withPhotos = vehicleItems.filter((x) => Boolean(x.photos?.length));
 
             setVehicles(withPhotos);
             setFiltered(withPhotos);
@@ -150,7 +147,9 @@ function CarsPageContent() {
 
     return (
         <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Danh sách xe cho thuê</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                Danh sách xe cho thuê
+            </h1>
 
             {/* FILTERS */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
@@ -219,8 +218,8 @@ function CarsPageContent() {
                     const price = car.priceList?.dailyRate
                         ? `${formatVND(car.priceList.dailyRate)} / ngày`
                         : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
-                        ? `${formatVND((car as any).overrideDailyRate)} / ngày`
-                        : "Liên hệ";
+                            ? `${formatVND((car as any).overrideDailyRate)} / ngày`
+                            : "Liên hệ";
 
                     return (
                         <div
@@ -250,17 +249,11 @@ function CarsPageContent() {
 
                                 <p className="text-blue-400 font-semibold mb-3">{price}</p>
 
-                                <p className="text-sm text-slate-300 mb-2">
-                                    Danh mục: {car.category?.name}
-                                </p>
+                                <p className="text-sm text-slate-300 mb-2">Danh mục: {car.category?.name}</p>
 
-                                <p className="text-sm text-slate-300 mb-4">
-                                    Chi nhánh: {car.branch?.name}
-                                </p>
+                                <p className="text-sm text-slate-300 mb-4">Chi nhánh: {car.branch?.name}</p>
 
-                                <p className="text-sm text-slate-300 mb-2">
-                                    Hãng xe: {car.brand?.name}
-                                </p>
+                                <p className="text-sm text-slate-300 mb-2">Hãng xe: {car.brand?.name}</p>
 
                                 <Link
                                     href={`/user/cars/${car.slug}`}
@@ -279,7 +272,15 @@ function CarsPageContent() {
 
 export default function CarsPage() {
     return (
-        <Suspense fallback={<div className="p-6 text-gray-400">Đang tải danh sách xe...</div>}>
+        <Suspense
+            fallback={
+                <div className="max-w-7xl mx-auto p-6">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    </div>
+                </div>
+            }
+        >
             <CarsPageContent />
         </Suspense>
     );

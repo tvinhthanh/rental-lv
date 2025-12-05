@@ -9,7 +9,6 @@ import { customerService } from "@/services/customer.service";
 import { employeeService } from "@/services/employee.service";
 import { branchService } from "@/services/branch.service";
 import { billingService } from "@/services/billing.service";
-<<<<<<< HEAD
 import { 
     BarChart, 
     Bar, 
@@ -27,14 +26,10 @@ import {
     AreaChart,
     Area
 } from "recharts";
-=======
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
->>>>>>> b9b3026 (update layout)
 
 export default function AdminDashboardPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [showCharts, setShowCharts] = useState(false);
-<<<<<<< HEAD
     const [chartError, setChartError] = useState<string | null>(null);
     const [showVehicleModal, setShowVehicleModal] = useState<'with-docs' | 'without-docs' | null>(null);
     const [modalVehicles, setModalVehicles] = useState<any[]>([]);
@@ -42,8 +37,6 @@ export default function AdminDashboardPage() {
     const [showDetailModal, setShowDetailModal] = useState<'bookings' | 'customers' | 'employees' | 'branches' | 'vehicles' | 'invoices' | null>(null);
     const [modalData, setModalData] = useState<any[]>([]);
     const [modalDetailLoading, setModalDetailLoading] = useState(false);
-=======
->>>>>>> b9b3026 (update layout)
 
     // Load statistics with React Query for caching
     const { data: statsData, isLoading: statsLoading, error: statsError } = useQuery({
@@ -52,31 +45,22 @@ export default function AdminDashboardPage() {
             // Load essential data with limits to improve performance
             const [
                 bookingsRes,
-<<<<<<< HEAD
                 vehiclesAllRes, // Tất cả xe (admin view)
                 vehiclesWithDocsRes, // Xe có document (user view)
-=======
-                vehiclesRes,
->>>>>>> b9b3026 (update layout)
                 customersRes,
                 employeesRes,
                 branchesRes,
                 invoicesRes,
             ] = await Promise.all([
                 bookingService.list({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
-<<<<<<< HEAD
                 vehicleService.getAll({ limit: 100, skipDocumentCheck: 'true' }).catch(() => ({ items: [], total: 0 })),
                 vehicleService.getAll({ limit: 100, skipDocumentCheck: 'false' }).catch(() => ({ items: [], total: 0 })), // Xe có document
-=======
-                vehicleService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
->>>>>>> b9b3026 (update layout)
                 customerService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
                 employeeService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
                 branchService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
                 billingService.getAllInvoices({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
             ]);
 
-<<<<<<< HEAD
             // Process bookings - handle both direct response and wrapped response
             const bookingsData = bookingsRes?.data || bookingsRes;
             const bookings = bookingsData?.items || (Array.isArray(bookingsData) ? bookingsData : []);
@@ -136,55 +120,15 @@ export default function AdminDashboardPage() {
                 if (inv.payments && Array.isArray(inv.payments)) {
                     const paidAmount = inv.payments.reduce((pSum: number, p: any) => 
                         pSum + (p?.amount || 0), 0
-=======
-            // Process bookings
-            const bookings = bookingsRes?.items || bookingsRes?.data?.items || [];
-            const totalBookings = bookingsRes?.total || bookingsRes?.data?.total || bookings.length;
-            const completedBookings = bookings.filter((b: any) => b.status === "COMPLETED").length;
-            const pendingBookings = bookings.filter((b: any) => b.status === "PENDING").length;
-            const ongoingBookings = bookings.filter((b: any) => b.status === "ONGOING" || b.status === "CONFIRMED").length;
-
-            // Process vehicles
-            const vehicles = vehiclesRes?.items || vehiclesRes?.data?.items || [];
-            const totalVehicles = vehiclesRes?.total || vehiclesRes?.data?.total || vehicles.length;
-            const availableVehicles = vehicles.filter((v: any) => v.status === "AVAILABLE").length;
-            const rentedVehicles = vehicles.filter((v: any) => v.status === "RENTED" || v.status === "ONGOING").length;
-            const maintenanceVehicles = vehicles.filter((v: any) => v.status === "MAINTENANCE").length;
-
-            // Process customers
-            const customers = customersRes?.items || customersRes?.data?.items || [];
-            const totalCustomers = customersRes?.total || customersRes?.data?.total || customers.length;
-
-            // Process employees
-            const employees = employeesRes?.items || employeesRes?.data?.items || [];
-            const totalEmployees = employeesRes?.total || employeesRes?.data?.total || employees.length;
-
-            // Process branches
-            const branches = branchesRes?.items || branchesRes?.data?.items || [];
-            const totalBranches = branchesRes?.total || branchesRes?.data?.total || branches.length;
-            const activeBranches = branches.filter((b: any) => b.isActive !== false).length;
-
-            // Calculate revenue from invoices
-            const invoices = invoicesRes?.items || invoicesRes?.data?.items || [];
-            const revenue = invoices.reduce((sum: number, inv: any) => {
-                if (inv.payments && Array.isArray(inv.payments)) {
-                    const paidAmount = inv.payments.reduce((pSum: number, p: any) => 
-                        pSum + (p.amount || 0), 0
->>>>>>> b9b3026 (update layout)
                     );
                     return sum + paidAmount;
                 }
                 if (inv.status === "PAID" && inv.totalAmount) {
-<<<<<<< HEAD
                     return sum + (inv.totalAmount || 0);
-=======
-                    return sum + inv.totalAmount;
->>>>>>> b9b3026 (update layout)
                 }
                 return sum;
             }, 0);
 
-<<<<<<< HEAD
             // Prepare detailed data for charts
             // Bookings by month (last 6 months)
             const bookingsByMonth = Array.from({ length: 6 }, (_, i) => {
@@ -266,32 +210,12 @@ export default function AdminDashboardPage() {
             };
         },
         enabled: !userLoading && !!user && user.role === "ADMIN", // ⚡ Chỉ chạy khi đã auth và là ADMIN
-=======
-            return {
-                totalBookings,
-                completedBookings,
-                pendingBookings,
-                ongoingBookings,
-                revenue,
-                totalVehicles,
-                availableVehicles,
-                maintenanceVehicles,
-                rentedVehicles,
-                totalCustomers,
-                totalEmployees,
-                totalBranches,
-                activeBranches,
-            };
-        },
-        enabled: !userLoading,
->>>>>>> b9b3026 (update layout)
         staleTime: 2 * 60 * 1000, // Cache for 2 minutes
         refetchOnWindowFocus: false,
     });
 
     // Lazy load charts after initial render
     useEffect(() => {
-<<<<<<< HEAD
         if (!statsLoading && statsData && typeof window !== 'undefined') {
             try {
                 const timer = setTimeout(() => setShowCharts(true), 100);
@@ -299,11 +223,6 @@ export default function AdminDashboardPage() {
             } catch (error: any) {
                 setChartError(error?.message || 'Lỗi khi tải charts');
             }
-=======
-        if (!statsLoading && statsData) {
-            const timer = setTimeout(() => setShowCharts(true), 100);
-            return () => clearTimeout(timer);
->>>>>>> b9b3026 (update layout)
         }
     }, [statsLoading, statsData]);
 
@@ -317,16 +236,12 @@ export default function AdminDashboardPage() {
         availableVehicles: 0,
         maintenanceVehicles: 0,
         rentedVehicles: 0,
-<<<<<<< HEAD
         vehiclesWithDocuments: 0,
         vehiclesWithoutDocuments: 0,
-=======
->>>>>>> b9b3026 (update layout)
         totalCustomers: 0,
         totalEmployees: 0,
         totalBranches: 0,
         activeBranches: 0,
-<<<<<<< HEAD
         bookingsByMonth: [],
         vehiclesByBranch: [],
         revenueByMonth: [],
@@ -437,13 +352,6 @@ export default function AdminDashboardPage() {
     const loading = userLoading || statsLoading;
 
     // Guards - AFTER all hooks
-=======
-    };
-
-    const loading = userLoading || statsLoading;
-
-    // Guards
->>>>>>> b9b3026 (update layout)
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-950/90 text-gray-100 flex items-center justify-center">
@@ -452,43 +360,12 @@ export default function AdminDashboardPage() {
         );
     }
 
-<<<<<<< HEAD
     // ⚡ Guard: Không cho render nếu chưa đăng nhập hoặc không phải ADMIN
     if (!user || user.role !== "ADMIN") {
         // Layout sẽ handle redirect, nhưng đảm bảo không render data
         return null;
     }
 
-=======
-    if (!user || user.role !== "ADMIN") {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 p-6">
-                <p className="text-red-400">Bạn không có quyền truy cập.</p>
-            </div>
-        );
-    }
-
-    const completionRate = useMemo(() => 
-        stats.totalBookings > 0 
-            ? ((stats.completedBookings / stats.totalBookings) * 100).toFixed(1)
-            : 0,
-        [stats.totalBookings, stats.completedBookings]
-    );
-
-    // Chart data - memoized for performance
-    const vehicleChartData = useMemo(() => [
-        { name: "Đang Rảnh", value: stats.availableVehicles },
-        { name: "Đang Thuê", value: stats.rentedVehicles },
-        { name: "Bảo Dưỡng", value: stats.maintenanceVehicles },
-    ], [stats.availableVehicles, stats.rentedVehicles, stats.maintenanceVehicles]);
-
-    const bookingStatusData = useMemo(() => [
-        { name: "Hoàn Thành", value: stats.completedBookings },
-        { name: "Chờ Xử Lý", value: stats.pendingBookings },
-        { name: "Đang Thuê", value: stats.ongoingBookings },
-    ], [stats.completedBookings, stats.pendingBookings, stats.ongoingBookings]);
-
->>>>>>> b9b3026 (update layout)
     const COLORS = {
         available: "#10b981",
         rented: "#a855f7",
@@ -511,29 +388,19 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
 
-<<<<<<< HEAD
                 {(statsError || chartError) && (
                     <div className="mb-3 sm:mb-4 rounded-lg bg-red-900/30 border border-red-500/50 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-300">
                         {statsError ? 'Lỗi khi tải dữ liệu' : chartError || 'Lỗi khi hiển thị biểu đồ'}
-=======
-                {statsError && (
-                    <div className="mb-3 sm:mb-4 rounded-lg bg-red-900/30 border border-red-500/50 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-300">
-                        Lỗi khi tải dữ liệu
->>>>>>> b9b3026 (update layout)
                     </div>
                 )}
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
                     {/* Tổng đơn hàng */}
-<<<<<<< HEAD
                     <div 
                         onClick={() => handleOpenDetailModal('bookings')}
                         className="rounded-lg sm:rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-4 sm:p-5 md:p-6 cursor-pointer hover:border-blue-400/50 hover:bg-blue-900/40 transition-all shadow-lg hover:shadow-blue-500/10"
                     >
-=======
-                    <div className="rounded-lg sm:rounded-xl border border-slate-800 bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-4 sm:p-5 md:p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-1 sm:mb-2">Tổng Đơn Hàng</p>
                         <p className="text-2xl sm:text-3xl font-bold text-blue-400 mb-1">
                             {stats.totalBookings}
@@ -541,7 +408,6 @@ export default function AdminDashboardPage() {
                         <p className="text-xs sm:text-sm text-slate-400">
                             Hoàn thành: {stats.completedBookings} ({completionRate}%)
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-blue-400/60 mt-1 italic">Click để xem chi tiết →</p>
                     </div>
 
@@ -550,12 +416,6 @@ export default function AdminDashboardPage() {
                         onClick={() => handleOpenDetailModal('invoices')}
                         className="rounded-lg sm:rounded-xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-900/30 to-teal-900/30 p-4 sm:p-5 md:p-6 cursor-pointer hover:border-emerald-400/50 hover:bg-emerald-900/40 transition-all shadow-lg hover:shadow-emerald-500/10"
                     >
-=======
-                    </div>
-
-                    {/* Doanh thu */}
-                    <div className="rounded-lg sm:rounded-xl border border-slate-800 bg-gradient-to-br from-emerald-900/30 to-teal-900/30 p-4 sm:p-5 md:p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-1 sm:mb-2">Doanh Thu</p>
                         <p className="text-2xl sm:text-3xl font-bold text-emerald-400 mb-1 break-words">
                             {stats.revenue.toLocaleString("vi-VN")} đ
@@ -563,7 +423,6 @@ export default function AdminDashboardPage() {
                         <p className="text-xs sm:text-sm text-slate-400">
                             Tổng đã thanh toán
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-emerald-400/60 mt-1 italic">Click để xem chi tiết →</p>
                     </div>
 
@@ -572,12 +431,6 @@ export default function AdminDashboardPage() {
                         onClick={() => handleOpenDetailModal('vehicles')}
                         className="rounded-lg sm:rounded-xl border-2 border-green-500/30 bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-4 sm:p-5 md:p-6 cursor-pointer hover:border-green-400/50 hover:bg-green-900/40 transition-all shadow-lg hover:shadow-green-500/10"
                     >
-=======
-                    </div>
-
-                    {/* Tổng xe */}
-                    <div className="rounded-lg sm:rounded-xl border border-slate-800 bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-4 sm:p-5 md:p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-1 sm:mb-2">Tổng Xe</p>
                         <p className="text-2xl sm:text-3xl font-bold text-green-400 mb-1">
                             {stats.totalVehicles}
@@ -585,7 +438,6 @@ export default function AdminDashboardPage() {
                         <p className="text-xs sm:text-sm text-slate-400">
                             Sẵn sàng: {stats.availableVehicles}
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-green-400/60 mt-1 italic">Click để xem chi tiết →</p>
                     </div>
 
@@ -594,12 +446,6 @@ export default function AdminDashboardPage() {
                         onClick={() => handleOpenDetailModal('customers')}
                         className="rounded-lg sm:rounded-xl border-2 border-purple-500/30 bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-4 sm:p-5 md:p-6 cursor-pointer hover:border-purple-400/50 hover:bg-purple-900/40 transition-all shadow-lg hover:shadow-purple-500/10"
                     >
-=======
-                    </div>
-
-                    {/* Khách hàng */}
-                    <div className="rounded-lg sm:rounded-xl border border-slate-800 bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-4 sm:p-5 md:p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-1 sm:mb-2">Khách Hàng</p>
                         <p className="text-2xl sm:text-3xl font-bold text-purple-400 mb-1">
                             {stats.totalCustomers}
@@ -607,24 +453,17 @@ export default function AdminDashboardPage() {
                         <p className="text-xs sm:text-sm text-slate-400">
                             Tổng số khách hàng
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-purple-400/60 mt-1 italic">Click để xem chi tiết →</p>
-=======
->>>>>>> b9b3026 (update layout)
                     </div>
                 </div>
 
                 {/* Secondary Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
                     {/* Nhân viên */}
-<<<<<<< HEAD
                     <div 
                         onClick={() => handleOpenDetailModal('employees')}
                         className="rounded-xl border-2 border-cyan-500/30 bg-gradient-to-br from-cyan-900/30 to-blue-900/30 p-6 cursor-pointer hover:border-cyan-400/50 hover:bg-cyan-900/40 transition-all shadow-lg hover:shadow-cyan-500/10"
                     >
-=======
-                    <div className="rounded-xl border border-slate-800 bg-gradient-to-br from-cyan-900/30 to-blue-900/30 p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-2">Nhân Viên</p>
                         <p className="text-3xl font-bold text-cyan-400 mb-1">
                             {stats.totalEmployees}
@@ -632,7 +471,6 @@ export default function AdminDashboardPage() {
                         <p className="text-sm text-slate-400">
                             Tổng số nhân viên
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-cyan-400/60 mt-1 italic">Click để xem chi tiết →</p>
                     </div>
 
@@ -641,12 +479,6 @@ export default function AdminDashboardPage() {
                         onClick={() => handleOpenDetailModal('branches')}
                         className="rounded-xl border-2 border-orange-500/30 bg-gradient-to-br from-orange-900/30 to-amber-900/30 p-6 cursor-pointer hover:border-orange-400/50 hover:bg-orange-900/40 transition-all shadow-lg hover:shadow-orange-500/10"
                     >
-=======
-                    </div>
-
-                    {/* Chi nhánh */}
-                    <div className="rounded-xl border border-slate-800 bg-gradient-to-br from-orange-900/30 to-amber-900/30 p-6">
->>>>>>> b9b3026 (update layout)
                         <p className="text-xs uppercase text-slate-400 mb-2">Chi Nhánh</p>
                         <p className="text-3xl font-bold text-orange-400 mb-1">
                             {stats.activeBranches} / {stats.totalBranches}
@@ -654,10 +486,7 @@ export default function AdminDashboardPage() {
                         <p className="text-sm text-slate-400">
                             Chi nhánh đang hoạt động
                         </p>
-<<<<<<< HEAD
                         <p className="text-xs text-orange-400/60 mt-1 italic">Click để xem chi tiết →</p>
-=======
->>>>>>> b9b3026 (update layout)
                     </div>
 
                     {/* Xe đang thuê */}
@@ -683,7 +512,6 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
 
-<<<<<<< HEAD
                 {/* Vehicle Document Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
                     {/* Xe Sẵn Sàng (Có Document) */}
@@ -978,103 +806,12 @@ export default function AdminDashboardPage() {
                 ) : (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
-=======
-                {/* Charts Grid - Lazy loaded */}
-                {showCharts ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                        {/* Vehicle Status Chart */}
-                        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                            <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Xe</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={vehicleChartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        stroke="#94a3b8"
-                                        style={{ fontSize: "12px" }}
-                                    />
-                                    <YAxis 
-                                        stroke="#94a3b8"
-                                        style={{ fontSize: "12px" }}
-                                    />
-                                    <Tooltip 
-                                        contentStyle={{ 
-                                            backgroundColor: "#1e293b", 
-                                            border: "1px solid #334155",
-                                            borderRadius: "8px",
-                                            color: "#e2e8f0"
-                                        }}
-                                    />
-                                    <Legend />
-                                    <Bar 
-                                        dataKey="value" 
-                                        fill="#10b981"
-                                        radius={[8, 8, 0, 0]}
-                                    >
-                                        {vehicleChartData.map((entry, index) => (
-                                            <Cell 
-                                                key={`cell-${index}`} 
-                                                fill={
-                                                    entry.name === "Đang Rảnh" ? COLORS.available :
-                                                    entry.name === "Đang Thuê" ? COLORS.rented :
-                                                    COLORS.maintenance
-                                                } 
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-
-                        {/* Booking Status Pie Chart */}
-                        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                            <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Booking</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={bookingStatusData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {bookingStatusData.map((entry, index) => (
-                                            <Cell 
-                                                key={`cell-${index}`} 
-                                                fill={
-                                                    entry.name === "Hoàn Thành" ? COLORS.completed :
-                                                    entry.name === "Chờ Xử Lý" ? COLORS.pending :
-                                                    COLORS.ongoing
-                                                } 
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip 
-                                        contentStyle={{ 
-                                            backgroundColor: "#1e293b", 
-                                            border: "1px solid #334155",
-                                            borderRadius: "8px",
-                                            color: "#e2e8f0"
-                                        }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="grid gap-6 md:grid-cols-2">
-                        {[1, 2].map((i) => (
->>>>>>> b9b3026 (update layout)
                             <div key={i} className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 h-[380px] flex items-center justify-center">
                                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                             </div>
                         ))}
                     </div>
                 )}
-<<<<<<< HEAD
 
                 {/* Vehicle List Modal */}
                 {showVehicleModal && (
@@ -1556,8 +1293,6 @@ export default function AdminDashboardPage() {
                         </div>
                     </div>
                 )}
-=======
->>>>>>> b9b3026 (update layout)
             </div>
         </div>
     );

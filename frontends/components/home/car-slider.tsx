@@ -16,27 +16,38 @@ export default function CarSlider() {
     useEffect(() => {
         let cancelled = false;
 
+        // Set loading state trong async function thay vì sync
         (async () => {
             try {
                 const data = await vehicleService.getAll();
+
                 if (cancelled) return;
 
                 const items = Array.isArray(data) ? data : data?.items ?? [];
-                const filtered = items.filter((v: any) => Array.isArray(v.photos) && v.photos.length > 0);
 
+                // Filter: chỉ cần có photos để hiển thị (backend đã filter document rồi)
+                // Price có thể hiển thị sau hoặc dùng overridePrice
+                const filtered = items.filter((v: any) => {
+                    const hasPhotos = v.photos?.length > 0;
+                    return hasPhotos;
+                });
+
+                // Nếu không có xe sau filter, nhưng có xe từ API → log để debug
                 if (filtered.length === 0 && items.length > 0) {
-                    console.warn("[CarSlider] No vehicles passed filter! Check vehicle data structure.");
+                    console.warn('[CarSlider] No vehicles passed filter! Check vehicle data structure.');
                 }
 
-                setVehicles(filtered);
-                setError(null);
+                if (!cancelled) {
+                    setVehicles(filtered);
+                    setLoading(false);
+                    setError(null);
+                }
             } catch (err: any) {
                 if (!cancelled) {
-                    console.error("[CarSlider] Error fetching vehicles:", err);
-                    setError(err?.message || "Không thể tải danh sách xe");
+                    console.error('[CarSlider] Error fetching vehicles:', err);
+                    setError(err?.message || 'Không thể tải danh sách xe');
+                    setLoading(false);
                 }
-            } finally {
-                if (!cancelled) setLoading(false);
             }
         })();
 
@@ -47,10 +58,7 @@ export default function CarSlider() {
 
     const next = () => {
         if (vehicles.length <= 1) return;
-<<<<<<< HEAD
-=======
         // Move 2 items at a time, but ensure we don't wrap around incorrectly
->>>>>>> b9b3026 (update layout)
         if (vehicles.length === 2) {
             setIndex((prev) => (prev + 1) % 2);
         } else {
@@ -63,10 +71,7 @@ export default function CarSlider() {
 
     const prev = () => {
         if (vehicles.length <= 1) return;
-<<<<<<< HEAD
-=======
         // Move 2 items at a time
->>>>>>> b9b3026 (update layout)
         if (vehicles.length === 2) {
             setIndex((prev) => (prev + 1) % 2);
         } else {
@@ -88,7 +93,6 @@ export default function CarSlider() {
         );
     }
 
-<<<<<<< HEAD
     if (error) {
         return (
             <section className="relative overflow-hidden py-16">
@@ -112,23 +116,6 @@ export default function CarSlider() {
         );
     }
 
-    const getDisplayCars = () => {
-        if (vehicles.length === 0) return [];
-        if (vehicles.length === 1) return [{ ...vehicles[0], displayIndex: 0 }];
-
-        const cars = [];
-        const firstIndex = index % vehicles.length;
-        cars.push({ ...vehicles[firstIndex], displayIndex: 0 });
-
-        let secondIndex = (firstIndex + 1) % vehicles.length;
-        if (secondIndex === firstIndex) {
-            secondIndex = (firstIndex + 1) % vehicles.length;
-        }
-        cars.push({ ...vehicles[secondIndex], displayIndex: 1 });
-        return cars;
-    };
-
-=======
     // Get 2 different cars to display
     const getDisplayCars = () => {
         if (vehicles.length === 0) return [];
@@ -136,23 +123,22 @@ export default function CarSlider() {
             // If only 1 car, return only 1 item
             return [vehicles[0]];
         }
-        
+
         const cars = [];
         const firstIndex = index % vehicles.length;
         cars.push({ ...vehicles[firstIndex], displayIndex: 0 });
-        
+
         // Get second car - ensure it's different
         let secondIndex = (firstIndex + 1) % vehicles.length;
         // Make sure secondIndex is different from firstIndex
         if (secondIndex === firstIndex) {
             secondIndex = (firstIndex + 1) % vehicles.length;
         }
-        
+
         cars.push({ ...vehicles[secondIndex], displayIndex: 1 });
         return cars;
     };
 
->>>>>>> b9b3026 (update layout)
     const displayCars = getDisplayCars();
 
     return (
@@ -162,13 +148,7 @@ export default function CarSlider() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Xe nổi bật</p>
-<<<<<<< HEAD
-                        <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
-                            Dòng xe được yêu thích nhất
-                        </h2>
-=======
                         <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Dòng xe được yêu thích nhất</h2>
->>>>>>> b9b3026 (update layout)
                     </div>
                     <div className="flex gap-3">
                         <button
@@ -188,16 +168,18 @@ export default function CarSlider() {
                     </div>
                 </div>
 
-<<<<<<< HEAD
-                <div className={`grid gap-6 ${displayCars.length === 2 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+                <div className={`grid gap-6 ${displayCars.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
                     {displayCars.map((car, idx) => {
                         const photo = car.photos?.[0];
+                        // Ưu tiên priceList, nếu không có thì dùng overridePrice
                         const price = car.priceList?.dailyRate
-                            ? `${formatVND(car.priceList.dailyRate)} / ngày`
+                            ? formatVND(car.priceList.dailyRate) + " / ngày"
                             : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
-                                ? `${formatVND((car as any).overrideDailyRate)} / ngày`
+                                ? formatVND((car as any).overrideDailyRate) + " / ngày"
                                 : "Liên hệ";
                         const slug = car.slug ?? car.id;
+
+                        // Create unique key combining car id and display index
                         const uniqueKey = `${car.id}-${car.displayIndex ?? idx}`;
 
                         return (
@@ -217,9 +199,7 @@ export default function CarSlider() {
                                     <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
                                         Đời mới • Bảo dưỡng định kỳ
                                     </div>
-                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
-                                        {car.name}
-                                    </h3>
+                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{car.name}</h3>
                                     <p className="text-blue-200 text-lg font-semibold">{price}</p>
                                     <p className="text-slate-200 text-sm">
                                         {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}
@@ -251,68 +231,6 @@ export default function CarSlider() {
                                         </Link>
                                     </div>
                                 </div>
-=======
-                <div className={`grid gap-6 ${displayCars.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
-                    {displayCars.map((car, idx) => {
-                        const photo = car.photos?.[0];
-                        const price = car.priceList?.dailyRate
-                            ? formatVND(car.priceList.dailyRate) + " / ngày"
-                            : "—";
-                        const slug = car.slug ?? car.id;
-
-                        // Create unique key combining car id and display index
-                        const uniqueKey = `${car.id}-${car.displayIndex ?? idx}`;
-
-                        return (
-                            <div key={uniqueKey} className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur">
-                                <div className="relative mb-4">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/30 to-transparent rounded-xl" />
-                        <img
-                                        src={toWebP(photo)}
-                                        className="w-full h-[280px] md:h-[320px] object-cover rounded-xl"
-                            alt={car.name}
-                                        loading={getImageLoading(idx === 0)}
-                                        decoding="async"
-                        />
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
-                            Đời mới • Bảo dưỡng định kỳ
-                        </div>
-                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{car.name}</h3>
-                                    <p className="text-blue-200 text-lg font-semibold">{price}</p>
-                                    <p className="text-slate-200 text-sm">
-                            {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}
-                        </p>
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                            {car.branch?.name && (
-                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.branch.name}</span>
-                            )}
-                            {car.category?.name && (
-                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.category.name}</span>
-                            )}
-                            {car.brand?.name && (
-                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.brand.name}</span>
-                            )}
-                        </div>
-
-                                    <div className="flex gap-3 pt-3">
-                            <Link
-                                href={`/user/cars/${slug}`}
-                                            className="flex-1 px-4 py-2.5 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition text-center text-sm"
-                            >
-                                Xem chi tiết
-                            </Link>
-                            <Link
-                                href={`/user/bookings/${slug}`}
-                                            className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow text-center text-sm"
-                            >
-                                Đặt ngay
-                            </Link>
-                        </div>
-                    </div>
->>>>>>> b9b3026 (update layout)
                             </div>
                         );
                     })}

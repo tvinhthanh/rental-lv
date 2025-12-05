@@ -1,12 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
-=======
-import { vehicleService } from "@/services/vehicle.service";
-import { useFormatVND } from "@/hooks/useFormatVND";
-import { toWebP, getImageLoading } from "@/lib/image-utils";
->>>>>>> b9b3026 (update layout)
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
@@ -145,7 +139,6 @@ export default function CarDetailPage() {
                             decoding="async"
                         />
 
-<<<<<<< HEAD
                         {Array.isArray(vehicle.photos) && vehicle.photos.length > 1 && (
                             <div className="grid grid-cols-4 gap-3 mt-4">
                                 {vehicle.photos.slice(1).map((p: string, idx: number) => (
@@ -208,29 +201,6 @@ export default function CarDetailPage() {
                                 {vehicle.status === "MAINTENANCE" && "Bảo dưỡng"}
                                 {vehicle.status === "UNAVAILABLE" && "Không khả dụng"}
                             </p>
-=======
-                {/* IMAGE SECTION */}
-                <div>
-                    <img
-                        src={toWebP(vehicle.photos?.[0])}
-                        alt={vehicle.name}
-                        className="w-full h-[420px] object-cover rounded-xl shadow"
-                        loading={getImageLoading(true)}
-                        decoding="async"
-                    />
-
-                    {Array.isArray(vehicle.photos) && vehicle.photos.length > 1 && (
-                        <div className="grid grid-cols-4 gap-3 mt-4">
-                            {vehicle.photos.slice(1).map((p: string, idx: number) => (
-                                <img
-                                    key={idx}
-                                    src={toWebP(p)}
-                                    className="h-24 w-full object-cover rounded-lg shadow"
-                                    loading={getImageLoading(false)}
-                                    decoding="async"
-                                />
-                            ))}
->>>>>>> b9b3026 (update layout)
                         </div>
 
                         {/* ⚡ Kiểm tra và hiển thị nút phù hợp */}
@@ -258,7 +228,6 @@ export default function CarDetailPage() {
                 </div>
             </div>
 
-<<<<<<< HEAD
             {/* DOCUMENTS SECTION */}
             <div className="max-w-6xl mx-auto px-6 pb-6">
                 <div className="mt-10 rounded-2xl bg-gray-900/60 border border-white/10 p-6 shadow-lg">
@@ -271,32 +240,6 @@ export default function CarDetailPage() {
                         </h2>
                         <p className="text-sm text-blue-100 mt-1">
                             Xem các giấy tờ quan trọng của xe như đăng kiểm, bảo hiểm, v.v.
-=======
-                {/* INFO SECTION */}
-                <div>
-                    <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{vehicle.name}</h1>
-
-                    <p className="text-2xl text-blue-600 font-semibold mb-6">{price}</p>
-
-                    <div className="space-y-3 text-sm">
-                        <p><span className="font-semibold">Biển số:</span> {vehicle.licensePlate}</p>
-
-                        {/* 🟩 FIX brand = object */}
-                        <p><span className="font-semibold">Hãng xe:</span> {vehicle.brand?.name ?? "—"}</p>
-
-                        <p><span className="font-semibold">Mẫu xe:</span> {vehicle.model ?? "—"}</p>
-                        <p><span className="font-semibold">Năm sản xuất:</span> {vehicle.year ?? "—"}</p>
-                        <p><span className="font-semibold">Màu sắc:</span> {vehicle.color ?? "—"}</p>
-
-                        <p><span className="font-semibold">Danh mục:</span> {vehicle.category?.name ?? "—"}</p>
-                        <p><span className="font-semibold">Chi nhánh:</span> {vehicle.branch?.name ?? "—"}</p>
-
-                        <p>
-                            <span className="font-semibold">Tình trạng:</span>{" "}
-                            {vehicle.status === "AVAILABLE" && "Sẵn sàng"}
-                            {vehicle.status === "MAINTENANCE" && "Bảo dưỡng"}
-                            {vehicle.status === "UNAVAILABLE" && "Không khả dụng"}
->>>>>>> b9b3026 (update layout)
                         </p>
                     </div>
 

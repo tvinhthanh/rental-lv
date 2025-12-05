@@ -76,12 +76,7 @@ export default function CategoryModal({ open, selected, onClose }: CategoryModal
                             {selected ? "Cập nhật thông tin danh mục" : "Thêm danh mục mới vào hệ thống"}
                         </p>
                     </div>
-<<<<<<< HEAD
                     <form onSubmit={formHandle(onSubmit)} className="space-y-4">
-=======
-
-                <form onSubmit={formHandle(onSubmit)} className="space-y-4">
->>>>>>> b9b3026 (update layout)
 
                     <div className="grid grid-cols-2 gap-3">
                             <div>

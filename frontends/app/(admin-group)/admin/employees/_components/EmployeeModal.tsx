@@ -217,7 +217,6 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         </div>
                     </div>
 
-<<<<<<< HEAD
                     <div className="border-t border-slate-700/50 pt-4 mt-6">
                         <div className="flex justify-end gap-3">
                             <button
@@ -234,23 +233,6 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             >
                                 {mode === "create" ? "Tạo mới" : "Lưu thay đổi"}
                             </button>
-=======
-                        <div className="border-t border-slate-700/50 pt-4 mt-6">
-                            <div className="flex justify-end gap-3">
-                        <button
-                            onClick={onClose}
-                                    className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
-                        >
-                                    Hủy
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl"
-                        >
-                                    {mode === "create" ? "Tạo" : "Lưu"}
-                        </button>
-                            </div>
->>>>>>> b9b3026 (update layout)
                         </div>
                     </div>
                 </div>

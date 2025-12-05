@@ -1,15 +1,11 @@
 "use client";
 
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/common/sidebar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-=======
-import { Sidebar } from "@/components/common/sidebar";
->>>>>>> b9b3026 (update layout)
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { data: user, isLoading: userLoading } = useCurrentUser();
   const [isChecking, setIsChecking] = useState(true);

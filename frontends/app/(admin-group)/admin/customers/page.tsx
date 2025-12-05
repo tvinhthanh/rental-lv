@@ -70,7 +70,7 @@ export default function CustomersPage() {
         <div className="min-h-screen bg-slate-950/90 text-gray-100 p-3 sm:p-4 md:p-6">
             <div className="mx-auto max-w-7xl">
                 {/* Header */}
-                <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">
+                <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
                             Quản lý Khách Hàng
@@ -78,19 +78,17 @@ export default function CustomersPage() {
                         <p className="mt-1 text-xs sm:text-sm text-slate-400">
                             Danh sách khách hàng và điểm thưởng
                         </p>
-<<<<<<< HEAD
                     </div>
-                </div>
-=======
-                </div>
-                <button
-                    onClick={() => { setSelected(null); setOpen(true); }}
+                    <button
+                        onClick={() => {
+                            setSelected(null);
+                            setOpen(true);
+                        }}
                         className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm sm:text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+                    >
                         + Thêm Khách Hàng
-                </button>
-            </div>
->>>>>>> b9b3026 (update layout)
+                    </button>
+                </div>
 
                 {/* Search */}
                 <div className="mb-4 sm:mb-6">
@@ -244,15 +242,15 @@ export default function CustomersPage() {
                 )}
 
                 {/* Modal */}
-            {open && (
-                <CustomerModal
-                    selected={selected}
+                {open && (
+                    <CustomerModal
+                        selected={selected}
                         onClose={() => {
                             setOpen(false);
                             refetch();
                         }}
-                />
-            )}
+                    />
+                )}
             </div>
         </div>
     );

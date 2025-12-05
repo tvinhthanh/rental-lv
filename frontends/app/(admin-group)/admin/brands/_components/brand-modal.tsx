@@ -201,31 +201,22 @@ export default function BrandModal({ open, selected, onClose }: any) {
 
                         <div className="border-t border-slate-700/50 pt-4 mt-6">
                             <div className="flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
+                                <button
+                                    type="button"
+                                    onClick={onClose}
                                     className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
-                        >
+                                >
                                     Hủy
-<<<<<<< HEAD
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isPending}
-                                    className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
-                                >
-=======
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isPending}
                                     className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
-                        >
->>>>>>> b9b3026 (update layout)
+                                >
                                     {isPending ? "Đang lưu..." : "Lưu"}
-                        </button>
+                                </button>
                             </div>
-                    </div>
+                        </div>
                 </form>
                 </div>
             </div>

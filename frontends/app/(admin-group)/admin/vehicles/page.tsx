@@ -69,53 +69,36 @@ export default function VehiclePage() {
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100 p-3 sm:p-4 md:p-6">
             <div className="mx-auto max-w-7xl">
-<<<<<<< HEAD
-                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
-=======
                 {/* Header */}
-                <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">
+                <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
->>>>>>> b9b3026 (update layout)
                             Quản lý Xe
                         </h1>
                         <p className="mt-1 text-xs sm:text-sm text-slate-400">
                             Quản lý đội xe với thương hiệu, chi nhánh và bảng giá.
                         </p>
-                </div>
-                <button
-                    onClick={() => {
-                        setSelected(null);
-                        setOpen(true);
-                    }}
+                    </div>
+                    <button
+                        onClick={() => {
+                            setSelected(null);
+                            setOpen(true);
+                        }}
                         className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm sm:text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+                    >
                         + Thêm Xe
-                </button>
-            </div>
+                    </button>
+                </div>
 
-<<<<<<< HEAD
-                <div className="mb-6">
+                {/* Search */}
+                <div className="mb-4 sm:mb-6">
                     <input
                         placeholder="Tìm kiếm theo tên, biển số, model, thương hiệu..."
-                        className="w-full sm:w-80 bg-slate-800/70 border border-slate-700 text-gray-200 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
+                        className="w-full bg-slate-800/70 border border-slate-700 text-gray-200 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-=======
-                {/* Search */}
-                <div className="mb-4 sm:mb-6">
-                <input
-                        placeholder="Tìm kiếm..."
-                        className="w-full bg-slate-800/70 border border-slate-700 text-gray-200 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </div>
->>>>>>> b9b3026 (update layout)
 
                 {isLoading ? (
                     <div className="mt-10 flex justify-center">
@@ -166,26 +149,17 @@ export default function VehiclePage() {
                     </>
                 )}
 
-<<<<<<< HEAD
+                {/* Modal */}
                 {open && (
                     <VehicleModal
                         open={open}
                         selected={selected}
                         onClose={() => {
                             setOpen(false);
-=======
-                {/* Modal */}
-            {open && (
-                <VehicleModal
-                    open={open}
-                    selected={selected}
-                    onClose={() => {
-                        setOpen(false);
->>>>>>> b9b3026 (update layout)
                             refetch();
-                    }}
-                />
-            )}
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

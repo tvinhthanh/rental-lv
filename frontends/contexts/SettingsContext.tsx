@@ -83,8 +83,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 setSettings(data);
                 saveToCache(data);
             }
-        } catch (err) {
-            // Silent fail for background fetch
+        } catch (err: any) {
+            // Silent fail for background fetch - only log unexpected errors
+            if (err?.response?.status !== 404 && err?.message !== "Network Error") {
+                console.warn("Background settings fetch failed:", err);
+            }
         }
     }, []);
 
@@ -109,12 +112,29 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 setSettings(data);
                 saveToCache(data);
             }
-        } catch (err) {
-            console.error("Failed to fetch settings:", err);
+        } catch (err: any) {
+            // Only log if it's not a 404 or network error (expected for first load)
+            if (err?.response?.status !== 404 && err?.message !== "Network Error") {
+                console.warn("Failed to fetch settings:", err);
+            }
             // Try to use cache even if expired
             const cached = loadFromCache();
             if (cached) {
                 setSettings(cached);
+            } else {
+                // Set default settings if no cache available
+                setSettings({
+                    siteName: "Rental System",
+                    siteDescription: "Dịch vụ cho thuê xe chuyên nghiệp, uy tín. Đội xe đời mới, bảo hiểm đầy đủ, hỗ trợ 24/7.",
+                    siteLogo: "",
+                    favicon: "",
+                    facebookUrl: "",
+                    instagramUrl: "",
+                    youtubeUrl: "",
+                    itemsPerPage: 20,
+                    showIcons: true,
+                    defaultLanguage: "vi",
+                });
             }
         } finally {
             setLoading(false);

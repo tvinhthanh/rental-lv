@@ -238,7 +238,7 @@ export default function EmployeeDashboardPage() {
 
                 {error && (
                     <div className="mb-3 sm:mb-4 rounded-lg bg-red-900/30 border border-red-500/50 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-300">
-                        {error}
+                        {error?.message || String(error)}
                     </div>
                 )}
 
@@ -346,10 +346,7 @@ export default function EmployeeDashboardPage() {
                                     cx="50%"
                                     cy="50%"
                                     labelLine={false}
-                                    label={({ name, percent }) => {
-                                        const pct = (percent ?? 0) * 100;
-                                        return `${name}: ${pct.toFixed(0)}%`;
-                                    }}
+                                    label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
                                     outerRadius={80}
                                     fill="#8884d8"
                                     dataKey="value"

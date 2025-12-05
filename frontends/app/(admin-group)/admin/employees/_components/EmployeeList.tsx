@@ -142,7 +142,7 @@ export default function EmployeeList() {
                 </div>
 
                 {/* Body */}
-            {loading ? (
+            {isLoading ? (
                     <div className="mt-10 flex justify-center">
                         <div className="flex flex-col items-center justify-center gap-3">
                             <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />

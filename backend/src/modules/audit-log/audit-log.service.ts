@@ -14,7 +14,8 @@ export class AuditLogService {
         action: string,
         module: string,
         entityId?: string | null,
-        metadata?: any
+        metadata?: any,
+        entityType?: string | null
     ) {
         return this.prisma.auditLog.create({
             data: {
@@ -22,6 +23,7 @@ export class AuditLogService {
                 action,
                 module,
                 entityId: entityId ?? null,
+                entityType: entityType ?? module, // Default to module name if not provided
                 metadata
             }
         });

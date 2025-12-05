@@ -6,9 +6,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 export class AuditLogService {
     constructor(private prisma: PrismaService) { }
 
-    // ==========================
     // WRITE LOG (called by other modules)
-    // ==========================
     async log(
         userId: string | null | undefined,
         action: string,
@@ -30,9 +28,6 @@ export class AuditLogService {
     }
 
 
-    // ==========================
-    // GET LOGS with filter + pagination
-    // ==========================
     async findAll(query: AuditLogQueryDto) {
         const page = query.page ? Number(query.page) : 1;
         const limit = query.limit ? Number(query.limit) : 20;
@@ -77,9 +72,6 @@ export class AuditLogService {
         };
     }
 
-    // ==========================
-    // GET BY ID
-    // ==========================
     async findOne(id: string) {
         return this.prisma.auditLog.findUnique({ where: { id } });
     }

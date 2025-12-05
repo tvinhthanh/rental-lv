@@ -21,6 +21,28 @@ export default function CarDetailPage() {
     const { data: user } = useCurrentUser();
     const queryClient = useQueryClient();
 
+    // ⚡ Mutation để tạo customer - PHẢI ĐẶT TRƯỚC MỌI EARLY RETURN
+    const createCustomerMutation = useMutation({
+        mutationFn: async (formData: any) => {
+            return customerService.create({
+                ...formData,
+                userId: user?.id,
+            });
+        },
+        onSuccess: () => {
+            toast.success("Tạo hồ sơ khách hàng thành công!");
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["current-user"] });
+            setShowCreateModal(false);
+            // Reload page để refresh customer
+            window.location.reload();
+        },
+        onError: (err: any) => {
+            const msg = err?.response?.data?.message || err?.message || "Tạo hồ sơ thất bại";
+            toast.error(msg);
+        },
+    });
+
     useEffect(() => {
         if (!slug) return;
 
@@ -55,28 +77,6 @@ export default function CarDetailPage() {
     // ⚡ Kiểm tra user có customer chưa
     const isCustomerRole = user?.role === "CUSTOMER" || user?.role === "USER";
     const hasCustomer = !!customer;
-
-    // ⚡ Mutation để tạo customer
-    const createCustomerMutation = useMutation({
-        mutationFn: async (formData: any) => {
-            return customerService.create({
-                ...formData,
-                userId: user?.id,
-            });
-        },
-        onSuccess: () => {
-            toast.success("Tạo hồ sơ khách hàng thành công!");
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
-            queryClient.invalidateQueries({ queryKey: ["current-user"] });
-            setShowCreateModal(false);
-            // Reload page để refresh customer
-            window.location.reload();
-        },
-        onError: (err: any) => {
-            const msg = err?.response?.data?.message || err?.message || "Tạo hồ sơ thất bại";
-            toast.error(msg);
-        },
-    });
 
     const price = vehicle?.priceList?.dailyRate
         ? formatVND(vehicle.priceList.dailyRate) + " / ngày"

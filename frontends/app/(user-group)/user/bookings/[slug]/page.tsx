@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { notFound, useParams, useRouter } from "next/navigation";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { vehicleService } from "@/services/vehicle.service";
 import { bookingService } from "@/services/booking.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
@@ -18,15 +20,13 @@ export default function BookingPage() {
     const [unavailableRanges, setUnavailableRanges] = useState<any[]>([]);
     const [disabledDates, setDisabledDates] = useState<string[]>([]);
 
-    const todayStr = new Date().toISOString().split("T")[0];
-
     // DEFAULT START DATE = TOMORROW
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const defaultStart = tomorrow.toISOString().split("T")[0];
+    tomorrow.setHours(0, 0, 0, 0); // Reset time to start of day
 
-    const [startDate, setStartDate] = useState(defaultStart);
-    const [endDate, setEndDate] = useState("");
+    const [startDate, setStartDate] = useState<Date | null>(tomorrow);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
     // ------------------------------------------------------------------
     // LOAD VEHICLE + DATE AVAILABLE
@@ -42,12 +42,19 @@ export default function BookingPage() {
                 if (!data) return notFound();
                 setVehicle(data);
 
-                // Load unavailable dates
+                // ⚡ Load unavailable dates từ database
                 const raw = await bookingService.getDateAvailable(data.id);
                 const avai = raw?.data || raw || {};
 
-                setUnavailableRanges(avai.unavailableRanges ?? []);
-                setDisabledDates(avai.dates ?? []);
+                // ⚡ Set unavailable ranges và dates để chặn user chọn
+                const dates = avai.dates ?? [];
+                const ranges = avai.unavailableRanges ?? [];
+                
+                console.log("Unavailable dates:", dates);
+                console.log("Unavailable ranges:", ranges);
+                
+                setUnavailableRanges(ranges);
+                setDisabledDates(dates);
             } catch (err) {
                 console.error("Error loading booking info:", err);
             }
@@ -76,34 +83,45 @@ export default function BookingPage() {
     // ------------------------------------------------------------------
     // DATE UTILITIES
     // ------------------------------------------------------------------
-    const isDisabled = (dateStr: string) => disabledDates.includes(dateStr);
+    // ⚡ Function để check xem một ngày có bị disable không
+    const isDateDisabled = (date: Date) => {
+        const dateStr = date.toISOString().split("T")[0];
+        return disabledDates.includes(dateStr);
+    };
 
-    const handleStartDate = (v: string) => {
-        if (isDisabled(v)) {
-            alert("Ngày này đã có người đặt xe!");
-            return;
+    // ⚡ Function để filter dates trong DatePicker
+    const filterDate = (date: Date) => {
+        // Không cho chọn ngày trong quá khứ (trừ hôm nay)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date < today) {
+            return false;
         }
+        
+        // Không cho chọn các ngày đã được đặt
+        return !isDateDisabled(date);
+    };
 
-        setStartDate(v);
-
+    const handleStartDateChange = (date: Date | null) => {
+        if (!date) return;
+        
+        setStartDate(date);
+        
         // Reset end date nếu nó invalid
-        if (endDate && new Date(endDate) <= new Date(v)) {
-            setEndDate("");
+        if (endDate && endDate <= date) {
+            setEndDate(null);
         }
     };
 
-    const handleEndDate = (v: string) => {
-        if (isDisabled(v)) {
-            alert("Ngày này đã có người đặt xe!");
-            return;
-        }
-
-        if (new Date(v) <= new Date(startDate)) {
+    const handleEndDateChange = (date: Date | null) => {
+        if (!date) return;
+        
+        if (startDate && date <= startDate) {
             alert("Ngày trả phải lớn hơn ngày bắt đầu!");
             return;
         }
-
-        setEndDate(v);
+        
+        setEndDate(date);
     };
 
     // ------------------------------------------------------------------
@@ -113,7 +131,7 @@ export default function BookingPage() {
         if (!startDate || !endDate) return 0;
 
         const diff =
-            (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+            (endDate.getTime() - startDate.getTime()) /
             86400000;
 
         return Math.ceil(diff) * (vehicle?.priceList?.dailyRate || 0);
@@ -129,15 +147,16 @@ export default function BookingPage() {
             return alert("Vui lòng chọn ngày hợp lệ.");
         }
 
-        // Kiểm tra lại range trước submit
-        const conflict = disabledDates.some(
-            (d) =>
-                new Date(d) >= new Date(startDate) &&
-                new Date(d) <= new Date(endDate)
-        );
+        // Kiểm tra xem có ngày nào trong range bị disabled không
+        const hasConflict = disabledDates.some(dateStr => {
+            if (!startDate || !endDate) return false;
+            const date = new Date(dateStr);
+            date.setHours(0, 0, 0, 0);
+            return date >= startDate && date <= endDate;
+        });
 
-        if (conflict) {
-            alert("Khoảng ngày bạn chọn đã có người đặt xe.");
+        if (hasConflict) {
+            alert("Khoảng ngày bạn chọn có ngày đã được đặt. Vui lòng chọn lại.");
             return;
         }
 
@@ -147,19 +166,27 @@ export default function BookingPage() {
                 vehicleId: vehicle.id,
                 branchId: vehicle.branchId,
                 returnBranchId: vehicle.branchId,
-                pickupDate: startDate,
-                returnDate: endDate,
+                pickupDate: startDate.toISOString().split("T")[0],
+                returnDate: endDate.toISOString().split("T")[0],
                 baseAmount: totalAmount,
                 discountAmount: 0,
                 note: "",
             };
 
             const res = await bookingService.create(payload);
+            
+            // ⚡ Kiểm tra response có hợp lệ không
+            if (!res || !res.id) {
+                console.error("Invalid booking response:", res);
+                throw new Error("Không nhận được thông tin booking từ server");
+            }
 
             alert("Đặt xe thành công!");
             router.push(`/user/bookings/${res.id}`);
         } catch (err: any) {
-            alert(err?.response?.data?.message || "Lỗi đặt xe!");
+            console.error("Booking error:", err);
+            const errorMsg = err?.response?.data?.message || err?.message || "Lỗi đặt xe!";
+            alert(errorMsg);
         }
     };
 
@@ -197,26 +224,60 @@ export default function BookingPage() {
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
                     {/* Start Date */}
                     <div>
-                        <label className="font-medium">Ngày bắt đầu</label>
-                        <input
-                            type="date"
-                            min={defaultStart} // mặc định ít nhất ngày mai
-                            value={startDate}
-                            onChange={(e) => handleStartDate(e.target.value)}
-                            className="mt-1 w-full p-2 rounded bg-gray-900 border border-gray-700"
+                        <label className="font-medium block mb-2">Ngày bắt đầu</label>
+                        <DatePicker
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                            filterDate={filterDate}
+                            minDate={tomorrow}
+                            dateFormat="dd/MM/yyyy"
+                            placeholderText="Chọn ngày bắt đầu"
+                            className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white"
+                            wrapperClassName="w-full"
+                            calendarClassName="bg-gray-800 border-gray-700"
+                            dayClassName={(date) => {
+                                if (isDateDisabled(date)) {
+                                    return "text-gray-500 cursor-not-allowed";
+                                }
+                                return "";
+                            }}
                         />
+                        {disabledDates.length > 0 && (
+                            <p className="text-xs text-gray-400 mt-1">
+                                {disabledDates.length} ngày đã được đặt (không thể chọn)
+                            </p>
+                        )}
                     </div>
 
                     {/* End Date */}
                     <div>
-                        <label className="font-medium">Ngày trả</label>
-                        <input
-                            type="date"
-                            min={startDate}
-                            value={endDate}
-                            onChange={(e) => handleEndDate(e.target.value)}
-                            className="mt-1 w-full p-2 rounded bg-gray-900 border border-gray-700"
+                        <label className="font-medium block mb-2">Ngày trả</label>
+                        <DatePicker
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                            filterDate={filterDate}
+                            minDate={startDate || tomorrow}
+                            dateFormat="dd/MM/yyyy"
+                            placeholderText="Chọn ngày trả"
+                            disabled={!startDate}
+                            className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            wrapperClassName="w-full"
+                            calendarClassName="bg-gray-800 border-gray-700"
+                            dayClassName={(date) => {
+                                if (isDateDisabled(date)) {
+                                    return "text-gray-500 cursor-not-allowed";
+                                }
+                                if (startDate && date <= startDate) {
+                                    return "text-gray-500 cursor-not-allowed";
+                                }
+                                return "";
+                            }}
                         />
+                        {!startDate && (
+                            <p className="text-xs text-gray-400 mt-1">
+                                Vui lòng chọn ngày bắt đầu trước
+                            </p>
+                        )}
                     </div>
                 </div>
 

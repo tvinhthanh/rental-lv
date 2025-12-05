@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
                 activeBranches,
             };
         },
-        enabled: !userLoading,
+        enabled: !userLoading && !!user && user.role === "ADMIN", // ⚡ Chỉ chạy khi đã auth và là ADMIN
         staleTime: 2 * 60 * 1000, // Cache for 2 minutes
         refetchOnWindowFocus: false,
     });
@@ -134,12 +134,10 @@ export default function AdminDashboardPage() {
         );
     }
 
+    // ⚡ Guard: Không cho render nếu chưa đăng nhập hoặc không phải ADMIN
     if (!user || user.role !== "ADMIN") {
-        return (
-            <div className="min-h-screen bg-slate-950/90 text-gray-100 p-6">
-                <p className="text-red-400">Bạn không có quyền truy cập.</p>
-            </div>
-        );
+        // Layout sẽ handle redirect, nhưng đảm bảo không render data
+        return null;
     }
 
     const completionRate = useMemo(() => 

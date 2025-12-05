@@ -17,10 +17,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // ======= GLOBAL AUDIT LOGGER =======
+  //  GLOBAL AUDIT LOGGER 
   const auditService = app.get(AuditLogService);
   app.useGlobalInterceptors(new AuditInterceptor(auditService));
-  // ===================================
 
   // Swagger config
   const config = new DocumentBuilder()

@@ -89,15 +89,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 saveToCache(data);
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d2609f7 (update blog)
         } catch (err: any) {
             // Silent fail for background fetch - only log unexpected errors
             if (err?.response?.status !== 404 && err?.message !== "Network Error") {
                 console.warn("Background settings fetch failed:", err);
             }
+<<<<<<< HEAD
 =======
         } catch (err) {
             // Silent fail for background fetch
 >>>>>>> b9b3026 (update layout)
+=======
+>>>>>>> d2609f7 (update blog)
         }
     }, []);
 
@@ -123,20 +129,29 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 saveToCache(data);
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d2609f7 (update blog)
         } catch (err: any) {
             // Only log if it's not a 404 or network error (expected for first load)
             if (err?.response?.status !== 404 && err?.message !== "Network Error") {
                 console.warn("Failed to fetch settings:", err);
             }
+<<<<<<< HEAD
 =======
         } catch (err) {
             console.error("Failed to fetch settings:", err);
 >>>>>>> b9b3026 (update layout)
+=======
+>>>>>>> d2609f7 (update blog)
             // Try to use cache even if expired
             const cached = loadFromCache();
             if (cached) {
                 setSettings(cached);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d2609f7 (update blog)
             } else {
                 // Set default settings if no cache available
                 setSettings({
@@ -151,8 +166,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                     showIcons: true,
                     defaultLanguage: "vi",
                 });
+<<<<<<< HEAD
 =======
 >>>>>>> b9b3026 (update layout)
+=======
+>>>>>>> d2609f7 (update blog)
             }
         } finally {
             setLoading(false);

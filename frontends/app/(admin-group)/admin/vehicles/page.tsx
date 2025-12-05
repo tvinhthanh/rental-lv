@@ -13,7 +13,7 @@ export default function VehiclePage() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["vehicles", search],
-        queryFn: () => vehicleService.getAll(search)
+        queryFn: () => vehicleService.getAll()
     });
 
     const vehicles = Array.isArray(data) ? data : data?.items ?? [];

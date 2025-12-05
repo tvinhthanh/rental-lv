@@ -14,7 +14,7 @@ export default function CustomersPage() {
 
     const { data, isLoading } = useQuery({
         queryKey: ["customers", search],
-        queryFn: () => customerService.list(search),
+        queryFn: () => customerService.getAll(),
     });
 
     const customers = Array.isArray(data) ? data : data?.items ?? [];

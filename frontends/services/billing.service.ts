@@ -2,17 +2,26 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const billingService = {
-    invoices: () => api.get("/billing/invoices").then(r => r.data),
-    invoice: (id: string) => api.get(`/billing/invoices/${id}`).then(r => r.data),
-    createInvoice: (data: any) => api.post("/billing/invoices", data).then(r => r.data),
+    invoices: () => api.get("/billing/invoices"),
+    invoice: (id: string) => api.get(`/billing/invoices/${id}`),
+    createInvoice: (data: any) => api.post("/billing/invoices", data),
 
-    pay: (data: any) => api.post("/billing/payments", data).then(r => r.data),
+    invoicesByBranch: (branchId: string) =>
+        api.get(`/billing/invoices/branch/${branchId}`),
+
+    pay: (data: any) => api.post("/billing/payments", data),
     payments: (invoiceId: string) =>
-        api.get(`/billing/payments/${invoiceId}`).then(r => r.data),
+        api.get(`/billing/payments/${invoiceId}`),
 
     addSurcharge: (data: any) =>
-        api.post("/billing/surcharges", data).then(r => r.data),
+        api.post("/billing/surcharges", data),
 
     surcharges: (invoiceId: string) =>
-        api.get(`/billing/surcharges/${invoiceId}`).then(r => r.data),
+        api.get(`/billing/surcharges/${invoiceId}`),
+    
+    allSurcharges: () =>
+        api.get("/billing/surcharges"),
+    
+    surchargesByBranch: (branchId: string) =>
+        api.get(`/billing/surcharges/branch/${branchId}`),
 };

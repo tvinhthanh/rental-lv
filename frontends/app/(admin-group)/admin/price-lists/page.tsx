@@ -15,7 +15,7 @@ export default function PriceListPage() {
     const { formatVND } = useFormatVND();
 
     // Fetch raw data (could be array or { items })
-    const raw = usePriceLists(search);
+    const raw = usePriceLists();
 
     // Normalize to array
     const priceLists = Array.isArray(raw)

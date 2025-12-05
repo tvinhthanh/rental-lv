@@ -13,7 +13,7 @@ export default function BranchPage() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["branches", search],
-        queryFn: () => branchService.getAll(search),
+        queryFn: () => branchService.getAll(),
     });
 
     const branches = Array.isArray(data) ? data : data?.items ?? [];

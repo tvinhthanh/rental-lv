@@ -89,4 +89,7 @@ export class APIRequest {
     delete(url: string, data?: any, options?: RequestInit) {
         return this.request(url, "DELETE", data, options);
     }
+    patch(url: string, data?: any, options?: RequestInit) {
+        return this.request(url, "PATCH", data, options);
+    }
 }

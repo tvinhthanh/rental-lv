@@ -6,6 +6,11 @@ import { CreateHandoverDto } from './dto/create-handover.dto';
 export class HandoverController {
     constructor(private service: HandoverService) { }
 
+    @Get('branch/:branchId')
+    findByBranch(@Param('branchId') branchId: string) {
+        return this.service.findByBranch(branchId);
+    }
+
     @Get(':bookingId')
     findByBooking(@Param('bookingId') bookingId: string) {
         return this.service.findByBooking(bookingId);

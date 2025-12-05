@@ -42,4 +42,9 @@ export class VehicleController {
     getBySlug(@Param('slug') slug: string) {
         return this.service.findBySlug(slug);
     }
+
+    @Get('branch/:branchId')
+    getByBranch(@Param('branchId') branchId: string) {
+        return this.service.findByBranch(branchId);
+    }
 }

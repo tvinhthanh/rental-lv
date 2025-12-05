@@ -93,6 +93,7 @@ model Employee {
   branch   Branch? @relation(fields: [branchId], references: [id])
 
   authoredPosts BlogPost[]
+  handovers     Handover[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -363,6 +364,9 @@ model Deposit {
   customerId String @db.ObjectId
 
   totalAmount Float
+  usedAmount Float @default(0)
+  refundedAmount Float @default(0)
+  paymentMethod String?
   status      String  @default("HELD")
   notes       String?
 
@@ -382,6 +386,7 @@ model DepositDetail {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   depositId String @db.ObjectId
+  surchargeId String? @db.ObjectId
 
   itemType   String
   itemName   String?
@@ -413,12 +418,14 @@ model Handover {
   accessories       String?
   customerSignature String?
   handedOverBy      String?
+  employeeId        String? @db.ObjectId
   photoUrls         String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   booking Booking @relation(fields: [bookingId], references: [id])
+  employee Employee? @relation(fields: [employeeId], references: [id])
 }
 
 ///////////////////////////////////////////////////////////
@@ -461,6 +468,7 @@ model Invoice {
   subtotal       Float
   surchargeTotal Float @default(0)
   discountTotal  Float @default(0)
+  depositApplied Float @default(0)
   vatPercent     Float @default(0)
   vatAmount      Float @default(0)
   totalAmount    Float

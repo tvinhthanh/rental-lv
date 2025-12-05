@@ -1,0 +1,22 @@
+export const MAINTENANCE_REASONS = [
+    "Thay nhớt động cơ",
+    "Thay lọc nhớt",
+    "Thay lọc gió động cơ",
+    "Thay lọc gió điều hòa",
+    "Thay bugi",
+    "Kiểm tra hệ thống phanh",
+    "Thay bố thắng",
+    "Kiểm tra/thay nước làm mát",
+    "Kiểm tra/thay nước rửa kính",
+    "Kiểm tra lốp & áp suất lốp",
+    "Đảo lốp",
+    "Cân chỉnh thước lái",
+    "Kiểm tra ắc quy",
+    "Vệ sinh nội thất",
+    "Rửa xe tổng thể",
+    "Kiểm tra hệ thống đèn",
+    "Thay dây curoa",
+    "Kiểm tra hệ thống treo",
+    "Thay dầu hộp số",
+    "Bảo dưỡng định kỳ"
+];

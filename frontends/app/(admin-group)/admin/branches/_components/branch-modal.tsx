@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { MapPin } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { branchService } from "@/services/branch.service";
 import { useFormSubmit } from "@/hooks/useHooks";
-import MapPicker from "@/components/add-ons/map-picker";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("@/components/add-ons/map-picker"), {
+    ssr: false,
+    loading: () => <p>Loading Map...</p>,
+});
 
 interface BranchModalProps {
     open: boolean;
@@ -124,9 +130,10 @@ export default function BranchModal({ open, selected, onClose }: BranchModalProp
                         <button
                             type="button"
                             onClick={() => setOpenMap(true)}
-                            className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                            className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center justify-center gap-2"
                         >
-                            📍 Pick Location on Map
+                            <MapPin className="w-4 h-4" />
+                            Pick Location on Map
                         </button>
 
                         <input {...register("googleMapUrl")} className="input-dark" placeholder="Google Map URL" />

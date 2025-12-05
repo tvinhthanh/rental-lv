@@ -1,5 +1,6 @@
 "use client";
 
+import { getPlaceholderImage } from "@/lib/image-placeholder";
 import { useRouter } from "next/navigation";
 
 export default function VehicleModal({ vehicle, onClose }: any) {
@@ -27,7 +28,7 @@ export default function VehicleModal({ vehicle, onClose }: any) {
 
                 {/* Image */}
                 <img
-                    src={vehicle.photos?.[0] || "/no-image.png"}
+                    src={vehicle.photos?.[0] || getPlaceholderImage(400, 300)}
                     className="w-full h-48 object-cover rounded-lg mb-4 border border-slate-700"
                 />
 

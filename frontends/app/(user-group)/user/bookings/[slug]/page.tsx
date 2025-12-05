@@ -6,6 +6,7 @@ import { vehicleService } from "@/services/vehicle.service";
 import { bookingService } from "@/services/booking.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
 import { useCustomer } from "@/hooks/useCustomer";
+import { getPlaceholderImage } from "@/lib/image-placeholder";
 
 export default function BookingPage() {
     const router = useRouter();
@@ -167,12 +168,12 @@ export default function BookingPage() {
     // ------------------------------------------------------------------
     return (
         <div className="max-w-4xl mx-auto p-6 text-gray-200">
-            <h1 className="text-3xl font-bold mb-6">Đặt xe: {vehicle.name}</h1>
+            <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Đặt xe: {vehicle.name}</h1>
 
             {/* VEHICLE CARD */}
             <div className="bg-gray-800/40 p-4 rounded-xl mb-8">
                 <img
-                    src={vehicle.photos?.[0] || "/no-image.png"}
+                    src={vehicle.photos?.[0] || getPlaceholderImage(400, 300)}
                     className="w-full h-60 object-cover rounded-lg mb-4"
                     alt={vehicle.name}
                 />

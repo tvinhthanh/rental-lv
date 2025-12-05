@@ -7,6 +7,7 @@ import { vehicleService } from "@/services/vehicle.service";
 import { branchService } from "@/services/branch.service";
 import { priceListService } from "@/services/price-list.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
+import { toWebP, getImageLoading } from "@/lib/image-utils";
 import Link from "next/link";
 
 interface VehicleItem {
@@ -145,7 +146,7 @@ export default function CarsPage() {
 
     return (
         <div className="max-w-7xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-8 text-center">Danh sách xe cho thuê</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Danh sách xe cho thuê</h1>
 
             {/* FILTERS */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
@@ -230,9 +231,11 @@ export default function CarsPage() {
                             </span>
 
                             <img
-                                src={car.photos?.[0] || "/no-image.png"}
+                                src={toWebP(car.photos?.[0])}
                                 alt={car.name}
                                 className="w-full h-56 object-cover rounded-t-xl"
+                                loading={getImageLoading(false)}
+                                decoding="async"
                             />
 
                             <div className="p-4">

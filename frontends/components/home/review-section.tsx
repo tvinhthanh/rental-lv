@@ -18,9 +18,9 @@ export default function ReviewSection() {
         <section className="py-16 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[#0b1f3a] via-[#0b1424] to-[#0b1424]" />
             <div className="max-w-6xl mx-auto relative px-4">
-                <h2 className="text-3xl font-bold text-center mb-10 flex items-center justify-center gap-2 text-white">
+                <h2 className="text-3xl font-bold text-center mb-10 flex items-center justify-center gap-2">
                     <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
-                    Khách hàng nói gì?
+                    <span className="bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Khách hàng nói gì?</span>
                 </h2>
 
                 <div className="grid md:grid-cols-2 gap-6">

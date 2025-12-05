@@ -1,3 +1,5 @@
+import { getPlaceholderImage } from "@/lib/image-placeholder";
+
 export default function BookingCard({ booking, onClick }: any) {
     const vehicle = booking.vehicle;
     const customer = booking.customer;
@@ -6,7 +8,7 @@ export default function BookingCard({ booking, onClick }: any) {
     const image =
         Array.isArray(vehicle?.photos) && vehicle.photos.length > 0
             ? vehicle.photos[0]
-            : "/no-image.png";
+            : getPlaceholderImage();
 
     return (
         <div

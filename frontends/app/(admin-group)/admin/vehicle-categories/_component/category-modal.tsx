@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import ImageUpload from "@/components/upload/image-upload";
 import { useFormSubmit } from "@/hooks/useHooks";
 import { vehicleCategoryService } from "@/services/vehicle-category.service";
 import { useEffect } from "react";
@@ -70,15 +71,15 @@ export default function CategoryModal({ open, selected, onClose }: CategoryModal
                     <div className="mb-6 pb-4 border-b border-slate-700/50">
                         <h2 className="text-2xl font-bold text-white">
                             {selected ? "Chỉnh sửa Danh mục" : "Thêm Danh mục"}
-                        </h2>
+                </h2>
                         <p className="text-sm text-slate-400 mt-1">
                             {selected ? "Cập nhật thông tin danh mục" : "Thêm danh mục mới vào hệ thống"}
                         </p>
                     </div>
 
-                    <form onSubmit={formHandle(onSubmit)} className="space-y-4">
+                <form onSubmit={formHandle(onSubmit)} className="space-y-4">
 
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Tên danh mục *</label>
                                 <input 
@@ -113,7 +114,7 @@ export default function CategoryModal({ open, selected, onClose }: CategoryModal
                                     placeholder="0" 
                                 />
                             </div>
-                        </div>
+                    </div>
 
                         <div>
                             <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Mô tả</label>
@@ -125,25 +126,18 @@ export default function CategoryModal({ open, selected, onClose }: CategoryModal
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Hình ảnh</label>
-                            <div className="border border-slate-700/80 rounded-xl p-4 bg-slate-800/30 space-y-3">
-                                <input
-                                    {...register("imageUrl")}
-                                    className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-slate-500"
-                                    placeholder="https://..."
-                                />
-                                {imageUrl && (
-                                    <div className="h-32 rounded-lg border border-slate-700 bg-slate-900/80 flex items-center justify-center overflow-hidden">
-                                        <img src={imageUrl} alt="Category preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
-                            </div>
+                            <ImageUpload
+                                value={imageUrl || ""}
+                                onChange={(url) => setValue("imageUrl", url)}
+                                label="Hình ảnh"
+                                placeholder="Nhập URL hoặc tải ảnh lên"
+                            />
                         </div>
 
                         <label className="flex items-center gap-2 p-3 bg-slate-800/30 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/50 transition-colors">
                             <input type="checkbox" {...register("isActive")} className="w-4 h-4 text-purple-500 rounded focus:ring-purple-500" defaultChecked />
                             <span className="text-sm text-gray-300">Kích hoạt</span>
-                        </label>
+                    </label>
 
                         <div className="border-t border-slate-700/50 pt-4 mt-6">
                             <div className="flex justify-end gap-3">
@@ -153,17 +147,17 @@ export default function CategoryModal({ open, selected, onClose }: CategoryModal
                                     className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
                                 >
                                     Hủy
-                                </button>
+                        </button>
                                 <button 
                                     type="submit" 
                                     disabled={isPending}
                                     className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
                                 >
                                     {isPending ? "Đang lưu..." : "Lưu"}
-                                </button>
-                            </div>
+                        </button>
+                    </div>
                         </div>
-                    </form>
+                </form>
                 </div>
             </div>
         </div>

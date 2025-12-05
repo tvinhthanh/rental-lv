@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { vehicleService } from "@/services/vehicle.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
+import { toWebP, getImageLoading } from "@/lib/image-utils";
 import { notFound, useParams, useRouter } from "next/navigation";
 
 export default function CarDetailPage() {
@@ -53,9 +54,11 @@ export default function CarDetailPage() {
                 {/* IMAGE SECTION */}
                 <div>
                     <img
-                        src={vehicle.photos?.[0] || "/no-image.png"}
+                        src={toWebP(vehicle.photos?.[0])}
                         alt={vehicle.name}
                         className="w-full h-[420px] object-cover rounded-xl shadow"
+                        loading={getImageLoading(true)}
+                        decoding="async"
                     />
 
                     {Array.isArray(vehicle.photos) && vehicle.photos.length > 1 && (
@@ -63,8 +66,10 @@ export default function CarDetailPage() {
                             {vehicle.photos.slice(1).map((p: string, idx: number) => (
                                 <img
                                     key={idx}
-                                    src={p}
+                                    src={toWebP(p)}
                                     className="h-24 w-full object-cover rounded-lg shadow"
+                                    loading={getImageLoading(false)}
+                                    decoding="async"
                                 />
                             ))}
                         </div>
@@ -73,7 +78,7 @@ export default function CarDetailPage() {
 
                 {/* INFO SECTION */}
                 <div>
-                    <h1 className="text-3xl font-bold mb-3">{vehicle.name}</h1>
+                    <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{vehicle.name}</h1>
 
                     <p className="text-2xl text-blue-600 font-semibold mb-6">{price}</p>
 

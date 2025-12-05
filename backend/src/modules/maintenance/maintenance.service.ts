@@ -3,6 +3,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
+import { MaintenanceQueryDto } from './dto/maintenance-query.dto';
 
 @Injectable()
 export class MaintenanceService {
@@ -11,14 +12,56 @@ export class MaintenanceService {
         private audit: AuditLogService
     ) { }
 
-    async findAll(vehicleId?: string) {
-        const where: any = {};
-        if (vehicleId) where.vehicleId = vehicleId;
+    async findAll(query: MaintenanceQueryDto) {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 20;
+        const skip = (page - 1) * limit;
 
-        return this.prisma.maintenance.findMany({
+        const where: any = {};
+
+        if (query.vehicleId) where.vehicleId = query.vehicleId;
+        if (query.status) where.status = query.status;
+
+        if (query.branchId) {
+            where.vehicle = {
+                branchId: query.branchId
+            };
+        }
+
+        if (query.search) {
+            where.OR = [
+                { title: { contains: query.search, mode: 'insensitive' } },
+                { description: { contains: query.search, mode: 'insensitive' } },
+                { performedBy: { contains: query.search, mode: 'insensitive' } }
+            ];
+        }
+
+        const [items, total] = await this.prisma.$transaction([
+            this.prisma.maintenance.findMany({
             where,
-            orderBy: { maintenanceDate: 'desc' }
-        });
+                skip,
+                take: limit,
+                orderBy: { maintenanceDate: 'desc' },
+                include: {
+                    vehicle: {
+                        include: {
+                            branch: true,
+                            category: true,
+                            brand: true
+                        }
+                    }
+                }
+            }),
+            this.prisma.maintenance.count({ where })
+        ]);
+
+        return {
+            items,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
     }
 
     async findOne(id: string) {

@@ -158,21 +158,21 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
           </div>
 
           <form onSubmit={formHandle(onSubmit)} className="space-y-4">
-            {/* BASIC INFO */}
+          {/* BASIC INFO */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Thông tin cơ bản</h3>
-              <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Tên xe *</label>
-                  <input
-                    {...register("name")}
+            <input
+              {...register("name")}
                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                     placeholder="Tên xe"
-                    required
-                    onBlur={(e) => {
-                      if (!selected) setValue("slug", generateSlug(e.target.value));
-                    }}
-                  />
+              required
+              onBlur={(e) => {
+                if (!selected) setValue("slug", generateSlug(e.target.value));
+              }}
+            />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Slug</label>
@@ -183,9 +183,9 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     readOnly={!!selected} 
                   />
                 </div>
-              </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Loại xe</label>
                   <input 
@@ -203,9 +203,9 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     required 
                   />
                 </div>
-              </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Model</label>
                   <input 
@@ -223,9 +223,9 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     placeholder="2024" 
                   />
                 </div>
-              </div>
+          </div>
 
-              <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Màu sắc</label>
                   <input 
@@ -252,9 +252,9 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     placeholder="0" 
                   />
                 </div>
-              </div>
+          </div>
 
-              <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Hộp số</label>
                   <input 
@@ -277,20 +277,20 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     {...register("status")} 
                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {STATUS_OPTIONS.map((s) => (
+              {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s} className="bg-slate-800">
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  {s}
+                </option>
+              ))}
+            </select>
                 </div>
               </div>
-            </div>
+          </div>
 
-            {/* RELATIONS */}
+          {/* RELATIONS */}
             <div className="space-y-4 pt-4 border-t border-slate-700/50">
               <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Liên kết</h3>
-              <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Thương hiệu *</label>
                   <select 
@@ -299,12 +299,12 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     required
                   >
                     <option value="" className="bg-slate-800">Chọn thương hiệu</option>
-                    {brands.map((b: any) => (
+              {brands.map((b: any) => (
                       <option key={b.id} value={b.id} className="bg-slate-800">
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
+                  {b.name}
+                </option>
+              ))}
+            </select>
                 </div>
 
                 <div>
@@ -315,12 +315,12 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     required
                   >
                     <option value="" className="bg-slate-800">Chọn chi nhánh</option>
-                    {branches.map((b: any) => (
+              {branches.map((b: any) => (
                       <option key={b.id} value={b.id} className="bg-slate-800">
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
+                  {b.name}
+                </option>
+              ))}
+            </select>
                 </div>
 
                 <div>
@@ -331,54 +331,54 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     required
                   >
                     <option value="" className="bg-slate-800">Chọn danh mục</option>
-                    {categories.map((c: any) => (
+              {categories.map((c: any) => (
                       <option key={c.id} value={c.id} className="bg-slate-800">
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  {c.name}
+                </option>
+              ))}
+            </select>
                 </div>
               </div>
-            </div>
+          </div>
 
-            {/* PRICING */}
+          {/* PRICING */}
             <div className="space-y-4 pt-4 border-t border-slate-700/50">
               <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Cấu hình giá</h3>
               <div className="rounded-xl border border-slate-700/80 bg-slate-800/30 p-4 space-y-4">
                 <label className="flex items-center gap-2 p-3 bg-slate-800/50 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-800/70 transition-colors">
-                  <input
-                    type="checkbox"
-                    {...register("overridePriceEnabled")}
-                    onChange={(e) => {
-                      setValue("overridePriceEnabled", e.target.checked);
-                      if (e.target.checked) setValue("priceListId", "");
-                    }}
+              <input
+                type="checkbox"
+                {...register("overridePriceEnabled")}
+                onChange={(e) => {
+                  setValue("overridePriceEnabled", e.target.checked);
+                  if (e.target.checked) setValue("priceListId", "");
+                }}
                     className="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
-                  />
+              />
                   <span className="text-sm text-gray-300">Tùy chỉnh giá (ghi đè bảng giá)</span>
-                </label>
+            </label>
 
-                {!overridePriceEnabled ? (
-                  <div>
+            {!overridePriceEnabled ? (
+              <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Bảng giá</label>
                     <select 
                       {...register("priceListId")} 
                       className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="" className="bg-slate-800">Chọn bảng giá</option>
-                      {priceLists.map((pl: any) => (
+                  {priceLists.map((pl: any) => (
                         <option key={pl.id} value={pl.id} className="bg-slate-800">
                           {pl.name} - Ngày: {pl.dailyRate || 0}đ | Giờ: {pl.hourlyRate || 0}đ
-                        </option>
-                      ))}
-                    </select>
+                    </option>
+                  ))}
+                </select>
                     <p className="text-xs text-slate-500 mt-2">
                       Chọn bảng giá để sử dụng giá chuẩn, hoặc bật tùy chỉnh để đặt giá riêng
-                    </p>
-                  </div>
-                ) : (
+                </p>
+              </div>
+            ) : (
                   <div className="space-y-3 grid grid-cols-2 gap-3">
-                    <div>
+                <div>
                       <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá theo ngày (đ)</label>
                       <input 
                         type="number" 
@@ -387,8 +387,8 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
                         placeholder="0" 
                       />
-                    </div>
-                    <div>
+                </div>
+                <div>
                       <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá theo giờ (đ)</label>
                       <input 
                         type="number" 
@@ -397,8 +397,8 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
                         placeholder="0" 
                       />
-                    </div>
-                    <div>
+                </div>
+                <div>
                       <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá cuối tuần (đ)</label>
                       <input 
                         type="number" 
@@ -407,8 +407,8 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
                         placeholder="0" 
                       />
-                    </div>
-                    <div>
+                </div>
+                <div>
                       <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá ngày lễ (đ)</label>
                       <input 
                         type="number" 
@@ -417,24 +417,24 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500" 
                         placeholder="0" 
                       />
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
+              </div>
+          </div>
 
-            {/* PHOTOS */}
+          {/* PHOTOS */}
             <div className="space-y-4 pt-4 border-t border-slate-700/50">
               <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Hình ảnh</h3>
-              <textarea
-                {...register("photos")}
+          <textarea
+            {...register("photos")}
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500 min-h-[80px]"
                 placeholder="URLs hình ảnh, phân cách bằng dấu phẩy"
-                defaultValue={photosValue}
-              />
+            defaultValue={photosValue}
+          />
             </div>
 
-            {/* ACTION BUTTONS */}
+          {/* ACTION BUTTONS */}
             <div className="border-t border-slate-700/50 pt-4 mt-6">
               <div className="flex justify-end gap-3">
                 <button 
@@ -443,17 +443,17 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                   className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
                 >
                   Hủy
-                </button>
+            </button>
                 <button 
                   type="submit" 
                   disabled={isPending} 
                   className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
                 >
                   {isPending ? "Đang lưu..." : "Lưu"}
-                </button>
+            </button>
               </div>
-            </div>
-          </form>
+          </div>
+        </form>
         </div>
       </div>
     </div>

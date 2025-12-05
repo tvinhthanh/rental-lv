@@ -5,12 +5,35 @@ import { useAuth } from "@/hooks/auth/use-auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ROLE_MENU_HEADER } from "@/lib/role-menu";
-import { useState } from "react";
+import { useSettings } from "@/contexts/SettingsContext";
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, Settings, FileText } from "lucide-react";
 
 export default function Header() {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
     const [open, setOpen] = useState(false);
+    const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+    const { settings } = useSettings();
+    const siteName = settings?.siteName || "RENTAL SYSTEM";
+    const adminMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
+                setAdminMenuOpen(false);
+            }
+            if (open && !(event.target as HTMLElement).closest('.relative')) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [adminMenuOpen, open]);
 
     const menu =
         user?.role && ROLE_MENU_HEADER[user.role as keyof typeof ROLE_MENU_HEADER]
@@ -55,7 +78,7 @@ export default function Header() {
             bg-clip-text text-transparent
           "
                 >
-                    RENTAL SYSTEM
+                    {siteName.toUpperCase()}
                 </Link>
 
                 {/* ROLE MENU */}
@@ -70,6 +93,40 @@ export default function Header() {
                                 {item.label}
                             </Link>
                         ))}
+                        
+                        {/* Admin Dropdown Menu */}
+                        {user?.role === "ADMIN" && (
+                            <div className="relative" ref={adminMenuRef}>
+                                <button
+                                    onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                                    className="flex items-center gap-1 hover:text-cyan-300 transition-colors font-medium"
+                                >
+                                    Quản trị
+                                    <ChevronDown className={`w-4 h-4 transition-transform ${adminMenuOpen ? "rotate-180" : ""}`} />
+                                </button>
+                                
+                                {adminMenuOpen && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg py-2 z-50 border border-white/20">
+                                        <Link
+                                            href="/admin/settings"
+                                            onClick={() => setAdminMenuOpen(false)}
+                                            className="flex items-center gap-2 px-4 py-2 hover:bg-white/20 text-gray-800 transition-colors"
+                                        >
+                                            <Settings className="w-4 h-4" />
+                                            <span>Cài đặt</span>
+                                        </Link>
+                                        <Link
+                                            href="/admin/audit-logs"
+                                            onClick={() => setAdminMenuOpen(false)}
+                                            className="flex items-center gap-2 px-4 py-2 hover:bg-white/20 text-gray-800 transition-colors"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span>Nhật ký hệ thống</span>
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </nav>
                 )}
 

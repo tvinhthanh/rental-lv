@@ -22,6 +22,7 @@ import { EmployeeModule } from './modules/employee/employee.module';
 import { ReturnReportModule } from './modules/return-report/return-report.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { ContractModule } from './modules/contact/contract.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { ContractModule } from './modules/contact/contract.module';
     EmployeeModule,
     ReturnReportModule,
     MaintenanceModule,
-    ContractModule
+    ContractModule,
+    SettingsModule
   ],
 })
 export class AppModule { }

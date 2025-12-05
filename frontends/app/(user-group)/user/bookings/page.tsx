@@ -81,7 +81,7 @@ export default function UserBookingsPage() {
             <div className="max-w-6xl mx-auto px-4 py-14 space-y-10">
                 <header className="space-y-3">
                     <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Booking & hậu kiểm</p>
-                    <h1 className="text-4xl font-bold">Lịch sử đặt xe của bạn</h1>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Lịch sử đặt xe của bạn</h1>
                     <p className="text-blue-100">Theo dõi trạng thái đặt xe, hợp đồng, bàn giao và hoàn trả.</p>
                 </header>
 

@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { ReduxProvider } from "@/providers/redux-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/hooks/auth/use-auth";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { Toaster } from "@/components/ui/toaster";
 import GlobalLoading from "@/components/common/global-loading";
 
@@ -24,15 +25,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <ReduxProvider>
             <QueryProvider>
-              <AuthProvider>
-                <Header />
-                <GlobalLoading />
-                <main className="min-h-screen">
-                  {children}
-                </main>
-                <Footer />
-                <Toaster />
-              </AuthProvider>
+              <SettingsProvider>
+                <AuthProvider>
+                  <Header />
+                  <GlobalLoading />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                  <Toaster />
+                </AuthProvider>
+              </SettingsProvider>
             </QueryProvider>
           </ReduxProvider>
         </ThemeProvider>

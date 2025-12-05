@@ -2,6 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import { getPlaceholderImage } from "@/lib/image-placeholder";
 
 const STATUS_STYLES: Record<string, string> = {
     PENDING: "text-yellow-300 bg-yellow-300/10",
@@ -18,7 +19,7 @@ export default function BookingCard({ booking, onClick }: any) {
     const image =
         Array.isArray(vehicle?.photos) && vehicle.photos.length > 0
             ? vehicle.photos[0]
-            : "/no-image.png";
+            : getPlaceholderImage();
 
     return (
         <div

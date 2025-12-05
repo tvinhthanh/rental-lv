@@ -10,9 +10,9 @@ import { randomUUID } from 'crypto';
 export class BillingService {
   constructor(private prisma: PrismaService) { }
 
-  // ==========================
+  // =====
   // INVOICE
-  // ==========================
+  // =====
   async findAllInvoices(query: BillingQueryDto = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;
@@ -140,9 +140,7 @@ export class BillingService {
     });
   }
 
-  // ==========================
-  // PAYMENT
-  // ==========================
+  //  PAYMENT 
   async createPayment(dto: CreatePaymentDto) {
     const invoice = await this.findInvoice(dto.invoiceId);
 
@@ -179,9 +177,7 @@ export class BillingService {
     return { message: 'Deposit applied' };
   }
 
-  // ==========================
-  // SURCHARGE
-  // ==========================
+  //  SURCHARGE 
   async addSurcharge(dto: CreateSurchargeDto) {
     await this.findInvoice(dto.invoiceId);
 
@@ -328,7 +324,7 @@ export class BillingService {
       }
     });
 
-    // Nếu invoice đã PAID → chuyển booking sang COMPLETED
+    // if invoice is PAID → change booking to COMPLETED
     if (status === 'PAID') {
       const booking = await this.prisma.booking.findUnique({
         where: { id: updatedInvoice.bookingId }

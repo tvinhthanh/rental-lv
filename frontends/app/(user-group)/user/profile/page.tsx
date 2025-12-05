@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useProfile } from "@/hooks/auth/user-profile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useFormatDate } from "@/hooks/useFormatDate";
 import { customerService } from "@/services/customer.service";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProfilePage() {
+    const router = useRouter();
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const { format } = useFormatDate();
     const { profile, isLoading: profileLoading } = useProfile();
+    const queryClient = useQueryClient();
 
     const [form, setForm] = useState<any>({});
     const [avatarPreview, setAvatarPreview] = useState<string>("");
@@ -19,25 +23,53 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (profile) {
+            // ⚡ Format dateOfBirth và driverLicenseExpiry từ Date object hoặc string
+            const formatDate = (date: any) => {
+                if (!date) return "";
+                if (typeof date === 'string') {
+                    // Nếu là string ISO, lấy phần date
+                    return date.substring(0, 10);
+                }
+                if (date instanceof Date) {
+                    return date.toISOString().substring(0, 10);
+                }
+                return "";
+            };
+
             // Đảm bảo tất cả các field được điền với dữ liệu cũ
             setForm({
                 fullName: profile.fullName || "",
                 phone: profile.phone || "",
-                email: profile.email || "",
+                email: profile.email || user?.email || "",
                 address: profile.address || "",
                 gender: profile.gender || "",
                 nationality: profile.nationality || "",
-                dateOfBirth: profile.dateOfBirth || "",
+                dateOfBirth: formatDate(profile.dateOfBirth),
                 nationalId: profile.nationalId || "",
                 driverLicenseNo: profile.driverLicenseNo || "",
-                driverLicenseExpiry: profile.driverLicenseExpiry || "",
+                driverLicenseExpiry: formatDate(profile.driverLicenseExpiry),
                 avatarUrl: profile.avatarUrl || "",
             });
             setAvatarPreview(profile.avatarUrl || "");
+        } else if (!profileLoading && user) {
+            // ⚡ Nếu không có profile nhưng đã load xong, reset form với user data
+            setForm({
+                fullName: user.name || "",
+                phone: "",
+                email: user.email || "",
+                address: "",
+                gender: "",
+                nationality: "",
+                dateOfBirth: "",
+                nationalId: "",
+                driverLicenseNo: "",
+                driverLicenseExpiry: "",
+                avatarUrl: "",
+            });
         }
-    }, [profile]);
+    }, [profile, profileLoading, user]);
 
-    const isCustomer = useMemo(() => user?.role === "CUSTOMER", [user]);
+    const isCustomer = useMemo(() => user?.role === "CUSTOMER" || user?.role === "USER", [user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -80,14 +112,82 @@ export default function ProfilePage() {
         }
     };
 
+    // ⚡ Tạo customer mới
+    const handleCreate = async () => {
+        if (!form.fullName || !form.phone) {
+            toast.error("Vui lòng điền họ tên và số điện thoại");
+            return;
+        }
+        try {
+            setSaving(true);
+            
+            const createData: any = {
+                fullName: form.fullName,
+                phone: form.phone,
+                userId: user?.id,
+            };
+            
+            if (form.email) createData.email = form.email;
+            if (form.address) createData.address = form.address;
+            if (form.dateOfBirth) createData.dateOfBirth = form.dateOfBirth;
+            if (form.gender) createData.gender = form.gender;
+            if (form.nationalId) createData.nationalId = form.nationalId;
+            if (form.nationality) createData.nationality = form.nationality;
+            if (form.driverLicenseNo) createData.driverLicenseNo = form.driverLicenseNo;
+            if (form.driverLicenseExpiry) createData.driverLicenseExpiry = form.driverLicenseExpiry;
+            if (form.avatarUrl) createData.avatarUrl = form.avatarUrl;
+            
+            await customerService.create(createData);
+            
+            // Invalidate queries để refresh data
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["current-user"] });
+            
+            toast.success("Tạo hồ sơ khách hàng thành công!");
+            // Reload để refresh profile
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } catch (err: any) {
+            const errorMsg = err?.response?.data?.message || err?.message || "Tạo hồ sơ thất bại";
+            toast.error(errorMsg);
+            console.error("Create customer error:", err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // ⚡ Cập nhật customer
     const handleSubmit = async () => {
         if (!profile?.id) return;
         try {
             setSaving(true);
-            await customerService.update(profile.id, form);
+            
+            // Chuẩn bị data để gửi (loại bỏ các field rỗng)
+            const updateData: any = {};
+            if (form.fullName) updateData.fullName = form.fullName;
+            if (form.phone) updateData.phone = form.phone;
+            if (form.email) updateData.email = form.email;
+            if (form.address !== undefined) updateData.address = form.address || null;
+            if (form.dateOfBirth) updateData.dateOfBirth = form.dateOfBirth;
+            if (form.gender) updateData.gender = form.gender;
+            if (form.nationalId !== undefined) updateData.nationalId = form.nationalId || null;
+            if (form.nationality !== undefined) updateData.nationality = form.nationality || null;
+            if (form.driverLicenseNo !== undefined) updateData.driverLicenseNo = form.driverLicenseNo || null;
+            if (form.driverLicenseExpiry) updateData.driverLicenseExpiry = form.driverLicenseExpiry;
+            if (form.avatarUrl !== undefined) updateData.avatarUrl = form.avatarUrl || null;
+            
+            await customerService.update(profile.id, updateData);
+            
+            // Invalidate queries để refresh data
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: ["current-user"] });
+            
             toast.success("Cập nhật hồ sơ thành công");
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || err?.message || "Cập nhật thất bại");
+            const errorMsg = err?.response?.data?.message || err?.message || "Cập nhật thất bại";
+            toast.error(errorMsg);
+            console.error("Update customer error:", err);
         } finally {
             setSaving(false);
         }
@@ -101,14 +201,24 @@ export default function ProfilePage() {
         );
     }
 
+    // ⚡ Xác định là đang tạo mới hay cập nhật
+    const isCreating = !profile && (user?.role === "CUSTOMER" || user?.role === "USER");
+
     return (
         <div className="min-h-screen bg-[#0b1424] text-white">
             <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <div>
                         <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Hồ sơ cá nhân</p>
-                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Thông tin tài khoản</h1>
-                        <p className="text-blue-100 mt-1">Cập nhật avatar, thông tin liên hệ và giấy tờ tùy thân.</p>
+                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                            {isCreating ? "Tạo hồ sơ khách hàng" : "Thông tin tài khoản"}
+                        </h1>
+                        <p className="text-blue-100 mt-1">
+                            {isCreating 
+                                ? "Điền thông tin để tạo hồ sơ khách hàng và sử dụng dịch vụ"
+                                : "Cập nhật avatar, thông tin liên hệ và giấy tờ tùy thân."
+                            }
+                        </p>
                     </div>
                     <div className="text-right text-blue-100 text-sm">
                         <p>Email: {user?.email}</p>
@@ -186,11 +296,14 @@ export default function ProfilePage() {
 
                             <div className="flex justify-end">
                                 <button
-                                    onClick={handleSubmit}
+                                    onClick={isCreating ? handleCreate : handleSubmit}
                                     disabled={saving}
                                     className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition disabled:opacity-60"
                                 >
-                                    {saving ? "Đang lưu..." : "Lưu thay đổi"}
+                                    {saving 
+                                        ? (isCreating ? "Đang tạo..." : "Đang lưu...") 
+                                        : (isCreating ? "Tạo hồ sơ" : "Lưu thay đổi")
+                                    }
                                 </button>
                             </div>
                         </div>

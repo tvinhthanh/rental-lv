@@ -7,9 +7,7 @@ import { authService } from "@/services/auth.service";
 
 const STATUS_OPTIONS = ["ACTIVE", "INACTIVE", "ON_LEAVE"];
 
-// ==============================
 // Normalize
-// ==============================
 const normalizeList = (res: any) => {
     if (!res) return [];
     if (Array.isArray(res)) return res;
@@ -35,9 +33,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         avatarUrl: data?.avatarUrl || "",
     });
 
-    // ==============================
-    // LOAD BRANCHES (normalized)
-    // ==============================
+    //  LOAD BRANCHES (normalized)
     useEffect(() => {
         (async () => {
             try {
@@ -50,9 +46,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         })();
     }, []);
 
-    // ==============================
-    // UPDATE FORM WHEN EDIT
-    // ==============================
+    //  UPDATE FORM WHEN EDIT
     useEffect(() => {
         setForm({
             fullName: data?.fullName || "",
@@ -68,16 +62,12 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         });
     }, [data]);
 
-    // ==============================
-    // Handle change
-    // ==============================
+    //  HANDLE CHANGE
     const handleChange = (e: any) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // ==============================
-    // SUBMIT
-    // ==============================
+    //  SUBMIT
     const handleSubmit = async () => {
         const payload: any = {
             ...form,

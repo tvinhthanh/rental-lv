@@ -21,7 +21,7 @@ export class UserService {
     private audit: AuditLogService
   ) { }
 
-  // ============ QUERY LIST ============
+  //  QUERY LIST 
   async findAll(query: UserQueryDto) {
     const page = query.page ? Number(query.page) : 1;
     const limit = query.limit ? Number(query.limit) : 20;
@@ -58,7 +58,7 @@ export class UserService {
     };
   }
 
-  // ============ FIND ONE ============
+  //  FIND ONE 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
@@ -69,7 +69,7 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  // ============ CREATE ============
+  //  CREATE 
   async create(dto: CreateUserDto, actorId?: string) {
     const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (exists) throw new BadRequestException('Email already exists');
@@ -90,7 +90,7 @@ export class UserService {
     return user;
   }
 
-  // ============ UPDATE ============
+  //  UPDATE 
   async update(id: string, dto: UpdateUserDto, actorId?: string) {
     const before = await this.findOne(id);
 
@@ -118,7 +118,7 @@ export class UserService {
     return user;
   }
 
-  // ============ CHANGE PASSWORD ============
+  //  CHANGE PASSWORD 
   async changePassword(id: string, body: ChangePasswordDto, actorId: string) {
     const user = await this.findOne(id);
 
@@ -137,7 +137,7 @@ export class UserService {
     return { message: 'Password changed successfully' };
   }
 
-  // ============ RESET PASSWORD (ADMIN) ============
+  //  RESET PASSWORD (ADMIN) 
   async resetPassword(id: string, body: ResetPasswordDto, actorId: string) {
     const hashed = await bcrypt.hash(body.newPassword, 10);
 
@@ -151,7 +151,7 @@ export class UserService {
     });
   }
 
-  // ============ UPDATE ROLE (ADMIN) ============
+  //  UPDATE ROLE (ADMIN) 
   async updateRole(id: string, body: UpdateRoleDto, actorId: string) {
     const user = await this.findOne(id);
 
@@ -172,7 +172,7 @@ export class UserService {
     return updated;
   }
 
-  // ============ LAST LOGIN (AUTH CALL) ============
+  //  LAST LOGIN (AUTH CALL) 
   async updateLastLogin(id: string) {
     return this.prisma.user.update({
       where: { id },
@@ -180,7 +180,7 @@ export class UserService {
     });
   }
 
-  // ============ SOFT DELETE ============
+  //  SOFT DELETE 
   async softDelete(id: string, actorId: string) {
     await this.audit.log(actorId, 'SOFT_DELETE', 'User', id);
 
@@ -190,7 +190,7 @@ export class UserService {
     });
   }
 
-  // ============ HARD DELETE + CASCADE ============
+  //  HARD DELETE + CASCADE 
   async hardDelete(id: string, actorId: string) {
     await this.audit.log(actorId, 'HARD_DELETE', 'User', id);
 

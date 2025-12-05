@@ -1,9 +1,7 @@
 // CAR RENTAL MANAGEMENT SYSTEM - FULL ERD (35 TABLES)
 // Copy code này và paste vào https://dbdiagram.io
 
-// ========================================
 // CORE BUSINESS (20 TABLES)
-// ========================================
 
 Table VehicleCategory {
   CategoryID varchar(50) [pk]
@@ -279,9 +277,7 @@ Table AuditLog {
   CreatedAt datetime [not null, default: `CURRENT_TIMESTAMP`]
 }
 
-// ========================================
 // LEVEL 1: SEO & CONTENT (5 TABLES)
-// ========================================
 
 Table BlogPost {
   PostID varchar(50) [pk]
@@ -358,9 +354,7 @@ Table SeoRedirect {
   CreatedAt datetime [not null, default: `CURRENT_TIMESTAMP`]
 }
 
-// ========================================
 // LEVEL 2: MARKETING & CRM (6 TABLES)
-// ========================================
 
 Table Notification {
   NotificationID varchar(50) [pk]
@@ -441,9 +435,7 @@ Table LoyaltyTransaction {
   CreatedAt datetime [not null, default: `CURRENT_TIMESTAMP`]
 }
 
-// ========================================
 // LEVEL 3: ENTERPRISE (6 TABLES)
-// ========================================
 
 Table Tenant {
   TenantID varchar(50) [pk]
@@ -543,9 +535,7 @@ Table SystemConfig {
   UpdatedAt datetime
 }
 
-// ========================================
 // RELATIONSHIPS
-// ========================================
 
 // Core Business Relationships
 Ref: Vehicle.BranchID > Branch.BranchID

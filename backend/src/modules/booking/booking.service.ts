@@ -13,12 +13,12 @@ export class BookingService {
         private audit: AuditLogService
     ) { }
 
-    // ============= GENERATE BOOKING CODE =============
+    //  GENERATE BOOKING CODE 
     generateBookingCode() {
         return 'BKG-' + randomBytes(4).toString('hex').toUpperCase();
     }
 
-    // ============= CHECK VEHICLE AVAILABLE =============
+    //  CHECK VEHICLE AVAILABLE 
     async checkVehicleAvailable(vehicleId: string, pickup: Date, rt: Date) {
         const overlapping = await this.prisma.booking.findFirst({
             where: {
@@ -36,7 +36,7 @@ export class BookingService {
         return !overlapping;
     }
 
-    // ============= AUTO CALCULATE PRICE =============
+    //  AUTO CALCULATE PRICE 
     async calcPrice(vehicleId: string, pickup: Date, rt: Date) {
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { id: vehicleId },
@@ -54,25 +54,7 @@ export class BookingService {
         return base;
     }
 
-    private async validatePromotion(promotionId: string) {
-        const promo = await this.prisma.promotion.findUnique({ where: { id: promotionId } });
-        if (!promo) throw new BadRequestException('Promotion not found');
-        if (promo.status !== 'ACTIVE') throw new BadRequestException('Promotion is not active');
-
-        const now = new Date();
-        if (promo.startDate && promo.startDate > now) {
-            throw new BadRequestException('Promotion not started');
-        }
-        if (promo.endDate && promo.endDate < now) {
-            throw new BadRequestException('Promotion expired');
-        }
-        if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
-            throw new BadRequestException('Promotion usage limit reached');
-        }
-        return promo;
-    }
-
-    // ============= LIST =============
+    //  LIST 
     async findAll(query: BookingQueryDto) {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 20;
@@ -104,9 +86,7 @@ export class BookingService {
                     deposit: true,
                     handover: true,
                     returnReport: true,
-                    invoice: true,
-                    review: true,
-                    promotion: true
+                    invoice: true
                 }
             }),
             this.prisma.booking.count({ where })
@@ -121,7 +101,7 @@ export class BookingService {
         };
     }
 
-    // ============= DETAIL =============
+    //  DETAIL 
     async findOne(id: string) {
         const b = await this.prisma.booking.findUnique({
             where: { id },
@@ -134,9 +114,7 @@ export class BookingService {
                 deposit: true,
                 handover: true,
                 returnReport: true,
-                invoice: true,
-                review: true,
-                promotion: true
+                invoice: true
             }
         });
 
@@ -144,65 +122,45 @@ export class BookingService {
         return b;
     }
 
-    // ============= CREATE BOOKING =============
+    //  CREATE BOOKING 
     async create(dto: CreateBookingDto, actorId?: string) {
         const pickup = new Date(dto.pickupDate);
         const rt = new Date(dto.returnDate);
 
         if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
 
+        // check xem xe có available không 1. xe có đang có booking nào không 2. xe có đang có maintenance nào không 3. xe active không
         const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
         if (!available) throw new BadRequestException('Vehicle not available for selected dates');
 
         const baseAmount = await this.calcPrice(dto.vehicleId, pickup, rt);
-        let discount = dto.discountAmount ?? 0;
-        let promotionId = dto.promotionId;
+        const discount = dto.discountAmount ?? 0;
+        const total = baseAmount - discount;
 
-        if (promotionId) {
-            const promo = await this.validatePromotion(promotionId);
-            const promoDiscount = promo.discountPercent
-                ? (baseAmount * promo.discountPercent) / 100
-                : promo.discountAmount || 0;
-            if (dto.discountAmount === undefined) {
-                discount = promoDiscount;
+        const booking = await this.prisma.booking.create({
+            data: {
+                bookingCode: this.generateBookingCode(),
+                customerId: dto.customerId,
+                vehicleId: dto.vehicleId,
+                branchId: dto.branchId,
+                returnBranchId: dto.returnBranchId,
+                pickupDate: pickup,
+                returnDate: rt,
+                baseAmount,
+                discountAmount: discount,
+                totalAmount: total,
+                promotionId: dto.promotionId,
+                note: dto.note,
+                status: 'PENDING'
             }
-            discount = Math.min(discount, baseAmount);
-        }
-
-        const total = Math.max(baseAmount - discount, 0);
-
-        const [booking] = await this.prisma.$transaction([
-            this.prisma.booking.create({
-                data: {
-                    bookingCode: this.generateBookingCode(),
-                    customerId: dto.customerId,
-                    vehicleId: dto.vehicleId,
-                    branchId: dto.branchId,
-                    returnBranchId: dto.returnBranchId,
-                    pickupDate: pickup,
-                    returnDate: rt,
-                    baseAmount,
-                    discountAmount: discount,
-                    totalAmount: total,
-                    promotionId,
-                    note: dto.note,
-                    status: 'PENDING'
-                }
-            }),
-            ...(promotionId
-                ? [this.prisma.promotion.update({
-                    where: { id: promotionId },
-                    data: { usedCount: { increment: 1 } }
-                })]
-                : [])
-        ]);
+        });
 
         await this.audit.log(actorId ?? null, 'CREATE', 'Booking', booking.id, booking);
 
         return booking;
     }
 
-    // ============= UPDATE BOOKING =============
+    //  UPDATE BOOKING 
     async update(id: string, dto: UpdateBookingDto, actorId?: string) {
         const before = await this.findOne(id);
 
@@ -210,9 +168,6 @@ export class BookingService {
         const rt = dto.returnDate ? new Date(dto.returnDate) : before.returnDate;
 
         if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
-        if (dto.promotionId) {
-            await this.validatePromotion(dto.promotionId);
-        }
 
         const updated = await this.prisma.booking.update({
             where: { id },
@@ -227,7 +182,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= CHANGE STATUS =============
+    //  CHANGE STATUS 
     async changeStatus(id: string, status: string, actorId?: string) {
         const updated = await this.prisma.booking.update({
             where: { id },
@@ -239,7 +194,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= CANCEL =============
+    //  CANCEL 
     async cancel(id: string, reason: string, actorId?: string) {
         const updated = await this.prisma.booking.update({
             where: { id },
@@ -251,7 +206,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= DELETE =============
+    //  DELETE 
     async delete(id: string, actorId?: string) {
         await this.audit.log(actorId ?? null, 'DELETE', 'Booking', id);
         return this.prisma.booking.delete({ where: { id } });

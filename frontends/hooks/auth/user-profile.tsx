@@ -16,12 +16,15 @@ export function useProfile() {
             ? user.customerId || user.employeeId
             : null;
 
+    // ⚡ Xử lý cả role USER và CUSTOMER để fetch customer
     const endpoint =
-        user?.role === "CUSTOMER"
+        user?.role === "CUSTOMER" && refId
             ? `/customers/${refId}`
-            : user?.role === "EMPLOYEE"
-                ? `/employees/${refId}`
-                : null;
+            : user?.role === "USER"
+                ? `/customers/user/${user.id}` // Fetch customer by userId
+                : user?.role === "EMPLOYEE" && refId
+                    ? `/employees/${refId}`
+                    : null;
 
     const {
         data: profile,

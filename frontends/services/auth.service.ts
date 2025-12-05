@@ -11,13 +11,15 @@ export const authService = {
         if (typeof window !== "undefined" && token) {
             // Lưu token
             localStorage.setItem("accessToken", token);
-            document.cookie = `accessToken=${token}; path=/; max-age=604800`;
+            // ⚡ Set cookie với SameSite để middleware có thể đọc được
+            document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
         }
 
         if (typeof window !== "undefined" && role) {
             // Lưu role
             localStorage.setItem("role", role);
-            document.cookie = `role=${role}; path=/; max-age=604800`;
+            // ⚡ Set cookie với SameSite để middleware có thể đọc được
+            document.cookie = `role=${role}; path=/; max-age=604800; SameSite=Lax`;
         }
 
         return res;    // ✔ Không return res.data nữa

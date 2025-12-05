@@ -6,9 +6,7 @@ import { employeeService } from "@/services/employee.service";
 import EmployeeModal from "./EmployeeModal";
 import EmployeeCard from "./EmployeeCard";
 
-// =====================================
-// NORMALIZE HÀM DÙNG CHUNG
-// =====================================
+//  NORMALIZE HÀM DÙNG CHUNG
 const normalizeList = (res: any) => {
     if (!res) return [];
 
@@ -32,9 +30,7 @@ export default function EmployeeList() {
     const [selected, setSelected] = useState<any>(null);
     const [search, setSearch] = useState("");
 
-    // =====================================
-    // INFINITE QUERY FOR PAGINATION
-    // =====================================
+    //  INFINITE QUERY FOR PAGINATION
     const {
         data,
         fetchNextPage,
@@ -63,9 +59,7 @@ export default function EmployeeList() {
     // Flatten all pages into single array
     const employees = data?.pages.flatMap((page: any) => page?.items || []) || [];
 
-    // =====================================
-    // ACTION HANDLERS
-    // =====================================
+    //  ACTION HANDLERS
     const handleAdd = () => {
         setSelected(null);
         setMode("create");
@@ -106,9 +100,7 @@ export default function EmployeeList() {
         return () => clearTimeout(timer);
     }, [search, refetch]);
 
-    // =====================================
-    // RENDER
-    // =====================================
+        //  RENDER
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100 p-4 md:p-6">
             <div className="mx-auto max-w-7xl">

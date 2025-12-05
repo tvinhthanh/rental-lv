@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class BillingController {
     constructor(private billing: BillingService) { }
 
-    // ============ INVOICE ============
+    //  INVOICE 
     @Get('invoices')
     findAllInvoices(@Query() query: BillingQueryDto) {
         return this.billing.findAllInvoices(query);
@@ -48,7 +48,7 @@ export class BillingController {
         return this.billing.applyDeposit(id, body.depositApplied);
     }
 
-    // ============ PAYMENT ============
+    //  PAYMENT 
     @Post('payments')
     createPayment(@Body() dto: CreatePaymentDto) {
         return this.billing.createPayment(dto);
@@ -59,7 +59,7 @@ export class BillingController {
         return this.billing.findPayments(invoiceId);
     }
 
-    // ============ SURCHARGE ============
+    //  SURCHARGE 
     @Get('surcharges')
     findAllSurcharges(@Query() query: BillingQueryDto) {
         return this.billing.findAllSurcharges(query);

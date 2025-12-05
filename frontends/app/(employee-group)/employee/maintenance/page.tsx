@@ -128,7 +128,7 @@ export default function MaintenancePage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950/90 text-gray-100 p-3 sm:p-4 md:p-6">
+        <div className="min-h-screen text-gray-100 p-3 sm:p-4 md:p-6">
             <div className="mx-auto max-w-7xl">
                 {/* Header */}
                 <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">

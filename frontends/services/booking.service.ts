@@ -30,7 +30,11 @@ export const bookingService = {
     // API trả thẳng object booking (kèm customer, vehicle, branch,...),
     // APIRequest đã parse JSON nên không cần .data
     get: (id: string) => api.get(`/bookings/${id}`),
-    create: (data: any) => api.post("/bookings", data).then(r => r.data),
+    create: async (data: any) => {
+        const res = await api.post("/bookings", data);
+        // ⚡ API trả về trực tiếp booking object hoặc có thể wrap trong .data
+        return res?.data || res;
+    },
     updateStatus: (id: string, status: string) =>
         api.put(`/bookings/${id}/status/${status}`).then(r => r.data),
     getDateAvailable: (vehicleId: string) => api.get(`/bookings/cars/${vehicleId}`).then(r => r.data),

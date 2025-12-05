@@ -10,27 +10,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const { data: user, isLoading: userLoading } = useCurrentUser();
   const [isChecking, setIsChecking] = useState(true);
 
-  // ⚡ Check authentication và role
+  // Check authentication and role
   useEffect(() => {
     if (!userLoading) {
       setIsChecking(false);
-      
-      // Nếu chưa đăng nhập hoặc không phải ADMIN
+
       if (!user || user.role !== "ADMIN") {
-        // Kiểm tra token trong localStorage
         const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
         if (!token) {
-          // Chưa đăng nhập → redirect to auth
           router.replace("/auth");
         } else {
-          // Đã đăng nhập nhưng không phải admin → redirect to 404
           router.replace("/404");
         }
       }
     }
   }, [user, userLoading, router]);
 
-  // ⚡ Loading state
   if (userLoading || isChecking) {
     return (
       <div className="min-h-screen bg-slate-950/90 text-gray-100 flex items-center justify-center">
@@ -39,7 +34,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // ⚡ Guard: Không cho render nếu chưa đăng nhập hoặc không phải ADMIN
   if (!user || user.role !== "ADMIN") {
     return (
       <div className="min-h-screen bg-slate-950/90 text-gray-100 flex items-center justify-center">

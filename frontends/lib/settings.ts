@@ -126,7 +126,11 @@ export function updateSetting<K extends keyof AppSettings>(
     if (typeof window === "undefined") return;
 
     try {
+<<<<<<< HEAD
         const settings = getSettingsSync();
+=======
+        const settings = getSettings();
+>>>>>>> b9b3026 (update layout)
         settings[key] = value;
         localStorage.setItem("app_settings", JSON.stringify(settings));
     } catch (err) {
@@ -145,7 +149,11 @@ export function getGoogleMapsApiKey(): string {
  * Get Cloudinary config
  */
 export function getCloudinaryConfig() {
+<<<<<<< HEAD
     const settings = getSettingsSync();
+=======
+    const settings = getSettings();
+>>>>>>> b9b3026 (update layout)
     return {
         cloudName: settings.cloudinaryCloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "",
         apiKey: settings.cloudinaryApiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || "",
@@ -157,7 +165,11 @@ export function getCloudinaryConfig() {
  * Get social media URLs
  */
 export function getSocialMediaUrls() {
+<<<<<<< HEAD
     const settings = getSettingsSync();
+=======
+    const settings = getSettings();
+>>>>>>> b9b3026 (update layout)
     return {
         facebook: settings.facebookUrl,
         instagram: settings.instagramUrl,
@@ -169,7 +181,11 @@ export function getSocialMediaUrls() {
  * Get site information
  */
 export function getSiteInfo() {
+<<<<<<< HEAD
     const settings = getSettingsSync();
+=======
+    const settings = getSettings();
+>>>>>>> b9b3026 (update layout)
     return {
         name: settings.siteName,
         description: settings.siteDescription,

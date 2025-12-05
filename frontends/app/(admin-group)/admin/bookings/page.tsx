@@ -18,7 +18,6 @@ export default function AdminBookingsPage() {
         const timer = setTimeout(() => {
             setDebouncedSearch(search.trim());
         }, 400);
-
         return () => clearTimeout(timer);
     }, [search]);
 
@@ -33,13 +32,11 @@ export default function AdminBookingsPage() {
         refetch,
     } = useInfiniteQuery({
         queryKey: ["admin-bookings", debouncedSearch],
-        queryFn: async ({ pageParam = 1 }) => {
-            return bookingService.list({
-                page: pageParam,
-                limit: 20,
-                search: debouncedSearch || undefined,
-            });
-        },
+        queryFn: async ({ pageParam = 1 }) => bookingService.list({
+            page: pageParam,
+            limit: 20,
+            search: debouncedSearch || undefined,
+        }),
         getNextPageParam: (lastPage: any) => {
             const currentPage = Number(lastPage?.page) || 1;
             const totalPages = Number(lastPage?.totalPages) || 1;
@@ -78,7 +75,6 @@ export default function AdminBookingsPage() {
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100 p-3 sm:p-4 md:p-6">
             <div className="mx-auto max-w-7xl">
-                {/* Header */}
                 <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4">
                     <div className="flex-1">
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
@@ -96,7 +92,6 @@ export default function AdminBookingsPage() {
                     </div>
                 </div>
 
-                {/* Search */}
                 <div className="mb-4 sm:mb-6">
                     <input
                         placeholder="Tìm kiếm..."
@@ -106,7 +101,6 @@ export default function AdminBookingsPage() {
                     />
                 </div>
 
-                {/* Body */}
                 {isLoading ? (
                     <div className="mt-10 flex justify-center">
                         <div className="flex flex-col items-center justify-center gap-3">
@@ -140,7 +134,6 @@ export default function AdminBookingsPage() {
                             ))}
                         </div>
 
-                        {/* Load More Button */}
                         {hasNextPage && (
                             <div className="mt-8 flex justify-center">
                                 <button
@@ -162,7 +155,6 @@ export default function AdminBookingsPage() {
                     </>
                 )}
 
-                {/* Modal */}
                 {openModal && selectedBooking && (
                     <AdminBookingModal
                         booking={selectedBooking}

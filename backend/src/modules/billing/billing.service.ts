@@ -12,7 +12,7 @@ export class BillingService {
 
   // =====
   // INVOICE
-  // =====
+  // ==========================
   async findAllInvoices(query: BillingQueryDto = {}) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;

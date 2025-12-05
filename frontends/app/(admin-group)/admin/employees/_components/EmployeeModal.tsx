@@ -84,7 +84,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                     <div className="mb-6 pb-4 border-b border-slate-700/50">
                         <h2 className="text-2xl font-bold text-white">
                             {mode === "create" ? "Thêm Nhân Viên" : "Chỉnh sửa Nhân Viên"}
-                        </h2>
+                </h2>
                         <p className="text-sm text-slate-400 mt-1">
                             {mode === "create" ? "Thêm nhân viên mới vào hệ thống" : "Cập nhật thông tin nhân viên"}
                         </p>
@@ -93,130 +93,131 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                     <div className="flex flex-col space-y-4">
                         <div>
                             <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Họ và tên *</label>
-                            <input
-                                name="fullName"
+                    <input
+                        name="fullName"
                                 placeholder="Nhập họ và tên"
-                                value={form.fullName}
-                                onChange={handleChange}
+                        value={form.fullName}
+                        onChange={handleChange}
                                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                required
-                            />
+                        required
+                    />
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Số điện thoại</label>
-                                <input
-                                    name="phone"
+                    <input
+                        name="phone"
                                     placeholder="0123456789"
-                                    value={form.phone}
-                                    onChange={handleChange}
+                        value={form.phone}
+                        onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                />
+                    />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Email</label>
-                                <input
-                                    name="email"
+                    <input
+                        name="email"
                                     placeholder="email@example.com"
-                                    value={form.email}
-                                    onChange={handleChange}
+                        value={form.email}
+                        onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                />
+                    />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Phòng ban</label>
-                                <input
-                                    name="department"
+                        <input
+                            name="department"
                                     placeholder="Phòng ban"
-                                    value={form.department}
-                                    onChange={handleChange}
+                            value={form.department}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                />
+                        />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Chức vụ</label>
-                                <input
-                                    name="position"
+                        <input
+                            name="position"
                                     placeholder="Chức vụ"
-                                    value={form.position}
-                                    onChange={handleChange}
+                            value={form.position}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                />
+                        />
                             </div>
-                        </div>
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Lương</label>
-                                <input
-                                    name="salary"
-                                    type="number"
+                        <input
+                            name="salary"
+                            type="number"
                                     placeholder="0"
-                                    value={form.salary}
-                                    onChange={handleChange}
+                            value={form.salary}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                                />
+                        />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Trạng thái</label>
-                                <select
-                                    name="status"
-                                    value={form.status}
-                                    onChange={handleChange}
+                        <select
+                            name="status"
+                            value={form.status}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                >
-                                    {STATUS_OPTIONS.map((s) => (
+                        >
+                            {STATUS_OPTIONS.map((s) => (
                                         <option key={s} value={s} className="bg-slate-800">{s}</option>
-                                    ))}
-                                </select>
+                            ))}
+                        </select>
                             </div>
-                        </div>
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Chi nhánh</label>
-                                <select
-                                    name="branchId"
-                                    value={form.branchId}
-                                    onChange={handleChange}
+                        <select
+                            name="branchId"
+                            value={form.branchId}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                >
+                        >
                                     <option value="" className="bg-slate-800">Chọn chi nhánh (tùy chọn)</option>
-                                    {branches.map((b: any) => (
+                            {branches.map((b: any) => (
                                         <option key={b.id} value={b.id} className="bg-slate-800">
-                                            {b.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                    {b.name}
+                                </option>
+                            ))}
+                        </select>
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Ngày vào làm</label>
-                                <input
-                                    name="hireDate"
-                                    type="date"
-                                    value={form.hireDate}
-                                    onChange={handleChange}
+                        <input
+                            name="hireDate"
+                            type="date"
+                            value={form.hireDate}
+                            onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                />
+                        />
                             </div>
-                        </div>
+                    </div>
 
                         <div>
                             <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Avatar URL</label>
-                            <input
-                                name="avatarUrl"
+                    <input
+                        name="avatarUrl"
                                 placeholder="https://example.com/avatar.jpg"
-                                value={form.avatarUrl}
-                                onChange={handleChange}
+                        value={form.avatarUrl}
+                        onChange={handleChange}
                                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                            />
+                    />
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     <div className="border-t border-slate-700/50 pt-4 mt-6">
                         <div className="flex justify-end gap-3">
                             <button
@@ -233,6 +234,23 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             >
                                 {mode === "create" ? "Tạo mới" : "Lưu thay đổi"}
                             </button>
+=======
+                        <div className="border-t border-slate-700/50 pt-4 mt-6">
+                            <div className="flex justify-end gap-3">
+                        <button
+                            onClick={onClose}
+                                    className="px-5 py-2.5 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800/50 transition-colors font-medium"
+                        >
+                                    Hủy
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl"
+                        >
+                                    {mode === "create" ? "Tạo" : "Lưu"}
+                        </button>
+                            </div>
+>>>>>>> b9b3026 (update layout)
                         </div>
                     </div>
                 </div>

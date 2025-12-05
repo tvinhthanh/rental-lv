@@ -8,9 +8,12 @@ import { ROLE_MENU_HEADER } from "@/lib/role-menu";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Settings, FileText } from "lucide-react";
+<<<<<<< HEAD
 import { useProfile } from "@/hooks/auth/user-profile";
 import ThemeSwitch from "@/components/common/theme-switch";
 import NotificationCenter from "@/components/notifications/NotificationCenter";
+=======
+>>>>>>> b9b3026 (update layout)
 
 export default function Header() {
     const router = useRouter();

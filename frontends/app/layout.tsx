@@ -28,7 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryProvider>
               <SettingsProvider>
                 <AuthProvider>
+<<<<<<< HEAD
                   <SocketNotificationProvider>
+=======
+>>>>>>> b9b3026 (update layout)
                   <Header />
                   <GlobalLoading />
                   <main className="min-h-screen">
@@ -36,7 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </main>
                   <Footer />
                   <Toaster />
+<<<<<<< HEAD
                   </SocketNotificationProvider>
+=======
+>>>>>>> b9b3026 (update layout)
                 </AuthProvider>
               </SettingsProvider>
             </QueryProvider>

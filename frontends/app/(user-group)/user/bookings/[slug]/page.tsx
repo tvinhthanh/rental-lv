@@ -30,6 +30,7 @@ import { bookingService } from "@/services/booking.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
 import { useCustomer } from "@/hooks/useCustomer";
 import { getPlaceholderImage } from "@/lib/image-placeholder";
+<<<<<<< HEAD
 import { promotionService } from "@/services/promotion.service";
 
 const isPromotionActive = (promo?: any) => {
@@ -59,6 +60,8 @@ const calculateDiscount = (baseAmount: number, promo: any) => {
     const clean = Math.round(raw);
     return Math.max(0, Math.min(clean, baseAmount));
 };
+=======
+>>>>>>> b9b3026 (update layout)
 
 export default function BookingPage() {
     const router = useRouter();
@@ -342,6 +345,7 @@ export default function BookingPage() {
     // UI
     // ------------------------------------------------------------------
     return (
+<<<<<<< HEAD
         <>
             {/* Custom styles for rented dates */}
             <style jsx global>{`
@@ -375,6 +379,9 @@ export default function BookingPage() {
                 }
             `}</style>
             <div className="max-w-4xl mx-auto p-6 text-gray-200">
+=======
+        <div className="max-w-4xl mx-auto p-6 text-gray-200">
+>>>>>>> b9b3026 (update layout)
             <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Đặt xe: {vehicle.name}</h1>
 
             {/* VEHICLE CARD */}

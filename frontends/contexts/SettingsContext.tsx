@@ -14,8 +14,11 @@ interface PublicSettings {
     itemsPerPage: number;
     showIcons: boolean;
     defaultLanguage: string;
+<<<<<<< HEAD
     contactAddress?: string;
     contactPhone?: string;
+=======
+>>>>>>> b9b3026 (update layout)
     aboutContent?: string;
     termsContent?: string;
     privacyContent?: string;
@@ -85,11 +88,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 setSettings(data);
                 saveToCache(data);
             }
+<<<<<<< HEAD
         } catch (err: any) {
             // Silent fail for background fetch - only log unexpected errors
             if (err?.response?.status !== 404 && err?.message !== "Network Error") {
                 console.warn("Background settings fetch failed:", err);
             }
+=======
+        } catch (err) {
+            // Silent fail for background fetch
+>>>>>>> b9b3026 (update layout)
         }
     }, []);
 
@@ -114,15 +122,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 setSettings(data);
                 saveToCache(data);
             }
+<<<<<<< HEAD
         } catch (err: any) {
             // Only log if it's not a 404 or network error (expected for first load)
             if (err?.response?.status !== 404 && err?.message !== "Network Error") {
                 console.warn("Failed to fetch settings:", err);
             }
+=======
+        } catch (err) {
+            console.error("Failed to fetch settings:", err);
+>>>>>>> b9b3026 (update layout)
             // Try to use cache even if expired
             const cached = loadFromCache();
             if (cached) {
                 setSettings(cached);
+<<<<<<< HEAD
             } else {
                 // Set default settings if no cache available
                 setSettings({
@@ -137,6 +151,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                     showIcons: true,
                     defaultLanguage: "vi",
                 });
+=======
+>>>>>>> b9b3026 (update layout)
             }
         } finally {
             setLoading(false);

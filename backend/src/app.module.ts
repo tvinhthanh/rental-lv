@@ -37,6 +37,7 @@ import { LoyaltyTransactionModule } from './modules/loyalty-transaction/loyalty-
 import { PricingRuleModule } from './modules/pricing-rule/pricing-rule.module';
 import { PartnerModule } from './modules/partner/partner.module';
 import { PaymentGatewayModule } from './modules/payment-gateway/payment-gateway.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -74,7 +75,8 @@ import { PaymentGatewayModule } from './modules/payment-gateway/payment-gateway.
     LoyaltyTransactionModule,
     PricingRuleModule,
     PartnerModule,
-    PaymentGatewayModule
+    PaymentGatewayModule,
+    SettingsModule
   ],
 })
 export class AppModule { }

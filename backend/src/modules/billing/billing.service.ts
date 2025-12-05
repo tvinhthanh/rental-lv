@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreateSurchargeDto } from './dto/create-surcharge.dto';
+import { BillingQueryDto } from './dto/billing-query.dto';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -12,8 +13,36 @@ export class BillingService {
   // ==========================
   // INVOICE
   // ==========================
-  findAllInvoices() {
-    return this.prisma.invoice.findMany({
+  async findAllInvoices(query: BillingQueryDto = {}) {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (query.branchId) {
+      where.booking = {
+        branchId: query.branchId
+      };
+    }
+
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    if (query.search) {
+      where.OR = [
+        { invoiceNo: { contains: query.search, mode: 'insensitive' } },
+        { booking: { bookingCode: { contains: query.search, mode: 'insensitive' } } },
+        { customer: { fullName: { contains: query.search, mode: 'insensitive' } } }
+      ];
+    }
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.invoice.findMany({
+        where,
+        skip,
+        take: limit,
       include: {
         booking: {
           include: {
@@ -27,7 +56,17 @@ export class BillingService {
         surcharges: true
       },
       orderBy: { createdAt: 'desc' }
-    });
+      }),
+      this.prisma.invoice.count({ where })
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   async findByBranch(branchId: string) {
@@ -165,8 +204,33 @@ export class BillingService {
     });
   }
 
-  findAllSurcharges() {
-    return this.prisma.surcharge.findMany({
+  async findAllSurcharges(query: BillingQueryDto = {}) {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (query.branchId) {
+      where.invoice = {
+        booking: {
+          branchId: query.branchId
+        }
+      };
+    }
+
+    if (query.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { description: { contains: query.search, mode: 'insensitive' } }
+      ];
+    }
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.surcharge.findMany({
+        where,
+        skip,
+        take: limit,
       include: {
         invoice: {
           include: {
@@ -187,7 +251,17 @@ export class BillingService {
         }
       },
       orderBy: { createdAt: 'desc' }
-    });
+      }),
+      this.prisma.surcharge.count({ where })
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 
   findSurchargesByBranch(branchId: string) {

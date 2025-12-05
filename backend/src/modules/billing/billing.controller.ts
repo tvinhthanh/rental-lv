@@ -4,6 +4,7 @@ import {
     Get,
     Param,
     Post,
+    Query,
     UseGuards
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -11,6 +12,7 @@ import { BillingService } from './billing.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreateSurchargeDto } from './dto/create-surcharge.dto';
+import { BillingQueryDto } from './dto/billing-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('billing')
@@ -22,8 +24,8 @@ export class BillingController {
 
     // ============ INVOICE ============
     @Get('invoices')
-    findAllInvoices() {
-        return this.billing.findAllInvoices();
+    findAllInvoices(@Query() query: BillingQueryDto) {
+        return this.billing.findAllInvoices(query);
     }
 
     @Get('invoices/branch/:branchId')
@@ -59,8 +61,8 @@ export class BillingController {
 
     // ============ SURCHARGE ============
     @Get('surcharges')
-    findAllSurcharges() {
-        return this.billing.findAllSurcharges();
+    findAllSurcharges(@Query() query: BillingQueryDto) {
+        return this.billing.findAllSurcharges(query);
     }
 
     @Get('surcharges/branch/:branchId')

@@ -2,8 +2,9 @@ import { APIRequest } from "@/lib/api";
 const api = new APIRequest();
 
 export const customerService = {
-    getAll() {
-        return api.get(`/customers`);
+    getAll(params?: Record<string, any>) {
+        const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+        return api.get(`/customers${qs}`);
     },
     get: (id: string) => api.get(`/customers/${id}`),
     create: (data: any) => api.post("/customers", data),

@@ -2,14 +2,15 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@
 import { MaintenanceService } from './maintenance.service';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { UpdateMaintenanceDto } from './dto/update-maintenance.dto';
+import { MaintenanceQueryDto } from './dto/maintenance-query.dto';
 
 @Controller('maintenance')
 export class MaintenanceController {
     constructor(private service: MaintenanceService) { }
 
     @Get()
-    list(@Query('vehicleId') vehicleId?: string) {
-        return this.service.findAll(vehicleId);
+    list(@Query() query: MaintenanceQueryDto) {
+        return this.service.findAll(query);
     }
 
     @Get(':id')

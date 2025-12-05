@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { vehicleService } from "@/services/vehicle.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
+import { toWebP, getImageLoading } from "@/lib/image-utils";
 import Link from "next/link";
 
 export default function CarSlider() {
@@ -21,13 +22,29 @@ export default function CarSlider() {
     }, []);
 
     const next = () => {
-        if (vehicles.length === 0) return;
-        setIndex((prev) => (prev + 1) % vehicles.length);
+        if (vehicles.length <= 1) return;
+        // Move 2 items at a time, but ensure we don't wrap around incorrectly
+        if (vehicles.length === 2) {
+            setIndex((prev) => (prev + 1) % 2);
+        } else {
+            setIndex((prev) => {
+                const nextIndex = prev + 2;
+                return nextIndex >= vehicles.length ? 0 : nextIndex;
+            });
+        }
     };
 
     const prev = () => {
-        if (vehicles.length === 0) return;
-        setIndex((prev) => (prev - 1 + vehicles.length) % vehicles.length);
+        if (vehicles.length <= 1) return;
+        // Move 2 items at a time
+        if (vehicles.length === 2) {
+            setIndex((prev) => (prev + 1) % 2);
+        } else {
+            setIndex((prev) => {
+                const prevIndex = prev - 2;
+                return prevIndex < 0 ? vehicles.length - (vehicles.length % 2 === 0 ? 2 : 1) : prevIndex;
+            });
+        }
     };
 
     if (vehicles.length === 0) {
@@ -38,13 +55,30 @@ export default function CarSlider() {
         );
     }
 
-    const car = vehicles[index];
-    const photo = car.photos?.[0];
-    const price = car.priceList?.dailyRate
-        ? formatVND(car.priceList.dailyRate) + " / ngày"
-        : "—";
+    // Get 2 different cars to display
+    const getDisplayCars = () => {
+        if (vehicles.length === 0) return [];
+        if (vehicles.length === 1) {
+            // If only 1 car, return only 1 item
+            return [vehicles[0]];
+        }
+        
+        const cars = [];
+        const firstIndex = index % vehicles.length;
+        cars.push({ ...vehicles[firstIndex], displayIndex: 0 });
+        
+        // Get second car - ensure it's different
+        let secondIndex = (firstIndex + 1) % vehicles.length;
+        // Make sure secondIndex is different from firstIndex
+        if (secondIndex === firstIndex) {
+            secondIndex = (firstIndex + 1) % vehicles.length;
+        }
+        
+        cars.push({ ...vehicles[secondIndex], displayIndex: 1 });
+        return cars;
+    };
 
-    const slug = car.slug ?? car.id;
+    const displayCars = getDisplayCars();
 
     return (
         <section className="relative overflow-hidden py-16">
@@ -53,7 +87,7 @@ export default function CarSlider() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Xe nổi bật</p>
-                        <h2 className="text-3xl md:text-4xl font-bold">Dòng xe được yêu thích nhất</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Dòng xe được yêu thích nhất</h2>
                     </div>
                     <div className="flex gap-3">
                         <button
@@ -73,13 +107,27 @@ export default function CarSlider() {
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 items-center bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur">
-                    <div className="relative">
+                <div className={`grid gap-6 ${displayCars.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
+                    {displayCars.map((car, idx) => {
+                        const photo = car.photos?.[0];
+                        const price = car.priceList?.dailyRate
+                            ? formatVND(car.priceList.dailyRate) + " / ngày"
+                            : "—";
+                        const slug = car.slug ?? car.id;
+
+                        // Create unique key combining car id and display index
+                        const uniqueKey = `${car.id}-${car.displayIndex ?? idx}`;
+
+                        return (
+                            <div key={uniqueKey} className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur">
+                                <div className="relative mb-4">
                         <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/30 to-transparent rounded-xl" />
                         <img
-                            src={photo}
-                            className="w-full h-[360px] md:h-[420px] object-cover rounded-xl"
+                                        src={toWebP(photo)}
+                                        className="w-full h-[280px] md:h-[320px] object-cover rounded-xl"
                             alt={car.name}
+                                        loading={getImageLoading(idx === 0)}
+                                        decoding="async"
                         />
                     </div>
 
@@ -87,38 +135,41 @@ export default function CarSlider() {
                         <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
                             Đời mới • Bảo dưỡng định kỳ
                         </div>
-                        <h3 className="text-3xl font-bold">{car.name}</h3>
-                        <p className="text-blue-200 text-lg">{price}</p>
-                        <p className="text-slate-200">
+                                    <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{car.name}</h3>
+                                    <p className="text-blue-200 text-lg font-semibold">{price}</p>
+                                    <p className="text-slate-200 text-sm">
                             {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}
                         </p>
-                        <div className="flex flex-wrap gap-3 pt-3">
+                                    <div className="flex flex-wrap gap-2 pt-2">
                             {car.branch?.name && (
-                                <span className="px-3 py-1 rounded-full bg-white/10 text-sm">{car.branch.name}</span>
+                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.branch.name}</span>
                             )}
                             {car.category?.name && (
-                                <span className="px-3 py-1 rounded-full bg-white/10 text-sm">{car.category.name}</span>
+                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.category.name}</span>
                             )}
                             {car.brand?.name && (
-                                <span className="px-3 py-1 rounded-full bg-white/10 text-sm">{car.brand.name}</span>
+                                            <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.brand.name}</span>
                             )}
                         </div>
 
-                        <div className="flex gap-3 pt-4">
+                                    <div className="flex gap-3 pt-3">
                             <Link
                                 href={`/user/cars/${slug}`}
-                                className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition"
+                                            className="flex-1 px-4 py-2.5 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition text-center text-sm"
                             >
                                 Xem chi tiết
                             </Link>
                             <Link
                                 href={`/user/bookings/${slug}`}
-                                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow"
+                                            className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow text-center text-sm"
                             >
                                 Đặt ngay
                             </Link>
                         </div>
                     </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </section>

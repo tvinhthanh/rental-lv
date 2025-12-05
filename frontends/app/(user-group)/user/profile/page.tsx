@@ -107,7 +107,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <div>
                         <p className="text-sm uppercase tracking-[0.2em] text-blue-200">Hồ sơ cá nhân</p>
-                        <h1 className="text-3xl md:text-4xl font-bold">Thông tin tài khoản</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Thông tin tài khoản</h1>
                         <p className="text-blue-100 mt-1">Cập nhật avatar, thông tin liên hệ và giấy tờ tùy thân.</p>
                     </div>
                     <div className="text-right text-blue-100 text-sm">

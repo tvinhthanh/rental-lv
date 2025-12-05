@@ -3,8 +3,9 @@ const api = new APIRequest();
 
 export const branchService = {
     // GET /branches
-    getAll() {
-        return api.get(`/branches`);
+    getAll(params?: Record<string, any>) {
+        const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+        return api.get(`/branches${qs}`);
     },
 
     // GET /branches/:id

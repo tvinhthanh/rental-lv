@@ -122,27 +122,27 @@ export default function EmployeeList() {
                             Quản lý nhân viên trong hệ thống.
                         </p>
                     </div>
-                    <button
-                        onClick={handleAdd}
+                <button
+                    onClick={handleAdd}
                         className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-                    >
+                >
                         + Thêm Nhân Viên
-                    </button>
-                </div>
+                </button>
+            </div>
 
                 {/* Search */}
                 <div className="mb-6">
-                    <input
-                        type="text"
+            <input
+                type="text"
                         placeholder="Tìm kiếm theo tên, số điện thoại hoặc email..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                         className="w-full sm:w-80 bg-slate-800/70 border border-slate-700 text-gray-200 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
-                    />
+            />
                 </div>
 
                 {/* Body */}
-                {loading ? (
+            {loading ? (
                     <div className="mt-10 flex justify-center">
                         <div className="flex flex-col items-center justify-center gap-3">
                             <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
@@ -182,9 +182,9 @@ export default function EmployeeList() {
                                     ) : (
                                         "Tải thêm"
                                     )}
-                                </button>
-                            </div>
-                        )}
+                                        </button>
+                </div>
+            )}
                     </>
                 )}
             </div>

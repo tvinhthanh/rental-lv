@@ -1,25 +1,51 @@
-export const ROLE_MENU_SIDEBAR = {
+export interface MenuItem {
+    label: string;
+    href?: string;
+    children?: MenuItem[];
+}
+
+export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
     ADMIN: [
         { label: "Chi nhánh", href: "/admin/branches" },
         { label: "Danh mục giá", href: "/admin/price-lists" },
 
+        {
+            label: "Đơn đặt xe",
+            children: [
         { label: "Đơn đặt xe", href: "/admin/bookings" },
-        { label: "Contracts", href: "/admin/contracts" },
-        { label: "Deposits", href: "/admin/deposits" },
-        { label: "Handover", href: "/admin/handover" },
-        { label: "Returns", href: "/admin/returns" },
-
-        { label: "Invoices", href: "/admin/invoices" },
-        { label: "Payments", href: "/admin/payments" },
-        { label: "Surcharges", href: "/admin/surcharges" },
-
+                { label: "Hợp đồng", href: "/admin/contracts" },
+                { label: "Giao xe", href: "/admin/handover" },
+                { label: "Nhận xe", href: "/admin/returns" },
+            ]
+        },
+        
+        {
+            label: "Tài chính",
+            children: [
+                { label: "Hóa đơn", href: "/admin/invoices" },
+                { label: "Thanh toán", href: "/admin/payments" },
+                { label: "Tiền cọc", href: "/admin/deposits" },
+                { label: "Phụ phí", href: "/admin/surcharges" },
+            ]
+        },
+        
+        {
+            label: "Người dùng",
+            children: [
         { label: "Người dùng", href: "/admin/users" },
         { label: "Khách hàng", href: "/admin/customers" },
-
-        { label: "Promotions", href: "/admin/promotions" },
-        { label: "Reviews", href: "/admin/reviews" },
+            ]
+        },
+        
+        {
+            label: "Khác",
+            children: [
+                { label: "Khuyến mãi", href: "/admin/promotions" },
+                { label: "Đánh giá", href: "/admin/reviews" },
         { label: "Bảo dưỡng", href: "/admin/maintenance" },
         { label: "Thương hiệu", href: "/admin/brands" },
+            ]
+        },
     ],
 
     EMPLOYEE: [

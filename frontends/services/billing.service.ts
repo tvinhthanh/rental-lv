@@ -24,4 +24,9 @@ export const billingService = {
     
     surchargesByBranch: (branchId: string) =>
         api.get(`/billing/surcharges/branch/${branchId}`),
+    
+    getAllInvoices(params?: Record<string, any>) {
+        const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+        return api.get(`/billing/invoices${qs}`);
+    },
 };

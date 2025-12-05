@@ -13,12 +13,12 @@ export class BookingService {
         private audit: AuditLogService
     ) { }
 
-    // ============= GENERATE BOOKING CODE =============
+    //  GENERATE BOOKING CODE 
     generateBookingCode() {
         return 'BKG-' + randomBytes(4).toString('hex').toUpperCase();
     }
 
-    // ============= CHECK VEHICLE AVAILABLE =============
+    //  CHECK VEHICLE AVAILABLE 
     async checkVehicleAvailable(vehicleId: string, pickup: Date, rt: Date) {
         const overlapping = await this.prisma.booking.findFirst({
             where: {
@@ -36,7 +36,7 @@ export class BookingService {
         return !overlapping;
     }
 
-    // ============= AUTO CALCULATE PRICE =============
+    //  AUTO CALCULATE PRICE 
     async calcPrice(vehicleId: string, pickup: Date, rt: Date) {
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { id: vehicleId },
@@ -54,7 +54,7 @@ export class BookingService {
         return base;
     }
 
-    // ============= LIST =============
+    //  LIST 
     async findAll(query: BookingQueryDto) {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 20;
@@ -101,7 +101,7 @@ export class BookingService {
         };
     }
 
-    // ============= DETAIL =============
+    //  DETAIL 
     async findOne(id: string) {
         const b = await this.prisma.booking.findUnique({
             where: { id },
@@ -122,13 +122,14 @@ export class BookingService {
         return b;
     }
 
-    // ============= CREATE BOOKING =============
+    //  CREATE BOOKING 
     async create(dto: CreateBookingDto, actorId?: string) {
         const pickup = new Date(dto.pickupDate);
         const rt = new Date(dto.returnDate);
 
         if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
 
+        // check xem xe có available không 1. xe có đang có booking nào không 2. xe có đang có maintenance nào không 3. xe active không
         const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
         if (!available) throw new BadRequestException('Vehicle not available for selected dates');
 
@@ -159,7 +160,7 @@ export class BookingService {
         return booking;
     }
 
-    // ============= UPDATE BOOKING =============
+    //  UPDATE BOOKING 
     async update(id: string, dto: UpdateBookingDto, actorId?: string) {
         const before = await this.findOne(id);
 
@@ -181,7 +182,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= CHANGE STATUS =============
+    //  CHANGE STATUS 
     async changeStatus(id: string, status: string, actorId?: string) {
         const updated = await this.prisma.booking.update({
             where: { id },
@@ -193,7 +194,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= CANCEL =============
+    //  CANCEL 
     async cancel(id: string, reason: string, actorId?: string) {
         const updated = await this.prisma.booking.update({
             where: { id },
@@ -205,7 +206,7 @@ export class BookingService {
         return updated;
     }
 
-    // ============= DELETE =============
+    //  DELETE 
     async delete(id: string, actorId?: string) {
         await this.audit.log(actorId ?? null, 'DELETE', 'Booking', id);
         return this.prisma.booking.delete({ where: { id } });

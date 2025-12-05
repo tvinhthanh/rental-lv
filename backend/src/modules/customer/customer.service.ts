@@ -12,9 +12,7 @@ export class CustomerService {
         private audit: AuditLogService
     ) { }
 
-    // ===========================================
-    // LIST + SEARCH + PAGINATION
-    // ===========================================
+    //  LIST + SEARCH + PAGINATION
     async findAll(query: CustomerQueryDto) {
         const page = query.page ? Number(query.page) : 1;
         const limit = query.limit ? Number(query.limit) : 20;
@@ -49,9 +47,7 @@ export class CustomerService {
         };
     }
 
-    // ===========================================
-    // FIND ONE
-    // ===========================================
+    //  FIND ONE
     async findOne(id: string) {
         const customer = await this.prisma.customer.findUnique({
             where: { id },
@@ -67,9 +63,7 @@ export class CustomerService {
         return customer;
     }
 
-    // ===========================================
-    // CREATE
-    // ===========================================
+    //  CREATE
     async create(dto: CreateCustomerDto, actorId?: string) {
         if (dto.userId) {
             const exists = await this.prisma.customer.findUnique({
@@ -90,16 +84,18 @@ export class CustomerService {
         return customer;
     }
 
-    // ===========================================
-    // UPDATE
-    // ===========================================
+    //  UPDATE
     async update(id: string, dto: UpdateCustomerDto, actorId?: string) {
         const before = await this.findOne(id);
 
-        const updateData = {
+        const updateData: any = {
             ...dto,
-            driverLicenseExpiry: dto.driverLicenseExpiry ? new Date(dto.driverLicenseExpiry) : undefined
+            driverLicenseExpiry: dto.driverLicenseExpiry ? new Date(dto.driverLicenseExpiry) : undefined,
+            dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined
         };
+
+        // not allow update userId via DTO
+        delete updateData.userId;
 
         const updated = await this.prisma.customer.update({
             where: { id },
@@ -114,15 +110,13 @@ export class CustomerService {
         return updated;
     }
 
-    // ===========================================
-    // UPDATE LOYALTY POINTS + TIER
-    // ===========================================
+    //  UPDATE LOYALTY POINTS + TIER
     async updateLoyalty(id: string, points: number, actorId?: string) {
         const customer = await this.findOne(id);
 
         const newPoints = customer.loyaltyPoints + points;
 
-        // Tier logic cơ bản — có thể nâng cấp sau
+        // basic tier logic — can be upgraded later
         let newTier = 'BASIC';
         if (newPoints > 50000000) newTier = 'VIP';
         else if (newPoints > 20000000) newTier = 'GOLD';
@@ -141,13 +135,11 @@ export class CustomerService {
         return updated;
     }
 
-    // ===========================================
-    // DELETE
-    // ===========================================
+    //  DELETE
     async delete(id: string, actorId?: string) {
         await this.audit.log(actorId ?? null, 'DELETE', 'Customer', id);
 
-        // Cascade không mạnh, chỉ xoá customer record
+        // Cascade delete is not strong, only delete customer record
         return this.prisma.customer.delete({ where: { id } });
     }
 

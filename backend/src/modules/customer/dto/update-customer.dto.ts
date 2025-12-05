@@ -18,6 +18,14 @@ export class UpdateCustomerDto {
     address?: string;
 
     @IsOptional()
+    @IsDateString()
+    dateOfBirth?: string;
+
+    @IsOptional()
+    @IsString()
+    gender?: string;
+
+    @IsOptional()
     @IsString()
     driverLicenseNo?: string;
 

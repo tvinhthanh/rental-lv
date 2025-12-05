@@ -14,6 +14,8 @@ interface PublicSettings {
     itemsPerPage: number;
     showIcons: boolean;
     defaultLanguage: string;
+    contactAddress?: string;
+    contactPhone?: string;
     aboutContent?: string;
     termsContent?: string;
     privacyContent?: string;

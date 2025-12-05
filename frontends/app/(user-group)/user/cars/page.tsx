@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { vehicleService } from "@/services/vehicle.service";
 import { branchService } from "@/services/branch.service";
@@ -37,7 +37,7 @@ interface PriceList {
     name: string;
 }
 
-export default function CarsPage() {
+function CarsPageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [vehicles, setVehicles] = useState<VehicleItem[]>([]);
@@ -267,5 +267,19 @@ export default function CarsPage() {
                 })}
             </div>
         </div>
+    );
+}
+
+export default function CarsPage() {
+    return (
+        <Suspense fallback={
+            <div className="max-w-7xl mx-auto p-6">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                </div>
+            </div>
+        }>
+            <CarsPageContent />
+        </Suspense>
     );
 }

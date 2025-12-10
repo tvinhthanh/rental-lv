@@ -313,6 +313,7 @@ model Booking {
   vehicle      Vehicle  @relation(fields: [vehicleId], references: [id])
   branch       Branch   @relation(fields: [branchId], references: [id])
   returnBranch Branch?  @relation("ReturnBranch", fields: [returnBranchId], references: [id])
+  promotion    Promotion? @relation(fields: [promotionId], references: [id])
 
   contract     Contract?
   deposit      Deposit?
@@ -525,6 +526,29 @@ model Surcharge {
   updatedAt DateTime @updatedAt
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+///////////////////////////////////////////////////////////
+// PROMOTION
+///////////////////////////////////////////////////////////
+model Promotion {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  code            String  @unique
+  name            String
+  description     String?
+  discountPercent Float?
+  discountAmount  Float?
+  usageLimit      Int?
+  usedCount       Int    @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  status          String @default("ACTIVE")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
 }
 
 ///////////////////////////////////////////////////////////

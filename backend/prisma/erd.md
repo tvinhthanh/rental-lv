@@ -30,12 +30,6 @@ erDiagram
     Int loyaltyPoints 
     String membershipTier 
     Float totalSpent 
-    Boolean isCorporate 
-    String companyName "❓"
-    String taxCode "❓"
-    String contactPerson "❓"
-    Float creditLimit "❓"
-    String paymentTerms "❓"
     String avatarUrl "❓"
     DateTime createdAt 
     DateTime updatedAt 
@@ -133,7 +127,6 @@ erDiagram
     String metaTitle "❓"
     String metaDescription "❓"
     String seoDescription "❓"
-    Int viewCount "❓"
     Float rating "❓"
     Int reviewCount "❓"
     String photos 
@@ -410,17 +403,6 @@ erDiagram
     }
   
 
-  "SeoRedirect" {
-    String z_id "🗝️"
-    String fromUrl 
-    String toUrl 
-    String type 
-    Boolean isActive 
-    DateTime createdAt 
-    DateTime updatedAt 
-    }
-  
-
   "PasswordResetToken" {
     String z_id "🗝️"
     String token 
@@ -586,6 +568,5 @@ erDiagram
     "LoyaltyTransaction" }o--|o "LoyaltyProgram" : "program"
     "LoyaltyTransaction" }o--|o "Booking" : "booking"
     "Tenant" }o--|| "SubscriptionPlan" : "subscription"
-    "PricingRule" }o--|o "VehicleCategory" : "category"
-    "PricingRule" }o--|o "Vehicle" : "vehicle"
+    "PricingRule" }o--|| "VehicleCategory" : "category"
 ```

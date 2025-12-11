@@ -821,3 +821,10 @@ model Partner {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./erd.md"
+  format   = "mermaid"
+}
+

@@ -20,6 +20,10 @@ export class UpdateBookingDto {
 
     @IsOptional()
     @IsString()
+    promotionId?: string;
+
+    @IsOptional()
+    @IsString()
     note?: string;
 
     @IsOptional()

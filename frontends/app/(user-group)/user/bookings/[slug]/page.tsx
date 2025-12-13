@@ -86,7 +86,7 @@ export default function BookingPage() {
             .list({ active: "true", limit: 50 })
             .then((res) => {
                 const items = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
-                const activeItems = items.filter((p) => isPromotionActive(p));
+                const activeItems = items.filter((p: any) => isPromotionActive(p));
                 setPromotions(activeItems);
             })
             .catch((err) => {
@@ -183,7 +183,7 @@ export default function BookingPage() {
 
             const res = await promotionService.list({ code, limit: 1 });
             const items = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
-            const found = items.find((p) => isPromotionActive(p));
+            const found = items.find((p:any) => isPromotionActive(p));
 
             if (found) {
                 setSelectedPromotion(found);

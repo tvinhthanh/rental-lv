@@ -3,6 +3,7 @@ export const ROLE_MENU_HEADER = {
         { label: "Trang chủ", href: "/user" },
         { label: "Cars", href: "/user/cars" },
         { label: "Đặt xe", href: "/user/bookings" },
+        { label: "Blog", href: "/user/blog" },
         { label: "Membership", href: "/user/membership" },
         { label: "Hóa đơn", href: "/user/invoices" },
         { label: "Thông tin", href: "/user/profile" },

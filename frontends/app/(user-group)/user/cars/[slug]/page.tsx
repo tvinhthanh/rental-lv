@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { vehicleService } from "@/services/vehicle.service";
+import { reviewService } from "@/services/review.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
 import { notFound, useParams, useRouter } from "next/navigation";
+import { Star } from "lucide-react";
 
 export default function CarDetailPage() {
     const { slug } = useParams();
     const [vehicle, setVehicle] = useState<any>(null);
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviewLoading, setReviewLoading] = useState(false);
+    const [reviewError, setReviewError] = useState<string | null>(null);
     const { formatVND } = useFormatVND();
     const router = useRouter();
 
@@ -31,6 +36,19 @@ export default function CarDetailPage() {
             if (!data) return notFound();
 
             setVehicle(data);
+            // load reviews for this vehicle
+            setReviewLoading(true);
+            reviewService
+                .list({ vehicleId: data.id, limit: 20 })
+                .then((revRes) => {
+                    const items = Array.isArray(revRes?.items) ? revRes.items : Array.isArray(revRes) ? revRes : [];
+                    setReviews(items);
+                })
+                .catch((err) => {
+                    console.error("Load reviews failed:", err);
+                    setReviewError(err?.message || "Không thể tải đánh giá");
+                })
+                .finally(() => setReviewLoading(false));
         });
     }, [slug]);
 
@@ -45,6 +63,8 @@ export default function CarDetailPage() {
     const price = vehicle?.priceList?.dailyRate
         ? formatVND(vehicle.priceList.dailyRate) + " / ngày"
         : "—";
+
+    const avgRating = vehicle?.rating || (reviews.length ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length : 0);
 
     return (
         <div className="max-w-6xl mx-auto p-6 text-gray-800 dark:text-gray-200">
@@ -105,6 +125,72 @@ export default function CarDetailPage() {
                         Thuê ngay
                     </button>
                 </div>
+            </div>
+
+            <div className="mt-10 rounded-2xl bg-gray-900/60 border border-white/10 p-6 shadow-lg">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                    <div className="space-y-1">
+                        <p className="text-xs uppercase tracking-[0.2em] text-blue-200">Đánh giá sau hoàn tất booking</p>
+                        <h2 className="text-2xl font-bold text-white">Trải nghiệm từ khách thuê</h2>
+                        <p className="text-sm text-blue-100">
+                            Chỉ hiển thị các đánh giá từ đơn đã hoàn thành/đã trả xe, giúp bạn tham khảo nhanh.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-white">
+                        <div className="flex items-center gap-1 text-yellow-400">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <Star
+                                    key={i}
+                                    className={`w-5 h-5 ${i <= Math.round(avgRating) ? "fill-yellow-400" : "text-gray-500"}`}
+                                />
+                            ))}
+                        </div>
+                        <div className="text-sm leading-tight text-right">
+                            <div className="font-semibold">{avgRating.toFixed(1)}/5</div>
+                            <div className="text-blue-100 text-xs">
+                                {vehicle?.reviewCount || reviews.length || 0} lượt đánh giá
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {reviewLoading ? (
+                    <div className="text-blue-100">Đang tải đánh giá...</div>
+                ) : reviewError ? (
+                    <div className="text-rose-300">{reviewError}</div>
+                ) : reviews.length === 0 ? (
+                    <div className="text-blue-100">Chưa có đánh giá nào cho xe này.</div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {reviews.map((rev) => (
+                            <div key={rev.id} className="p-4 rounded-xl border border-white/10 bg-white/5 shadow">
+                                <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={`w-4 h-4 ${i < rev.rating ? "fill-yellow-400" : "text-gray-500"}`}
+                                        />
+                                    ))}
+                                    <span className="text-sm text-blue-100">{rev.rating}/5</span>
+                                </div>
+                                <p className="text-white font-semibold mb-1">
+                                    {rev.customer?.fullName || "Khách thuê"}
+                                </p>
+                                <p className="text-blue-100 text-sm mb-3">{rev.comment || "Không có nhận xét"}</p>
+                                <div className="text-xs text-blue-200 flex flex-wrap gap-2">
+                                    {rev.booking?.bookingCode && (
+                                        <span className="px-2 py-1 bg-white/10 rounded-full">
+                                            Mã booking: {rev.booking.bookingCode}
+                                        </span>
+                                    )}
+                                    <span className="px-2 py-1 bg-white/10 rounded-full">
+                                        Ngày: {new Date(rev.createdAt || Date.now()).toLocaleDateString("vi-VN")}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div >
     );

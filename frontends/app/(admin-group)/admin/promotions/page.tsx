@@ -98,6 +98,15 @@ export default function AdminPromotionsPage() {
                             + Thêm khuyến mãi
                         </button>
                     </div>
+                    <button
+                        className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:-translate-y-0.5 transition"
+                        onClick={() => {
+                            setEditingPromotion(null);
+                            setOpenForm(true);
+                        }}
+                    >
+                        + Thêm khuyến mãi
+                    </button>
                 </div>
 
                 {error && (

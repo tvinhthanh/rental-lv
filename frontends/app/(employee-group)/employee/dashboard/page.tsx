@@ -321,45 +321,46 @@ export default function EmployeeDashboardPage() {
                             </ResponsiveContainer>
                         </div>
 
-                        {/* Booking Status Pie Chart */}
-                        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 md:col-span-1">
-                            <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Booking</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={bookingStatusData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {bookingStatusData.map((entry, index) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={
-                                                    entry.name === "Hoàn Thành"
-                                                        ? COLORS.completed
-                                                        : entry.name === "Chờ Tiếp Nhận"
-                                                            ? COLORS.pending
-                                                            : COLORS.processing
-                                                }
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "#1e293b",
-                                            border: "1px solid #334155",
-                                            borderRadius: "8px",
-                                            color: "#e2e8f0",
-                                        }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
+                    {/* Booking Status Pie Chart */}
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 md:col-span-1">
+                        <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Booking</h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={bookingStatusData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={({ name, percent }) => {
+                                        const pct = (percent ?? 0) * 100;
+                                        return `${name}: ${pct.toFixed(0)}%`;
+                                    }}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                >
+                                    {bookingStatusData.map((entry, index) => (
+                                        <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={
+                                                entry.name === "Hoàn Thành" ? COLORS.completed :
+                                                entry.name === "Chờ Tiếp Nhận" ? COLORS.pending :
+                                                COLORS.processing
+                                            } 
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    contentStyle={{ 
+                                        backgroundColor: "#1e293b", 
+                                        border: "1px solid #334155",
+                                        borderRadius: "8px",
+                                        color: "#e2e8f0"
+                                    }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
 
                         {/* Process Chart */}
                         <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 md:col-span-1">

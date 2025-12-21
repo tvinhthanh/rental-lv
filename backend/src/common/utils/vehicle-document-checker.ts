@@ -23,7 +23,7 @@ export async function checkVehicleDocumentsComplete(
     const missingDocs: string[] = [];
 
     for (const requiredType of requiredDocTypes) {
-        const doc = documents.find((d: any) => d.docType === requiredType);
+        const doc = documents.find((d) => d.docType === requiredType);
 
         if (!doc) {
             missingDocs.push(requiredType);
@@ -44,4 +44,3 @@ export async function checkVehicleDocumentsComplete(
         missingDocs
     };
 }
-

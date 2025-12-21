@@ -53,19 +53,18 @@ export class VehicleService {
 
         // Nếu skipDocumentCheck=true (admin), không filter giấy tờ
         const skipDocumentCheck = query.skipDocumentCheck === 'true';
-        
+
         if (skipDocumentCheck) {
-            // Admin: trả về tất cả xe không filter
-        return {
+            return {
                 items: allVehicles,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit)
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
             };
         }
 
-        // User: Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
+        // Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
         const itemsWithDocuments = [];
         for (const vehicle of allVehicles) {
             const { isValid } = await checkVehicleDocumentsComplete(this.prisma, vehicle.id);

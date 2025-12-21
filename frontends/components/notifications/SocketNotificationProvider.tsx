@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { getSocket, disconnectSocket } from '@/lib/socket';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/auth/use-auth';
 
-export function SocketNotificationProvider({ children }: { children: React.ReactNode }) {
+export function SocketNotificationProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth();
 
     useEffect(() => {
@@ -19,10 +19,12 @@ export function SocketNotificationProvider({ children }: { children: React.React
             return;
         }
 
-        let socket: any = null;
-        let mounted = true;
+        const socket = getSocket();
 
-        // Define event handlers
+        if (!socket) {
+            return;
+        }
+
         const handleNotification = (data: any) => {
             toast.info(data.title, {
                 description: data.message,
@@ -31,6 +33,7 @@ export function SocketNotificationProvider({ children }: { children: React.React
         };
 
         const handleBookingCreated = (data: any) => {
+            // Check if user is employee or customer based on message content
             const isEmployee = data.message?.includes('Có đơn đặt xe mới');
             
             if (isEmployee) {
@@ -39,6 +42,7 @@ export function SocketNotificationProvider({ children }: { children: React.React
                     duration: 5000,
                 });
             } else {
+                // Notification for customers
                 toast.success('Đặt xe thành công', {
                     description: `Mã booking: ${data.bookingCode}`,
                     duration: 5000,
@@ -74,39 +78,30 @@ export function SocketNotificationProvider({ children }: { children: React.React
             });
         };
 
-        const handleConnected = () => {
-            // Socket connected
+        const handleConnected = (data: any) => {
+            console.log('Socket connected:', data);
         };
 
-        // Initialize socket synchronously (now safe with conditional require)
-        socket = getSocket();
-
-        if (socket) {
-            // Register event listeners
-            socket.on('notification', handleNotification);
-            socket.on('booking:created', handleBookingCreated);
-            socket.on('booking:updated', handleBookingUpdated);
-            socket.on('booking:cancelled', handleBookingCancelled);
-            socket.on('payment:received', handlePaymentReceived);
-            socket.on('invoice:created', handleInvoiceCreated);
-            socket.on('connected', handleConnected);
-        }
+        // Register event listeners
+        socket.on('notification', handleNotification);
+        socket.on('booking:created', handleBookingCreated);
+        socket.on('booking:updated', handleBookingUpdated);
+        socket.on('booking:cancelled', handleBookingCancelled);
+        socket.on('payment:received', handlePaymentReceived);
+        socket.on('invoice:created', handleInvoiceCreated);
+        socket.on('connected', handleConnected);
 
         return () => {
-            mounted = false;
             // Cleanup: remove all event listeners
-            if (socket) {
-                socket.off('notification', handleNotification);
-                socket.off('booking:created', handleBookingCreated);
-                socket.off('booking:updated', handleBookingUpdated);
-                socket.off('booking:cancelled', handleBookingCancelled);
-                socket.off('payment:received', handlePaymentReceived);
-                socket.off('invoice:created', handleInvoiceCreated);
-                socket.off('connected', handleConnected);
-            }
+            socket.off('notification', handleNotification);
+            socket.off('booking:created', handleBookingCreated);
+            socket.off('booking:updated', handleBookingUpdated);
+            socket.off('booking:cancelled', handleBookingCancelled);
+            socket.off('payment:received', handlePaymentReceived);
+            socket.off('invoice:created', handleInvoiceCreated);
+            socket.off('connected', handleConnected);
         };
     }, [user]);
 
     return <>{children}</>;
 }
-

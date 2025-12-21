@@ -3,6 +3,7 @@
 ### 🎯 Overview
 
 Full-stack car rental management system with:
+
 - **Backend**: NestJS + TypeScript + Prisma + MongoDB
 - **Frontend**: Next.js App Router + React + Tailwind CSS
 - **Domain**: Vehicle rental workflow (booking → contract → deposit → handover → return → invoice), SEO content (blog, pages), promotions, and basic CRM.
@@ -171,6 +172,7 @@ npm run dev
 ```
 
 Yêu cầu:
+
 - MongoDB + `DATABASE_URL` trong `backend/.env`.
 
 #### Frontend
@@ -182,15 +184,19 @@ npm run dev
 ```
 
 Yêu cầu:
+
 - `NEXT_PUBLIC_API_ENDPOINT` trong `frontends/.env.local` trỏ về backend.
 
 ---
 
 ### 📚 Tài liệu thêm
 
-- `TECH_STACK.md` – Tech stack chi tiết (packages, versions).
-- `QUICKSTART.md` – Hướng dẫn setup trong 10 phút.
-- `DOCS.md` – Tài liệu chi tiết (phân tích modules, roadmap, checklist).
+- `TECH_STACK.md` – Tech stack chi tiết.
+- `QUICKSTART.md` – Hướng dẫn dựng project template.
+- `INDEX.md` – Roadmap 5 phase + budget.
+- `CHECKLIST.md` – Checklist 35 bảng/tính năng.
+- `PHAN_TICH_PHAN_THIEU.md` – Phân tích phần đã làm & còn thiếu dựa trên code.
+- `KIEM_TRA_MODULES.md` – **So sánh Prisma models vs Backend modules (24/37 đã có)**
 
 ---
 

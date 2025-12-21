@@ -1,8 +1,8 @@
-// Conditional import để tránh SSR issues với Turbopack
+// Socket helper with conditional loading to avoid SSR issues
 let socket: any = null;
 let ioClient: any = null;
 
-// Lazy load socket.io-client
+// Lazy load socket.io-client on the client only
 function getIOClient() {
     if (typeof window === 'undefined') {
         return null;
@@ -15,8 +15,7 @@ function getIOClient() {
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const ioModule = require('socket.io-client');
-        
-        // Handle different export formats
+
         if (typeof ioModule === 'function') {
             ioClient = ioModule;
         } else if (ioModule.default && typeof ioModule.default === 'function') {
@@ -24,7 +23,6 @@ function getIOClient() {
         } else if (ioModule.io && typeof ioModule.io === 'function') {
             ioClient = ioModule.io;
         } else {
-            // Try accessing the default export
             ioClient = ioModule;
         }
 
@@ -41,18 +39,15 @@ function getIOClient() {
 }
 
 export function getSocket(): any {
-    // Only run on client side
     if (typeof window === 'undefined') {
         return null;
     }
 
-    // Check if socket notifications are disabled
     const socketEnabled = process.env.NEXT_PUBLIC_SOCKET_ENABLED !== 'false';
     if (!socketEnabled) {
         return null;
     }
 
-    // Check if already connected
     if (socket?.connected) {
         return socket;
     }
@@ -64,44 +59,36 @@ export function getSocket(): any {
         return null;
     }
 
-    // Get io client
     const io = getIOClient();
     if (!io) {
         return null;
     }
 
-    // Disconnect existing socket if any
     if (socket) {
         try {
             socket.removeAllListeners();
             socket.disconnect();
-        } catch (e) {
-            // Ignore disconnect errors
+        } catch {
+            // ignore disconnect errors
         }
         socket = null;
     }
 
     try {
-        // Ensure apiEndpoint doesn't have trailing slash
         const baseUrl = apiEndpoint.replace(/\/$/, '');
-        
-        // Connect to /notifications namespace
         const namespace = '/notifications';
         const socketUrl = `${baseUrl}${namespace}`;
-        
+
         socket = io(socketUrl, {
-            auth: {
-                token,
-            },
+            auth: { token },
             transports: ['websocket', 'polling'],
-            reconnection: false, // Disable auto-reconnect to avoid errors
+            reconnection: false,
             autoConnect: true,
-            forceNew: true,
+            forceNew: true
         });
 
-        // Suppress namespace errors
         const originalEmit = socket.emit;
-        socket.emit = function(...args: any[]) {
+        socket.emit = function (...args: any[]) {
             try {
                 return originalEmit.apply(this, args);
             } catch (e: any) {
@@ -112,25 +99,14 @@ export function getSocket(): any {
             }
         };
 
-        socket.on('connect', () => {
-            // Socket connected successfully
-        });
-
-        socket.on('disconnect', () => {
-            // Socket disconnected
-        });
-
         socket.on('connect_error', (error: any) => {
-            // Suppress "Invalid namespace" errors
             if (error?.message?.includes('Invalid namespace')) {
-                // Silently ignore namespace errors
                 return;
             }
         });
 
         return socket;
     } catch (error: any) {
-        // Silently fail - socket is optional
         if (error?.message?.includes('Invalid namespace')) {
             return null;
         }
@@ -144,4 +120,3 @@ export function disconnectSocket() {
         socket = null;
     }
 }
-

@@ -22,10 +22,13 @@ import { EmployeeModule } from './modules/employee/employee.module';
 import { ReturnReportModule } from './modules/return-report/return-report.module';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { ContractModule } from './modules/contact/contract.module';
-import { ReviewModule } from './modules/review/review.module';
 import { PromotionModule } from './modules/promotion/promotion.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { PageModule } from './modules/page/page.module';
+import { ReviewModule } from './modules/review/review.module';
+import { VehicleDocumentModule } from './modules/vehicle-document/vehicle-document.module';
+import { DepositDetailModule } from './modules/deposit-detail/deposit-detail.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -49,10 +52,13 @@ import { PageModule } from './modules/page/page.module';
     ReturnReportModule,
     MaintenanceModule,
     ContractModule,
-    ReviewModule,
     PromotionModule,
     BlogModule,
-    PageModule
+    PageModule,
+    ReviewModule,
+    VehicleDocumentModule,
+    DepositDetailModule,
+    NotificationModule
   ],
 })
 export class AppModule { }

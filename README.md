@@ -1,9 +1,9 @@
-
 ## Car Rental Management System – NestJS + Next.js
 
 ### 🎯 Overview
 
 Full-stack car rental management system with:
+
 - **Backend**: NestJS + TypeScript + Prisma + MongoDB
 - **Frontend**: Next.js App Router + React + Tailwind CSS
 - **Domain**: Vehicle rental workflow (booking → contract → deposit → handover → return → invoice), SEO content (blog, pages), promotions, and basic CRM.
@@ -87,7 +87,17 @@ Database schema: `backend/prisma/schema.prisma`
 - **BlogModule** (`modules/blog`): CRUD blog categories + posts (slug, metaTitle, metaDescription).
 - **PageModule** (`modules/page`): CRUD các trang tĩnh (About, FAQ, Terms, Privacy…).
 
-> Các module Marketing nâng cao (notification, loyalty, campaign, multi-tenant…) đã có schema trong Prisma nhưng **chưa có full API/UI** – xem `PHAN_TICH_PHAN_THIEU.md` nếu cần chi tiết.
+> ⚠️ **Lưu ý:** Một số models trong Prisma **chưa có module tương ứng**:
+>
+> - ❌ **Review** - Frontend đang dùng `reviewService.list()` nhưng backend chưa có ReviewModule
+> - ❌ **Notification** - Thông báo (Email/SMS/Push)
+> - ❌ **LoyaltyProgram/LoyaltyTransaction** - Chương trình tích điểm
+> - ❌ **MarketingCampaign/CustomerSegment** - Chiến dịch marketing
+> - ❌ **PricingRule** - Định giá động
+> - ❌ **Tenant/SubscriptionPlan** - Multi-tenant
+> - ❌ **Partner** - Đối tác/Affiliate
+>
+> Xem `KIEM_TRA_MODULES.md` để biết chi tiết: **24/37 models đã có module (65%)**
 
 ---
 
@@ -162,6 +172,7 @@ npm run dev
 ```
 
 Yêu cầu:
+
 - MongoDB + `DATABASE_URL` trong `backend/.env`.
 
 #### Frontend
@@ -173,6 +184,7 @@ npm run dev
 ```
 
 Yêu cầu:
+
 - `NEXT_PUBLIC_API_ENDPOINT` trong `frontends/.env.local` trỏ về backend.
 
 ---
@@ -184,14 +196,22 @@ Yêu cầu:
 - `INDEX.md` – Roadmap 5 phase + budget.
 - `CHECKLIST.md` – Checklist 35 bảng/tính năng.
 - `PHAN_TICH_PHAN_THIEU.md` – Phân tích phần đã làm & còn thiếu dựa trên code.
+- `KIEM_TRA_MODULES.md` – **So sánh Prisma models vs Backend modules (24/37 đã có)**
 
 ---
 
-### ✅ Trạng thái hiện tại (ngắn gọn)
+### ✅ Trạng thái hiện tại
 
-- ✅ Schema Prisma đầy đủ cho core + SEO + marketing/enterprise.
-- ✅ Backend: phần lớn core modules hoạt động (auth, booking, vehicle, promotion, blog, page, billing, audit-log, …).
-- ✅ Frontend: 3 portal (admin, employee, user) + auth, booking flow cơ bản và review hiển thị trên trang chi tiết xe.
-- ⏳ Một số module nâng cao vẫn theo roadmap, chưa có full API + UI.
+**Backend:**
 
+- ✅ **24/37 Prisma models** đã có module tương ứng (65%)
+- ✅ Core modules: Auth, User, Customer, Employee, Branch, Vehicle, Booking, Billing, Promotion, Blog, Page...
+- ❌ **13 models chưa có module:** Review, Notification, LoyaltyProgram, MarketingCampaign, PricingRule, Tenant, Partner...
 
+**Frontend:**
+
+- ✅ 3 portals: Admin, Employee, User
+- ✅ Booking flow cơ bản
+- ⚠️ Review UI đang dùng `reviewService.list()` nhưng backend chưa có ReviewModule
+
+**Chi tiết:** Xem `KIEM_TRA_MODULES.md` để biết đầy đủ models nào đã có/chưa có module.

@@ -4,6 +4,7 @@ import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehicleQueryDto } from './dto/vehicle-query.dto';
+import { checkVehicleDocumentsComplete } from '@/common/utils/vehicle-document-checker';
 
 @Injectable()
 export class VehicleService {
@@ -34,7 +35,7 @@ export class VehicleService {
         if (query.branchId) where.branchId = query.branchId;
         if (query.categoryId) where.categoryId = query.categoryId;
 
-        const [items, total] = await this.prisma.$transaction([
+        const [allVehicles, total] = await this.prisma.$transaction([
             this.prisma.vehicle.findMany({
                 where,
                 skip,
@@ -50,12 +51,21 @@ export class VehicleService {
             this.prisma.vehicle.count({ where })
         ]);
 
+        // Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
+        const itemsWithDocuments = [];
+        for (const vehicle of allVehicles) {
+            const { isValid } = await checkVehicleDocumentsComplete(this.prisma, vehicle.id);
+            if (isValid) {
+                itemsWithDocuments.push(vehicle);
+            }
+        }
+
         return {
-            items,
-            total,
+            items: itemsWithDocuments,
+            total: itemsWithDocuments.length, // Total sau khi filter
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(itemsWithDocuments.length / limit)
         };
     }
 

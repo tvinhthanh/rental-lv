@@ -1,21 +1,13 @@
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class ReviewQueryDto {
+export class NotificationQueryDto {
     @IsOptional()
     @IsString()
-    vehicleId?: string;
+    userId?: string;
 
     @IsOptional()
     @IsString()
-    customerId?: string;
-
-    @IsOptional()
-    @IsString()
-    bookingId?: string;
-
-    @IsOptional()
-    @IsInt()
-    minRating?: number;
+    status?: string; // UNREAD, READ
 
     @IsOptional()
     @IsInt()

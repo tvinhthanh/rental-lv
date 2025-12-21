@@ -1,15 +1,19 @@
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreateReviewDto {
+    @IsOptional()
     @IsString()
-    bookingId!: string;
+    bookingId?: string;
 
+    @IsNotEmpty()
     @IsString()
     customerId!: string;
 
+    @IsNotEmpty()
     @IsString()
     vehicleId!: string;
 
+    @IsNotEmpty()
     @IsInt()
     @Min(1)
     @Max(5)
@@ -19,3 +23,4 @@ export class CreateReviewDto {
     @IsString()
     comment?: string;
 }
+

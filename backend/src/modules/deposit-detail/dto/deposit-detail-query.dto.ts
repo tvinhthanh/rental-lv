@@ -1,21 +1,13 @@
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class ReviewQueryDto {
+export class DepositDetailQueryDto {
     @IsOptional()
     @IsString()
-    vehicleId?: string;
+    depositId?: string;
 
     @IsOptional()
     @IsString()
-    customerId?: string;
-
-    @IsOptional()
-    @IsString()
-    bookingId?: string;
-
-    @IsOptional()
-    @IsInt()
-    minRating?: number;
+    itemType?: string;
 
     @IsOptional()
     @IsInt()

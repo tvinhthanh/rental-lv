@@ -1,16 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject, forwardRef, Optional } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingQueryDto } from './dto/booking-query.dto';
 import { randomBytes } from 'crypto';
+import { checkVehicleDocumentsComplete } from '@/common/utils/vehicle-document-checker';
 
 @Injectable()
 export class BookingService {
     constructor(
         private prisma: PrismaService,
-        private audit: AuditLogService
+        private audit: AuditLogService,
+        @Optional() @Inject(forwardRef(() => import('../notification/notification.gateway').then(m => m.NotificationGateway)))
+        private notificationGateway?: any
     ) { }
 
     //  GENERATE BOOKING CODE 
@@ -70,6 +73,29 @@ export class BookingService {
             throw new BadRequestException('Promotion usage limit reached');
         }
         return promo;
+    }
+
+    //  CHECK VEHICLE DOCUMENTS 
+    private async checkVehicleDocuments(vehicleId: string) {
+        const { isValid, missingDocs } = await checkVehicleDocumentsComplete(this.prisma, vehicleId);
+
+        if (!isValid) {
+            const docNames: Record<string, string> = {
+                'REGISTRATION': 'Đăng kiểm',
+                'INSURANCE': 'Bảo hiểm'
+            };
+
+            const missingNames = missingDocs.map(doc => {
+                const baseType = doc.split(' ')[0];
+                return docNames[baseType] || baseType;
+            }).join(', ');
+
+            throw new BadRequestException(
+                `Xe chưa đủ giấy tờ để cho thuê. Thiếu: ${missingNames}. Vui lòng cập nhật giấy tờ xe trước khi cho phép thuê.`
+            );
+        }
+
+        return true;
     }
 
     // ============= LIST =============
@@ -155,6 +181,9 @@ export class BookingService {
         const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
         if (!available) throw new BadRequestException('Vehicle not available for selected dates');
 
+        // Kiểm tra giấy tờ xe - nếu thiếu thì không cho thuê
+        await this.checkVehicleDocuments(dto.vehicleId);
+
         const baseAmount = await this.calcPrice(dto.vehicleId, pickup, rt);
         let discount = dto.discountAmount ?? 0;
         let promotionId = dto.promotionId;
@@ -200,7 +229,72 @@ export class BookingService {
 
         await this.audit.log(actorId ?? null, 'CREATE', 'Booking', booking.id, booking);
 
+        // Send notification to customer and employees (async, non-blocking)
+        this.sendBookingNotification(dto.customerId, dto.branchId, booking.bookingCode, booking.id).catch(err => {
+            console.error('Failed to send booking notification:', err);
+        });
+
         return booking;
+    }
+
+    private async sendBookingNotification(
+        customerId: string,
+        branchId: string,
+        bookingCode: string,
+        bookingId: string
+    ) {
+        try {
+            if (!this.notificationGateway) return;
+
+            // 1. Send notification to customer
+            const customer = await this.prisma.customer.findUnique({
+                where: { id: customerId },
+                select: { userId: true, fullName: true }
+            });
+
+            if (customer?.userId) {
+                // Emit socket event to customer
+                this.notificationGateway.emitToUser(customer.userId, 'booking:created', {
+                    bookingCode,
+                    message: `Bạn đã đặt xe thành công với mã booking: ${bookingCode}`
+                });
+
+                // Notification record sẽ được tạo qua socket event handler nếu cần
+                // Socket notification là phương thức chính
+            }
+
+            // 2. Send notification to all employees of the branch
+            const employees = await this.prisma.employee.findMany({
+                where: {
+                    branchId: branchId,
+                    userId: { not: null }
+                },
+                select: {
+                    userId: true,
+                    fullName: true
+                }
+            });
+
+            if (employees.length > 0) {
+                const customerName = customer?.fullName || 'Khách hàng';
+
+                for (const employee of employees) {
+                    if (!employee.userId) continue;
+
+                    // Emit socket event to employee
+                    this.notificationGateway.emitToUser(employee.userId, 'booking:created', {
+                        bookingCode,
+                        message: `Có đơn đặt xe mới từ ${customerName} - Mã booking: ${bookingCode}`
+                    });
+
+                    // Notification record sẽ được tạo qua socket event handler nếu cần
+                    // Socket notification là phương thức chính
+                }
+            }
+        } catch (err) {
+            // Ignore - notification is optional
+            console.error('Error sending booking notifications:', err);
+        }
     }
 
     //  UPDATE BOOKING 

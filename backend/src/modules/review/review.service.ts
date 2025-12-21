@@ -1,22 +1,28 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewQueryDto } from './dto/review-query.dto';
 
 @Injectable()
 export class ReviewService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private audit: AuditLogService
+    ) { }
 
     async findAll(query: ReviewQueryDto) {
-        const page = query.page && query.page > 0 ? query.page : 1;
-        const limit = query.limit && query.limit > 0 ? query.limit : 20;
+        const page = Number(query.page) > 0 ? Number(query.page) : 1;
+        const limit = Number(query.limit) > 0 ? Number(query.limit) : 20;
         const skip = (page - 1) * limit;
 
         const where: any = {};
-        if (query.customerId) where.customerId = query.customerId;
+
         if (query.vehicleId) where.vehicleId = query.vehicleId;
+        if (query.customerId) where.customerId = query.customerId;
         if (query.bookingId) where.bookingId = query.bookingId;
-        if (query.rating) where.rating = query.rating;
+        if (query.minRating) where.rating = { gte: query.minRating };
 
         const [items, total] = await this.prisma.$transaction([
             this.prisma.review.findMany({
@@ -25,9 +31,20 @@ export class ReviewService {
                 take: limit,
                 orderBy: { createdAt: 'desc' },
                 include: {
-                    vehicle: true,
                     customer: true,
-                    booking: true
+                    vehicle: {
+                        select: {
+                            id: true,
+                            name: true,
+                            licensePlate: true
+                        }
+                    },
+                    booking: {
+                        select: {
+                            id: true,
+                            bookingCode: true
+                        }
+                    }
                 }
             }),
             this.prisma.review.count({ where })
@@ -46,8 +63,8 @@ export class ReviewService {
         const review = await this.prisma.review.findUnique({
             where: { id },
             include: {
-                vehicle: true,
                 customer: true,
+                vehicle: true,
                 booking: true
             }
         });
@@ -55,23 +72,38 @@ export class ReviewService {
         return review;
     }
 
-    async create(dto: CreateReviewDto) {
-        // Check booking
-        const booking = await this.prisma.booking.findUnique({
-            where: { id: dto.bookingId },
-            include: { review: true }
+    async create(dto: CreateReviewDto, actorId?: string) {
+        // Validate booking exists if provided
+        if (dto.bookingId) {
+            const booking = await this.prisma.booking.findUnique({
+                where: { id: dto.bookingId }
+            });
+            if (!booking) {
+                throw new BadRequestException('Booking not found');
+            }
+            // Check if review already exists for this booking
+            const existingReview = await this.prisma.review.findUnique({
+                where: { bookingId: dto.bookingId }
+            });
+            if (existingReview) {
+                throw new BadRequestException('Review already exists for this booking');
+            }
+        }
+
+        // Validate customer exists
+        const customer = await this.prisma.customer.findUnique({
+            where: { id: dto.customerId }
         });
-        if (!booking) throw new NotFoundException('Booking not found');
-        if (booking.customerId !== dto.customerId) {
-            throw new BadRequestException('Booking does not belong to customer');
+        if (!customer) {
+            throw new BadRequestException('Customer not found');
         }
-        // Cho phép review khi đã hoàn tất hoặc đã trả xe
-        const allowedStatuses = ['COMPLETED', 'RETURNED', 'CONTRACTED'];
-        if (!allowedStatuses.includes(booking.status)) {
-            throw new BadRequestException('Booking not eligible for review');
-        }
-        if (booking.review) {
-            throw new BadRequestException('Review already exists for this booking');
+
+        // Validate vehicle exists
+        const vehicle = await this.prisma.vehicle.findUnique({
+            where: { id: dto.vehicleId }
+        });
+        if (!vehicle) {
+            throw new BadRequestException('Vehicle not found');
         }
 
         const review = await this.prisma.review.create({
@@ -81,28 +113,87 @@ export class ReviewService {
                 vehicleId: dto.vehicleId,
                 rating: dto.rating,
                 comment: dto.comment
+            },
+            include: {
+                customer: true,
+                vehicle: true,
+                booking: true
             }
         });
 
-        // Update vehicle aggregate
-        await this.recalcVehicleRating(dto.vehicleId);
+        // Update vehicle rating and review count
+        await this.updateVehicleRating(dto.vehicleId);
 
+        await this.audit.log(actorId ?? null, 'CREATE', 'Review', review.id, review);
         return review;
     }
 
-    private async recalcVehicleRating(vehicleId: string) {
-        const agg = await this.prisma.review.aggregate({
-            where: { vehicleId },
-            _avg: { rating: true },
-            _count: { rating: true }
+    async update(id: string, dto: UpdateReviewDto, actorId?: string) {
+        const existing = await this.findOne(id);
+
+        const review = await this.prisma.review.update({
+            where: { id },
+            data: {
+                rating: dto.rating,
+                comment: dto.comment
+            },
+            include: {
+                customer: true,
+                vehicle: true,
+                booking: true
+            }
         });
+
+        // Update vehicle rating if rating changed
+        if (dto.rating && dto.rating !== existing.rating) {
+            await this.updateVehicleRating(review.vehicleId);
+        }
+
+        await this.audit.log(actorId ?? null, 'UPDATE', 'Review', id, {
+            before: existing,
+            after: review
+        });
+        return review;
+    }
+
+    async delete(id: string, actorId?: string) {
+        const review = await this.findOne(id);
+        const vehicleId = review.vehicleId;
+
+        await this.prisma.review.delete({ where: { id } });
+
+        // Update vehicle rating after deletion
+        await this.updateVehicleRating(vehicleId);
+
+        await this.audit.log(actorId ?? null, 'DELETE', 'Review', id);
+    }
+
+    private async updateVehicleRating(vehicleId: string) {
+        const reviews = await this.prisma.review.findMany({
+            where: { vehicleId },
+            select: { rating: true }
+        });
+
+        if (reviews.length === 0) {
+            await this.prisma.vehicle.update({
+                where: { id: vehicleId },
+                data: {
+                    rating: 0,
+                    reviewCount: 0
+                }
+            });
+            return;
+        }
+
+        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 
         await this.prisma.vehicle.update({
             where: { id: vehicleId },
             data: {
-                rating: agg._avg.rating || 0,
-                reviewCount: agg._count.rating || 0
+                rating: Math.round(avgRating * 10) / 10, // Round to 1 decimal
+                reviewCount: reviews.length
             }
         });
     }
 }
+

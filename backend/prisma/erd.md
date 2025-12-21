@@ -181,7 +181,6 @@ erDiagram
     Float baseAmount 
     Float discountAmount 
     Float totalAmount 
-    String promotionId "❓"
     String cancelReason "❓"
     String note "❓"
     DateTime createdAt 
@@ -307,6 +306,23 @@ erDiagram
     String evidenceUrl "❓"
     DateTime occurredAt "❓"
     String createdBy "❓"
+    String status 
+    DateTime createdAt 
+    DateTime updatedAt 
+    }
+  
+
+  "Promotion" {
+    String z_id "🗝️"
+    String code 
+    String name 
+    String description "❓"
+    Float discountPercent "❓"
+    Float discountAmount "❓"
+    Int usageLimit "❓"
+    Int usedCount 
+    DateTime startDate "❓"
+    DateTime endDate "❓"
     String status 
     DateTime createdAt 
     DateTime updatedAt 
@@ -523,6 +539,7 @@ erDiagram
     "Booking" }o--|| "Vehicle" : "vehicle"
     "Booking" }o--|| "Branch" : "branch"
     "Booking" }o--|o "Branch" : "returnBranch"
+    "Booking" }o--|o "Promotion" : "promotion"
     "Contract" |o--|| "Booking" : "booking"
     "Deposit" |o--|| "Booking" : "booking"
     "Deposit" }o--|| "Customer" : "customer"

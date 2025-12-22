@@ -218,8 +218,8 @@ function CarsPageContent() {
                     const price = car.priceList?.dailyRate
                         ? `${formatVND(car.priceList.dailyRate)} / ngày`
                         : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
-                            ? `${formatVND((car as any).overrideDailyRate)} / ngày`
-                            : "Liên hệ";
+                        ? `${formatVND((car as any).overrideDailyRate)} / ngày`
+                        : "Liên hệ";
 
                     return (
                         <div

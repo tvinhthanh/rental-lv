@@ -1,4 +1,4 @@
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsBooleanString, IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class VehicleQueryDto {
     @IsOptional()
@@ -24,4 +24,8 @@ export class VehicleQueryDto {
     @IsOptional()
     @IsNumberString()
     limit?: string;
+
+    @IsOptional()
+    @IsBooleanString()
+    skipDocumentCheck?: string; // Admin có thể bypass filter giấy tờ
 }

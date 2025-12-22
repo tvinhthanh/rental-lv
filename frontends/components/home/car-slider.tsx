@@ -9,16 +9,80 @@ import Link from "next/link";
 export default function CarSlider() {
     const [vehicles, setVehicles] = useState<any[]>([]);
     const [index, setIndex] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const { formatVND } = useFormatVND();
 
     useEffect(() => {
-        vehicleService.getAll().then((data) => {
-            const items = Array.isArray(data) ? data : data?.items ?? [];
-            const filtered = items.filter(
-                (v: any) => v.photos?.length > 0 && (v.priceList || v.overridePriceEnabled)
-            );
-            setVehicles(filtered);
-        });
+        let cancelled = false;
+
+        // Set loading state trong async function thay vì sync
+        (async () => {
+            try {
+                const data = await vehicleService.getAll();
+
+                if (cancelled) return;
+
+                console.log('[CarSlider] Raw API response:', data);
+                const items = Array.isArray(data) ? data : data?.items ?? [];
+                console.log('[CarSlider] Total vehicles from API:', items.length);
+
+                // Log sample vehicle để debug
+                if (items.length > 0) {
+                    console.log('[CarSlider] Sample vehicle:', {
+                        id: items[0]?.id,
+                        name: items[0]?.name,
+                        hasPhotos: !!items[0]?.photos?.length,
+                        photosCount: items[0]?.photos?.length || 0,
+                        hasPriceList: !!items[0]?.priceList,
+                        overridePriceEnabled: items[0]?.overridePriceEnabled,
+                        priceList: items[0]?.priceList
+                    });
+                }
+
+                // Filter: chỉ cần có photos, không bắt buộc priceList (có thể dùng overridePrice)
+                const filtered = items.filter((v: any) => {
+                    const hasPhotos = v.photos?.length > 0;
+                    const hasPrice = v.priceList || v.overridePriceEnabled;
+                    const isValid = hasPhotos && hasPrice;
+
+                    if (!isValid && items.length > 0) {
+                        console.log('[CarSlider] Filtered out vehicle:', {
+                            id: v.id,
+                            name: v.name,
+                            hasPhotos,
+                            hasPrice,
+                            reason: !hasPhotos ? 'no photos' : 'no price'
+                        });
+                    }
+
+                    return isValid;
+                });
+
+                console.log('[CarSlider] Vehicles after filter:', filtered.length, 'out of', items.length);
+
+                // Nếu không có xe sau filter, nhưng có xe từ API → log để debug
+                if (filtered.length === 0 && items.length > 0) {
+                    console.warn('[CarSlider] No vehicles passed filter! Check vehicle data structure.');
+                }
+
+                if (!cancelled) {
+                    setVehicles(filtered);
+                    setLoading(false);
+                    setError(null);
+                }
+            } catch (err: any) {
+                if (!cancelled) {
+                    console.error('[CarSlider] Error fetching vehicles:', err);
+                    setError(err?.message || 'Không thể tải danh sách xe');
+                    setLoading(false);
+                }
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const next = () => {
@@ -47,11 +111,37 @@ export default function CarSlider() {
         }
     };
 
+    if (loading) {
+        return (
+            <section className="relative overflow-hidden py-16">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0b1f3a] via-[#0d2c52] to-[#0b1424]" />
+                <div className="max-w-6xl mx-auto relative px-4 py-20 text-center text-gray-400">
+                    Đang tải xe nổi bật...
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section className="relative overflow-hidden py-16">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0b1f3a] via-[#0d2c52] to-[#0b1424]" />
+                <div className="max-w-6xl mx-auto relative px-4 py-20 text-center">
+                    <p className="text-red-400 mb-2">Lỗi: {error}</p>
+                    <p className="text-gray-400 text-sm">Vui lòng thử lại sau</p>
+                </div>
+            </section>
+        );
+    }
+
     if (vehicles.length === 0) {
         return (
-            <div className="py-20 text-center text-gray-400">
-                Đang tải xe nổi bật...
-            </div>
+            <section className="relative overflow-hidden py-16">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0b1f3a] via-[#0d2c52] to-[#0b1424]" />
+                <div className="max-w-6xl mx-auto relative px-4 py-20 text-center text-gray-400">
+                    Chưa có xe nổi bật để hiển thị
+                </div>
+            </section>
         );
     }
 
@@ -62,18 +152,18 @@ export default function CarSlider() {
             // If only 1 car, return only 1 item
             return [vehicles[0]];
         }
-        
+
         const cars = [];
         const firstIndex = index % vehicles.length;
         cars.push({ ...vehicles[firstIndex], displayIndex: 0 });
-        
+
         // Get second car - ensure it's different
         let secondIndex = (firstIndex + 1) % vehicles.length;
         // Make sure secondIndex is different from firstIndex
         if (secondIndex === firstIndex) {
             secondIndex = (firstIndex + 1) % vehicles.length;
         }
-        
+
         cars.push({ ...vehicles[secondIndex], displayIndex: 1 });
         return cars;
     };
@@ -121,52 +211,52 @@ export default function CarSlider() {
                         return (
                             <div key={uniqueKey} className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur">
                                 <div className="relative mb-4">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/30 to-transparent rounded-xl" />
-                        <img
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/30 to-transparent rounded-xl" />
+                                    <img
                                         src={toWebP(photo)}
                                         className="w-full h-[280px] md:h-[320px] object-cover rounded-xl"
-                            alt={car.name}
+                                        alt={car.name}
                                         loading={getImageLoading(idx === 0)}
                                         decoding="async"
-                        />
-                    </div>
+                                    />
+                                </div>
 
-                    <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
-                            Đời mới • Bảo dưỡng định kỳ
-                        </div>
+                                <div className="space-y-3">
+                                    <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                                        Đời mới • Bảo dưỡng định kỳ
+                                    </div>
                                     <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">{car.name}</h3>
                                     <p className="text-blue-200 text-lg font-semibold">{price}</p>
                                     <p className="text-slate-200 text-sm">
-                            {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}
-                        </p>
+                                        {car.model ?? "Mẫu xe cao cấp"} • {car.transmission ?? "Tự động"} • {car.fuelType ?? "Xăng"}
+                                    </p>
                                     <div className="flex flex-wrap gap-2 pt-2">
-                            {car.branch?.name && (
+                                        {car.branch?.name && (
                                             <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.branch.name}</span>
-                            )}
-                            {car.category?.name && (
+                                        )}
+                                        {car.category?.name && (
                                             <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.category.name}</span>
-                            )}
-                            {car.brand?.name && (
+                                        )}
+                                        {car.brand?.name && (
                                             <span className="px-3 py-1 rounded-full bg-white/10 text-xs">{car.brand.name}</span>
-                            )}
-                        </div>
+                                        )}
+                                    </div>
 
                                     <div className="flex gap-3 pt-3">
-                            <Link
-                                href={`/user/cars/${slug}`}
+                                        <Link
+                                            href={`/user/cars/${slug}`}
                                             className="flex-1 px-4 py-2.5 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition text-center text-sm"
-                            >
-                                Xem chi tiết
-                            </Link>
-                            <Link
-                                href={`/user/bookings/${slug}`}
+                                        >
+                                            Xem chi tiết
+                                        </Link>
+                                        <Link
+                                            href={`/user/bookings/${slug}`}
                                             className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow text-center text-sm"
-                            >
-                                Đặt ngay
-                            </Link>
-                        </div>
-                    </div>
+                                        >
+                                            Đặt ngay
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                         );
                     })}

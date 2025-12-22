@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
                 invoicesRes,
             ] = await Promise.all([
                 bookingService.list({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
-                vehicleService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
+                vehicleService.getAll({ limit: 100, skipDocumentCheck: 'true' }).catch(() => ({ items: [], total: 0 })),
                 customerService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
                 employeeService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
                 branchService.getAll({ limit: 100 }).catch(() => ({ items: [], total: 0 })),

@@ -1,15 +1,24 @@
-import { io, Socket } from 'socket.io-client';
+// Conditional import để tránh SSR issues với Turbopack
+let socket: any = null;
 
-let socket: Socket | null = null;
+export function getSocket(): any {
+    // Only run on client side
+    if (typeof window === 'undefined') {
+        return null;
+    }
 
-export function getSocket(): Socket | null {
     // Check if already connected
     if (socket?.connected) {
         return socket;
     }
 
-    // Only run on client side
-    if (typeof window === 'undefined') {
+    // Dynamic require để tránh top-level import issues
+    let io: any;
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        io = require('socket.io-client');
+    } catch (error) {
+        console.error('Failed to load socket.io-client:', error);
         return null;
     }
 
@@ -26,29 +35,35 @@ export function getSocket(): Socket | null {
         socket = null;
     }
 
-    socket = io(`${apiEndpoint}/notifications`, {
-        auth: {
-            token,
-        },
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionAttempts: 5,
-    });
+    try {
+        socket = io.io(`${apiEndpoint}/notifications`, {
+            auth: {
+                token,
+            },
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionAttempts: 5,
+            autoConnect: true,
+        });
 
-    socket.on('connect', () => {
-        console.log('Socket connected:', socket?.id);
-    });
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket?.id);
+        });
 
-    socket.on('disconnect', () => {
-        console.log('Socket disconnected');
-    });
+        socket.on('disconnect', () => {
+            console.log('Socket disconnected');
+        });
 
-    socket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error);
-    });
+        socket.on('connect_error', (error: any) => {
+            console.error('Socket connection error:', error);
+        });
 
-    return socket;
+        return socket;
+    } catch (error) {
+        console.error('Failed to create socket:', error);
+        return null;
+    }
 }
 
 export function disconnectSocket() {

@@ -4,7 +4,20 @@ const api = new APIRequest();
 
 export const vehicleService = {
     getAll(params?: Record<string, any>) {
-        const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+        if (!params) return api.get(`/vehicles`);
+        
+        // Filter out undefined/null values và build query string
+        const cleanParams: Record<string, string> = {};
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                cleanParams[key] = String(value);
+            }
+        });
+        
+        const qs = Object.keys(cleanParams).length > 0 
+            ? `?${new URLSearchParams(cleanParams).toString()}` 
+            : "";
+        console.log('[VehicleService] getAll params:', params, '→ cleanParams:', cleanParams, '→ query:', qs);
         return api.get(`/vehicles${qs}`);
     },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 
@@ -9,6 +9,8 @@ import { brandService } from "@/services/brand.service";
 import { branchService } from "@/services/branch.service";
 import { vehicleCategoryService } from "@/services/vehicle-category.service";
 import { priceListService } from "@/services/price-list.service";
+import { documentService } from "@/services/document.service";
+import { uploadService } from "@/services/upload.service";
 
 import { useFormSubmit } from "@/hooks/useHooks";
 
@@ -21,6 +23,11 @@ interface VehicleModalProps {
 const STATUS_OPTIONS = ["AVAILABLE", "RENTED", "MAINTENANCE", "INACTIVE"];
 
 export default function VehicleModal({ open, selected, onClose }: VehicleModalProps) {
+  const [activeTab, setActiveTab] = useState<"info" | "documents">("info");
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
   const defaultValues = useMemo(
     () =>
       selected ?? {
@@ -63,6 +70,24 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  // Load documents when vehicle is selected
+  useEffect(() => {
+    if (selected?.id) {
+      setDocumentsLoading(true);
+      documentService.list({ vehicleId: selected.id })
+        .then((res) => {
+          const items = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
+          setDocuments(items);
+        })
+        .catch((err) => {
+          console.error("Load documents failed:", err);
+        })
+        .finally(() => setDocumentsLoading(false));
+    } else {
+      setDocuments([]);
+    }
+  }, [selected?.id]);
 
   const overridePriceEnabled = watch("overridePriceEnabled");
 
@@ -142,13 +167,23 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
     onClose();
   };
 
+  const handleDeleteDocument = async (docId: string) => {
+    if (!confirm("Bạn có chắc muốn xóa giấy tờ này?")) return;
+    try {
+      await documentService.delete(docId);
+      setDocuments(docs => docs.filter(d => d.id !== docId));
+    } catch (err: any) {
+      alert(err?.message || "Xóa thất bại");
+    }
+  };
+
   if (!open) return null;
 
   const photosValue = Array.isArray(selected?.photos) && selected.photos.length ? selected.photos.join(", ") : "";
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="mb-6 pb-4 border-b border-slate-700/50">
             <h2 className="text-2xl font-bold text-white">{selected ? "Chỉnh sửa Xe" : "Thêm Xe"}</h2>
@@ -157,7 +192,36 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
             </p>
           </div>
 
-          <form onSubmit={formHandle(onSubmit)} className="space-y-4">
+          {/* Tabs */}
+          {selected && (
+            <div className="flex gap-2 mb-6 border-b border-slate-700/50">
+              <button
+                type="button"
+                onClick={() => setActiveTab("info")}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === "info"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Thông tin
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("documents")}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === "documents"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Giấy tờ ({documents.length})
+              </button>
+            </div>
+          )}
+
+          {activeTab === "info" ? (
+            <form onSubmit={formHandle(onSubmit)} className="space-y-4">
           {/* BASIC INFO */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Thông tin cơ bản</h3>
@@ -454,6 +518,250 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
               </div>
           </div>
         </form>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-white">Quản lý giấy tờ xe</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowUploadModal(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+                >
+                  + Thêm giấy tờ
+                </button>
+              </div>
+
+              {documentsLoading ? (
+                <div className="text-slate-400 text-center py-8">Đang tải...</div>
+              ) : documents.length === 0 ? (
+                <div className="text-slate-400 text-center py-8">
+                  Chưa có giấy tờ nào. Nhấn "Thêm giấy tờ" để upload.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {documents.map((doc) => {
+                    const docTypeMap: Record<string, string> = {
+                      'REGISTRATION': 'Đăng kiểm',
+                      'INSURANCE': 'Bảo hiểm',
+                      'OWNERSHIP': 'Giấy chủ quyền',
+                      'INSPECTION': 'Kiểm định',
+                      'OTHER': 'Khác'
+                    };
+                    
+                    const isExpired = doc.expiresAt && new Date(doc.expiresAt) < new Date();
+                    
+                    return (
+                      <div
+                        key={doc.id}
+                        className={`p-4 rounded-xl border ${
+                          isExpired 
+                            ? 'border-red-500/50 bg-red-900/20' 
+                            : 'border-slate-700 bg-slate-800/50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-white">
+                            {docTypeMap[doc.docType] || doc.docType}
+                          </h4>
+                          {isExpired && (
+                            <span className="px-2 py-1 text-xs bg-red-500 text-white rounded-full">
+                              Hết hạn
+                            </span>
+                          )}
+                        </div>
+                        
+                        {doc.description && (
+                          <p className="text-sm text-slate-300 mb-2">{doc.description}</p>
+                        )}
+                        
+                        {doc.expiresAt && (
+                          <p className={`text-xs mb-1 ${isExpired ? 'text-red-300' : 'text-slate-400'}`}>
+                            Hết hạn: {new Date(doc.expiresAt).toLocaleDateString('vi-VN')}
+                          </p>
+                        )}
+                        
+                        {doc.fileUrl && (
+                          <a
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-400 hover:text-blue-300 underline block mb-2"
+                          >
+                            Xem tài liệu →
+                          </a>
+                        )}
+                        
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDocument(doc.id)}
+                          className="mt-2 px-3 py-1 text-xs bg-red-600/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-600/30"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Upload Document Modal */}
+          {showUploadModal && selected?.id && (
+            <DocumentUploadModal
+              vehicleId={selected.id}
+              onClose={() => setShowUploadModal(false)}
+              onSuccess={(newDoc: any) => {
+                setDocuments([...documents, newDoc]);
+                setShowUploadModal(false);
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Document Upload Modal Component
+function DocumentUploadModal({ vehicleId, onClose, onSuccess }: any) {
+  const [form, setForm] = useState({
+    docType: 'REGISTRATION',
+    description: '',
+    file: null as File | null,
+    issuedAt: '',
+    expiresAt: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setForm({ ...form, file });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!form.file) {
+      alert('Vui lòng chọn file để upload');
+      return;
+    }
+
+    setLoading(true);
+    setUploading(true);
+    try {
+      // Upload file lên Cloudinary
+      const uploadResult = await uploadService.uploadFile(form.file);
+      setUploading(false);
+
+      // Tạo document với URL từ Cloudinary
+      const data = {
+        vehicleId,
+        docType: form.docType,
+        description: form.description || undefined,
+        fileUrl: uploadResult.url,
+        issuedAt: form.issuedAt || undefined,
+        expiresAt: form.expiresAt || undefined,
+      };
+      const result = await documentService.create(data);
+      onSuccess(result);
+    } catch (err: any) {
+      setUploading(false);
+      alert(err?.message || 'Upload thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md">
+        <h3 className="text-xl font-bold text-white mb-4">Thêm giấy tờ</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Loại giấy tờ *</label>
+            <select
+              value={form.docType}
+              onChange={(e) => setForm({ ...form, docType: e.target.value })}
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg"
+            >
+              <option value="REGISTRATION">Đăng kiểm</option>
+              <option value="INSURANCE">Bảo hiểm</option>
+              <option value="OWNERSHIP">Giấy chủ quyền</option>
+              <option value="INSPECTION">Kiểm định</option>
+              <option value="OTHER">Khác</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">File *</label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+              required
+            />
+            {form.file && (
+              <p className="text-xs text-slate-400 mt-2">
+                Đã chọn: {form.file.name} ({(form.file.size / 1024 / 1024).toFixed(2)} MB)
+              </p>
+            )}
+            {uploading && (
+              <p className="text-xs text-blue-400 mt-2">Đang upload file lên Cloudinary...</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Mô tả</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg"
+              rows={2}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Ngày cấp</label>
+              <input
+                type="date"
+                value={form.issuedAt}
+                onChange={(e) => setForm({ ...form, issuedAt: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Ngày hết hạn</label>
+              <input
+                type="date"
+                value={form.expiresAt}
+                onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
+                className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+          >
+            {loading ? 'Đang tải...' : 'Thêm'}
+          </button>
         </div>
       </div>
     </div>

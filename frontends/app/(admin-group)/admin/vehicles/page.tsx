@@ -23,12 +23,18 @@ export default function VehiclePage() {
     } = useInfiniteQuery({
         queryKey: ["vehicles", search],
         queryFn: async ({ pageParam = 1 }) => {
-            const res = await vehicleService.getAll({
+            const params = {
                 page: pageParam,
                 limit: 12,
-                search: search || undefined
-            });
-            return res?.data || res;
+                ...(search && { search }),
+                skipDocumentCheck: 'true' // Admin cần thấy tất cả xe
+            };
+            console.log('[Admin Vehicles] Fetching with params:', params);
+            const res = await vehicleService.getAll(params);
+            console.log('[Admin Vehicles] API response:', res);
+            const result = res?.data || res;
+            console.log('[Admin Vehicles] Parsed result:', result, 'items count:', result?.items?.length);
+            return result;
         },
         getNextPageParam: (lastPage: any) => {
             const currentPage = lastPage?.page || 1;

@@ -29,13 +29,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SettingsProvider>
                 <AuthProvider>
                   <SocketNotificationProvider>
-                    <Header />
-                    <GlobalLoading />
-                    <main className="min-h-screen">
-                      {children}
-                    </main>
-                    <Footer />
-                    <Toaster />
+                  <Header />
+                  <GlobalLoading />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <Footer />
+                  <Toaster />
                   </SocketNotificationProvider>
                 </AuthProvider>
               </SettingsProvider>

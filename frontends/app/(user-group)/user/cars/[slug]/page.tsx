@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { vehicleService } from "@/services/vehicle.service";
 import { reviewService } from "@/services/review.service";
 import { customerService } from "@/services/customer.service";
+import { documentService } from "@/services/document.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
 import { useCustomer } from "@/hooks/useCustomer";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -21,6 +22,8 @@ export default function CarDetailPage() {
     const [reviews, setReviews] = useState<any[]>([]);
     const [reviewLoading, setReviewLoading] = useState(false);
     const [reviewError, setReviewError] = useState<string | null>(null);
+    const [documents, setDocuments] = useState<any[]>([]);
+    const [documentsLoading, setDocumentsLoading] = useState(false);
     const { formatVND } = useFormatVND();
     const router = useRouter();
     const { customer, loading: customerLoading } = useCustomer();
@@ -69,7 +72,20 @@ export default function CarDetailPage() {
             if (!data) return notFound();
 
             setVehicle(data);
-            // load reviews for this vehicle
+            
+            // Load documents for this vehicle
+            setDocumentsLoading(true);
+            documentService.list({ vehicleId: data.id })
+                .then((docRes) => {
+                    const items = Array.isArray(docRes?.items) ? docRes.items : Array.isArray(docRes) ? docRes : [];
+                    setDocuments(items);
+                })
+                .catch((err) => {
+                    console.error("Load documents failed:", err);
+                })
+                .finally(() => setDocumentsLoading(false));
+            
+            // Load reviews for this vehicle
             setReviewLoading(true);
             reviewService
                 .list({ vehicleId: data.id, limit: 20 })
@@ -99,8 +115,8 @@ export default function CarDetailPage() {
 
     const price =
         vehicle?.priceList?.dailyRate
-            ? formatVND(vehicle.priceList.dailyRate) + " / ngày"
-            : "—";
+        ? formatVND(vehicle.priceList.dailyRate) + " / ngày"
+        : "—";
 
     const avgRating =
         vehicle?.rating ||
@@ -209,6 +225,98 @@ export default function CarDetailPage() {
                             </button>
                         )}
                     </div>
+                </div>
+            </div>
+
+            {/* DOCUMENTS SECTION */}
+            <div className="max-w-6xl mx-auto px-6 pb-6">
+                <div className="mt-10 rounded-2xl bg-gray-900/60 border border-white/10 p-6 shadow-lg">
+                    <div className="mb-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-blue-200 mb-2">
+                            Giấy tờ xe
+                        </p>
+                        <h2 className="text-2xl font-bold text-white">
+                            Tài liệu và giấy tờ của xe
+                        </h2>
+                        <p className="text-sm text-blue-100 mt-1">
+                            Xem các giấy tờ quan trọng của xe như đăng kiểm, bảo hiểm, v.v.
+                        </p>
+                    </div>
+
+                    {documentsLoading ? (
+                        <div className="text-blue-100">Đang tải giấy tờ...</div>
+                    ) : documents.length === 0 ? (
+                        <div className="text-blue-100">
+                            Chưa có giấy tờ nào được upload cho xe này.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {documents.map((doc) => {
+                                const docTypeMap: Record<string, string> = {
+                                    'REGISTRATION': 'Đăng kiểm',
+                                    'INSURANCE': 'Bảo hiểm',
+                                    'OWNERSHIP': 'Giấy chủ quyền',
+                                    'INSPECTION': 'Kiểm định',
+                                    'OTHER': 'Khác'
+                                };
+                                
+                                const isExpired = doc.expiresAt && new Date(doc.expiresAt) < new Date();
+                                
+                                return (
+                                    <div
+                                        key={doc.id}
+                                        className={`p-4 rounded-xl border ${
+                                            isExpired 
+                                                ? 'border-red-500/50 bg-red-900/20' 
+                                                : 'border-white/10 bg-white/5'
+                                        } shadow`}
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <h3 className="font-semibold text-white">
+                                                {docTypeMap[doc.docType] || doc.docType}
+                                            </h3>
+                                            {isExpired && (
+                                                <span className="px-2 py-1 text-xs bg-red-500 text-white rounded-full">
+                                                    Hết hạn
+                                                </span>
+                                            )}
+                                        </div>
+                                        
+                                        {doc.description && (
+                                            <p className="text-sm text-blue-100 mb-2">
+                                                {doc.description}
+                                            </p>
+                                        )}
+                                        
+                                        {doc.expiresAt && (
+                                            <p className={`text-xs mb-2 ${
+                                                isExpired ? 'text-red-300' : 'text-blue-200'
+                                            }`}>
+                                                Hết hạn: {new Date(doc.expiresAt).toLocaleDateString('vi-VN')}
+                                            </p>
+                                        )}
+                                        
+                                        {doc.issuedAt && (
+                                            <p className="text-xs text-blue-200 mb-2">
+                                                Ngày cấp: {new Date(doc.issuedAt).toLocaleDateString('vi-VN')}
+                                            </p>
+                                        )}
+                                        
+                                        {doc.fileUrl && (
+                                            <a
+                                                href={doc.fileUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-xs text-blue-400 hover:text-blue-300 underline"
+                                            >
+                                                Xem tài liệu →
+                                            </a>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             </div>
 

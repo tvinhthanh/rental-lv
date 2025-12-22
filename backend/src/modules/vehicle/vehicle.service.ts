@@ -51,14 +51,34 @@ export class VehicleService {
             this.prisma.vehicle.count({ where })
         ]);
 
-        // Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
+        // Nếu skipDocumentCheck=true (admin), không filter giấy tờ
+        const skipDocumentCheck = query.skipDocumentCheck === 'true';
+        console.log(`[VehicleService] findAll - skipDocumentCheck: ${skipDocumentCheck}, query.skipDocumentCheck: ${query.skipDocumentCheck}, total vehicles: ${allVehicles.length}`);
+        
+        if (skipDocumentCheck) {
+            // Admin: trả về tất cả xe không filter
+            console.log(`[VehicleService] Admin mode - returning all ${allVehicles.length} vehicles without document filter`);
+            return {
+                items: allVehicles,
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            };
+        }
+
+        // User: Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
         const itemsWithDocuments = [];
         for (const vehicle of allVehicles) {
-            const { isValid } = await checkVehicleDocumentsComplete(this.prisma, vehicle.id);
+            const { isValid, missingDocs } = await checkVehicleDocumentsComplete(this.prisma, vehicle.id);
             if (isValid) {
                 itemsWithDocuments.push(vehicle);
+            } else {
+                console.log(`[VehicleService] Vehicle ${vehicle.id} (${vehicle.name}) filtered out - missing docs:`, missingDocs);
             }
         }
+        
+        console.log(`[VehicleService] findAll: ${itemsWithDocuments.length}/${allVehicles.length} vehicles passed document check`);
 
         return {
             items: itemsWithDocuments,
@@ -251,6 +271,33 @@ export class VehicleService {
     }
 
     async delete(id: string, actorId?: string) {
+        // Kiểm tra xe có đang được thuê không (có booking đang active)
+        const activeBooking = await this.prisma.booking.findFirst({
+            where: {
+                vehicleId: id,
+                status: { in: ['PENDING', 'CONFIRMED', 'ONGOING'] }
+            },
+            select: {
+                id: true,
+                bookingCode: true,
+                status: true,
+                pickupDate: true,
+                returnDate: true
+            }
+        });
+
+        if (activeBooking) {
+            const statusMap: Record<string, string> = {
+                'PENDING': 'Đang chờ xác nhận',
+                'CONFIRMED': 'Đã xác nhận',
+                'ONGOING': 'Đang được thuê'
+            };
+            throw new BadRequestException(
+                `Không thể xóa xe này vì đang có đơn đặt xe đang hoạt động. ` +
+                `Mã đơn: ${activeBooking.bookingCode}, Trạng thái: ${statusMap[activeBooking.status] || activeBooking.status}`
+            );
+        }
+
         await this.audit.log(actorId ?? null, 'DELETE', 'Vehicle', id);
         return this.prisma.vehicle.delete({ where: { id } });
     }

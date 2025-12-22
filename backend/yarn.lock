@@ -1272,14 +1272,11 @@
   dependencies:
     "@types/node" "*"
 
-<<<<<<< HEAD
 "@types/cookie@^0.4.1":
   version "0.4.1"
   resolved "https://registry.npmjs.org/@types/cookie/-/cookie-0.4.1.tgz"
   integrity sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==
 
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 "@types/cors@^2.8.12":
   version "2.8.19"
   resolved "https://registry.npmjs.org/@types/cors/-/cors-2.8.19.tgz"
@@ -2223,7 +2220,6 @@ base64id@~2.0.0, base64id@2.0.0:
   resolved "https://registry.npmjs.org/base64id/-/base64id-2.0.0.tgz"
   integrity sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==
 
-<<<<<<< HEAD
 baseline-browser-mapping@^2.9.0:
   version "2.9.11"
   resolved "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.9.11.tgz"
@@ -2234,13 +2230,6 @@ basic-ftp@^5.0.2:
   resolved "https://registry.npmjs.org/basic-ftp/-/basic-ftp-5.1.0.tgz"
   integrity sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==
 
-=======
-baseline-browser-mapping@^2.8.25:
-  version "2.8.30"
-  resolved "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.8.30.tgz"
-  integrity sha512-aTUKW4ptQhS64+v2d6IkPzymEzzhw+G0bA1g3uBRV3+ntkH+svttKseW5IOR4Ed6NUVKqnY7qT3dKvzQ7io4AA==
-
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 bcrypt@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/bcrypt/-/bcrypt-6.0.0.tgz"
@@ -2315,17 +2304,10 @@ brotli@^1.2.0, brotli@^1.3.2:
   dependencies:
     base64-js "^1.1.2"
 
-<<<<<<< HEAD
 browserslist@^4.24.0, browserslist@^4.28.1, "browserslist@>= 4.21.0":
   version "4.28.1"
   resolved "https://registry.npmjs.org/browserslist/-/browserslist-4.28.1.tgz"
   integrity sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==
-=======
-browserslist@^4.24.0:
-  version "4.28.0"
-  resolved "https://registry.npmjs.org/browserslist/-/browserslist-4.28.0.tgz"
-  integrity sha512-tbydkR/CxfMwelN0vwdP/pLkDwyAASZ+VfWm4EOwlB6SWhx1sYnWLqo8N5j0rAzPfzfRaxt0mM/4wPU/Su84RQ==
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
   dependencies:
     baseline-browser-mapping "^2.9.0"
     caniuse-lite "^1.0.30001759"
@@ -2721,14 +2703,11 @@ cookie-signature@1.0.6:
   resolved "https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.0.6.tgz"
   integrity sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==
 
-<<<<<<< HEAD
 cookie@~0.4.1:
   version "0.4.2"
   resolved "https://registry.npmjs.org/cookie/-/cookie-0.4.2.tgz"
   integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
 
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 cookie@~0.7.2:
   version "0.7.2"
   resolved "https://registry.npmjs.org/cookie/-/cookie-0.7.2.tgz"
@@ -3128,18 +3107,7 @@ debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4, debug@^4.4
   dependencies:
     ms "^2.1.3"
 
-<<<<<<< HEAD
 debug@~4.3.1, debug@~4.3.2:
-=======
-debug@~4.3.1:
-  version "4.3.7"
-  resolved "https://registry.npmjs.org/debug/-/debug-4.3.7.tgz"
-  integrity sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==
-  dependencies:
-    ms "^2.1.3"
-
-debug@~4.3.2:
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
   version "4.3.7"
   resolved "https://registry.npmjs.org/debug/-/debug-4.3.7.tgz"
   integrity sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==
@@ -3356,7 +3324,6 @@ engine.io-parser@~5.2.1:
   resolved "https://registry.npmjs.org/engine.io-parser/-/engine.io-parser-5.2.3.tgz"
   integrity sha512-HqD3yTBfnBxIrbnM1DoD6Pcq8NECnh8d4As1Qgh0z5Gg3jRRIqijury0CL3ghu/edArpUYiYqQiDUQBIs4np3Q==
 
-<<<<<<< HEAD
 engine.io-parser@~5.0.3:
   version "5.0.7"
   resolved "https://registry.npmjs.org/engine.io-parser/-/engine.io-parser-5.0.7.tgz"
@@ -3383,8 +3350,6 @@ engine.io@~6.4.2:
     engine.io-parser "~5.0.3"
     ws "~8.11.0"
 
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 engine.io@~6.6.0:
   version "6.6.4"
   resolved "https://registry.npmjs.org/engine.io/-/engine.io-6.6.4.tgz"
@@ -3400,11 +3365,7 @@ engine.io@~6.6.0:
     engine.io-parser "~5.2.1"
     ws "~8.17.1"
 
-<<<<<<< HEAD
 enhanced-resolve@^5.0.0, enhanced-resolve@^5.17.1, enhanced-resolve@^5.17.4, enhanced-resolve@^5.7.0:
-=======
-enhanced-resolve@^5.0.0, enhanced-resolve@^5.17.1, enhanced-resolve@^5.7.0:
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
   version "5.18.3"
   resolved "https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.18.3.tgz"
   integrity sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==
@@ -5998,17 +5959,10 @@ real-require@^0.2.0:
   resolved "https://registry.npmjs.org/real-require/-/real-require-0.2.0.tgz"
   integrity sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==
 
-<<<<<<< HEAD
 reflect-metadata@^0.1.12, "reflect-metadata@^0.1.12 || ^0.2.0", reflect-metadata@^0.1.13:
   version "0.1.14"
   resolved "https://registry.npmjs.org/reflect-metadata/-/reflect-metadata-0.1.14.tgz"
   integrity sha512-ZhYeb6nRaXCfhnndflDK8qI6ZQ/YcWZCISRAWICW9XYqMUwjZM9Z0DveWX/ABN01oxSHwVxKQmxeYZSsm0jh5A==
-=======
-reflect-metadata@^0.2.0:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/reflect-metadata/-/reflect-metadata-0.2.2.tgz"
-  integrity sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 
 regexp.prototype.flags@^1.5.1:
   version "1.5.4"
@@ -6355,19 +6309,15 @@ slash@^3.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-<<<<<<< HEAD
 smart-buffer@^4.2.0:
   version "4.2.0"
   resolved "https://registry.npmjs.org/smart-buffer/-/smart-buffer-4.2.0.tgz"
   integrity sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==
 
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 socket.io-adapter@~2.5.2:
   version "2.5.5"
   resolved "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.5.5.tgz"
   integrity sha512-eLDQas5dzPgOWCk9GuuJC2lBqItuhKI4uxGgo9aIV7MYbk2h9Q6uULEh8WBzThoI7l+qU9Ast9fVUmkqPP9wYg==
-<<<<<<< HEAD
   dependencies:
     debug "~4.3.4"
     ws "~8.17.1"
@@ -6409,8 +6359,6 @@ socks-proxy-agent@^8.0.5:
   version "8.0.5"
   resolved "https://registry.npmjs.org/socks-proxy-agent/-/socks-proxy-agent-8.0.5.tgz"
   integrity sha512-HehCEsotFqbPW9sJ8WVYB6UbmIMv7kUUORIF2Nncq4VQvBfNBLibW9YZR5dlYCSUhwcD628pRllm7n+E+YTzJw==
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
   dependencies:
     debug "~4.3.4"
     ws "~8.17.1"
@@ -6693,7 +6641,6 @@ tapable@^2.1.1, tapable@^2.2.0, tapable@^2.2.1:
   resolved "https://registry.npmjs.org/tapable/-/tapable-2.3.0.tgz"
   integrity sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==
 
-<<<<<<< HEAD
 tar-fs@^3.0.6:
   version "3.1.1"
   resolved "https://registry.npmjs.org/tar-fs/-/tar-fs-3.1.1.tgz"
@@ -6718,12 +6665,6 @@ terser-webpack-plugin@^5.3.10, terser-webpack-plugin@^5.3.16:
   version "5.3.16"
   resolved "https://registry.npmjs.org/terser-webpack-plugin/-/terser-webpack-plugin-5.3.16.tgz"
   integrity sha512-h9oBFCWrq78NyWWVcSwZarJkZ01c2AyGrzs1crmHZO3QUg9D61Wu4NPjBy69n7JqylFF5y+CsUZYmYEIZ3mR+Q==
-=======
-terser-webpack-plugin@^5.3.10:
-  version "5.3.14"
-  resolved "https://registry.npmjs.org/terser-webpack-plugin/-/terser-webpack-plugin-5.3.14.tgz"
-  integrity sha512-vkZjpUjb6OMS7dhV+tILUW6BhpDR7P2L/aQSAv+Uwk+m8KATX9EccViHTJR2qDtACKPIYndLGCyl3FMo+r2LMw==
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.25"
     jest-worker "^27.4.5"
@@ -7165,7 +7106,6 @@ webpack-sources@^3.2.3:
   resolved "https://registry.npmjs.org/webpack-sources/-/webpack-sources-3.3.3.tgz"
   integrity sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==
 
-<<<<<<< HEAD
 webpack@^5.0.0, webpack@^5.1.0, webpack@^5.11.0:
   version "5.104.1"
   resolved "https://registry.npmjs.org/webpack/-/webpack-5.104.1.tgz"
@@ -7197,8 +7137,6 @@ webpack@^5.0.0, webpack@^5.1.0, webpack@^5.11.0:
     watchpack "^2.4.4"
     webpack-sources "^3.3.3"
 
-=======
->>>>>>> 22bd168 (backend document socket for noti deposit detail)
 webpack@5.97.1:
   version "5.97.1"
   resolved "https://registry.npmjs.org/webpack/-/webpack-5.97.1.tgz"

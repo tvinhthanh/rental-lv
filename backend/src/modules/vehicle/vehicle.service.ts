@@ -53,7 +53,6 @@ export class VehicleService {
 
         // Nếu skipDocumentCheck=true (admin), không filter giấy tờ
         const skipDocumentCheck = query.skipDocumentCheck === 'true';
-
         if (skipDocumentCheck) {
             return {
                 items: allVehicles,

@@ -24,14 +24,13 @@ export default function CarSlider() {
                 if (cancelled) return;
 
                 const items = Array.isArray(data) ? data : data?.items ?? [];
-
-                // Filter: chỉ cần có photos để hiển thị (backend đã filter document rồi)
-                // Price có thể hiển thị sau hoặc dùng overridePrice
+                
+                // Filter: cần có ảnh, cho phép dùng priceList hoặc overridePrice
                 const filtered = items.filter((v: any) => {
                     const hasPhotos = v.photos?.length > 0;
-                    return hasPhotos;
+                    const hasPrice = v.priceList || v.overridePriceEnabled;
+                    return hasPhotos && hasPrice;
                 });
-
                 // Nếu không có xe sau filter, nhưng có xe từ API → log để debug
                 if (filtered.length === 0 && items.length > 0) {
                     console.warn('[CarSlider] No vehicles passed filter! Check vehicle data structure.');

@@ -29,11 +29,8 @@ export default function VehiclePage() {
                 ...(search && { search }),
                 skipDocumentCheck: 'true' // Admin cần thấy tất cả xe
             };
-            console.log('[Admin Vehicles] Fetching with params:', params);
             const res = await vehicleService.getAll(params);
-            console.log('[Admin Vehicles] API response:', res);
             const result = res?.data || res;
-            console.log('[Admin Vehicles] Parsed result:', result, 'items count:', result?.items?.length);
             return result;
         },
         getNextPageParam: (lastPage: any) => {

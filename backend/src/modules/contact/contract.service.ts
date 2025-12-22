@@ -121,9 +121,7 @@ export class ContractService {
         let pdfError: string | null = null;
 
         try {
-            console.log(`[Contract] Starting PDF generation for contract ${contract.contractNo}...`);
             const pdfBuffer = await this.generateContractPdfBuffer(booking, contract);
-            console.log(`[Contract] PDF generated successfully, size: ${pdfBuffer.length} bytes`);
 
             // 3. Upload PDF lên Cloudinary (resource_type = raw cho PDF)
             const fakeFile: any = {
@@ -132,10 +130,8 @@ export class ContractService {
                 originalname: `contract-${contract.contractNo}.pdf`
             };
 
-            console.log(`[Contract] Uploading PDF to Cloudinary...`);
             const uploaded = await this.cloudinary.uploadFile(fakeFile);
             fileUrl = uploaded.secure_url;
-            console.log(`[Contract] PDF uploaded successfully: ${fileUrl}`);
         } catch (err: any) {
             pdfError = err?.message || 'Unknown error';
             console.error('[Contract] Failed to generate/upload PDF:', err);

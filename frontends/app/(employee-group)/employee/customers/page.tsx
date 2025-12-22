@@ -170,7 +170,6 @@ export default function EmployeeCustomersPage() {
                                 customer={customer}
                                 onClick={() => {
                                     // Có thể mở modal hoặc navigate đến trang chi tiết
-                                    console.log("Customer clicked:", customer);
                                 }}
                             />
                         ))}

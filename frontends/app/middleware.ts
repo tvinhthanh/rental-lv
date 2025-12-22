@@ -7,8 +7,6 @@ export function middleware(req: NextRequest) {
     const token = req.cookies.get("accessToken")?.value || null;
     const role = req.cookies.get("role")?.value || null;
 
-    console.log("MW:", path, "| role:", role);
-
     // PUBLIC ROUTES
     const publicRoutes = ["/auth", "/auth/login", "/auth/register", "/auth/forgot-password"];
     if (publicRoutes.some((p) => path.startsWith(p))) {

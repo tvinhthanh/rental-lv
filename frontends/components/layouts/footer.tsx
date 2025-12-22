@@ -25,7 +25,6 @@ export default function Footer() {
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();
         // Handle email subscription
-        console.log("Subscribe:", email);
         setEmail("");
     };
 

@@ -23,40 +23,14 @@ export default function CarSlider() {
 
                 if (cancelled) return;
 
-                console.log('[CarSlider] Raw API response:', data);
                 const items = Array.isArray(data) ? data : data?.items ?? [];
-                console.log('[CarSlider] Total vehicles from API:', items.length);
-
-                // Log sample vehicle để debug
-                if (items.length > 0) {
-                    console.log('[CarSlider] Sample vehicle:', {
-                        id: items[0]?.id,
-                        name: items[0]?.name,
-                        hasPhotos: !!items[0]?.photos?.length,
-                        photosCount: items[0]?.photos?.length || 0,
-                        hasPriceList: !!items[0]?.priceList,
-                        overridePriceEnabled: items[0]?.overridePriceEnabled,
-                        priceList: items[0]?.priceList
-                    });
-                }
 
                 // Filter: chỉ cần có photos để hiển thị (backend đã filter document rồi)
                 // Price có thể hiển thị sau hoặc dùng overridePrice
                 const filtered = items.filter((v: any) => {
                     const hasPhotos = v.photos?.length > 0;
-                    
-                    if (!hasPhotos && items.length > 0) {
-                        console.log('[CarSlider] Filtered out vehicle (no photos):', {
-                            id: v.id,
-                            name: v.name,
-                            photosCount: v.photos?.length || 0
-                        });
-                    }
-
                     return hasPhotos;
                 });
-
-                console.log('[CarSlider] Vehicles after filter:', filtered.length, 'out of', items.length);
 
                 // Nếu không có xe sau filter, nhưng có xe từ API → log để debug
                 if (filtered.length === 0 && items.length > 0) {
@@ -201,8 +175,8 @@ export default function CarSlider() {
                         const price = car.priceList?.dailyRate
                             ? formatVND(car.priceList.dailyRate) + " / ngày"
                             : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
-                            ? formatVND((car as any).overrideDailyRate) + " / ngày"
-                            : "Liên hệ";
+                                ? formatVND((car as any).overrideDailyRate) + " / ngày"
+                                : "Liên hệ";
                         const slug = car.slug ?? car.id;
 
                         // Create unique key combining car id and display index

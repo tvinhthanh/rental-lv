@@ -76,36 +76,11 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
                 const res = await bookingService.getByBranch(branchId);
                 const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
                 
-                console.log("[CreateReturnModal] Total bookings loaded:", items.length);
-                
-                // Debug: Log từng booking để xem có đủ data không
-                items.forEach((b: any, idx: number) => {
-                    console.log(`[CreateReturnModal] Booking ${idx + 1}:`, {
-                        bookingCode: b.bookingCode,
-                        status: b.status,
-                        hasContract: !!b.contract,
-                        hasDeposit: !!b.deposit,
-                        hasHandover: !!b.handover,
-                        hasReturnReport: !!b.returnReport
-                    });
-                });
-                
                 // Lọc bookings có contract, deposit, handover nhưng chưa có return report và status là ONGOING
                 const filtered = items.filter((b: any) => {
                     const pass = b.contract && b.deposit && b.handover && !b.returnReport && b.status === "ONGOING";
-                    if (!pass && b.status === "ONGOING") {
-                        console.log(`[CreateReturnModal] Booking ${b.bookingCode} không pass filter:`, {
-                            hasContract: !!b.contract,
-                            hasDeposit: !!b.deposit,
-                            hasHandover: !!b.handover,
-                            hasReturnReport: !!b.returnReport,
-                            status: b.status
-                        });
-                    }
                     return pass;
                 });
-                
-                console.log("[CreateReturnModal] Filtered bookings:", filtered.length);
                 setBookings(filtered);
             } catch (e) {
                 console.error("Load bookings failed", e);

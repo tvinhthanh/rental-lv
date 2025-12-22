@@ -599,6 +599,7 @@ model Review {
 
   rating    Int
   comment   String?
+  photos    String[]  // URLs của hình ảnh review
   createdAt DateTime @default(now())
 
   customer Customer @relation(fields: [customerId], references: [id])

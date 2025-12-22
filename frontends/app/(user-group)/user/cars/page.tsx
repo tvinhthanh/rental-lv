@@ -71,7 +71,25 @@ function CarsPageContent() {
             const branchItems: Branch[] = Array.isArray(b.items) ? b.items : Array.isArray(b) ? b : [];
             const priceListItems: PriceList[] = Array.isArray(p.items) ? p.items : Array.isArray(p) ? p : [];
 
-            const withPhotos = vehicleItems.filter((x) => Boolean(x.photos?.length));
+            // Backend đã filter document rồi, chỉ filter photos để hiển thị
+            // Log để debug nếu có xe không có photos
+            const withPhotos = vehicleItems.filter((x) => {
+                const hasPhotos = Boolean(x.photos?.length);
+                if (!hasPhotos) {
+                    console.log('[CarsPage] Vehicle filtered (no photos):', {
+                        id: x.id,
+                        name: x.name,
+                        photosCount: x.photos?.length || 0
+                    });
+                }
+                return hasPhotos;
+            });
+
+            console.log('[CarsPage] Vehicles:', {
+                total: vehicleItems.length,
+                withPhotos: withPhotos.length,
+                withoutPhotos: vehicleItems.length - withPhotos.length
+            });
 
             setVehicles(withPhotos);
             setFiltered(withPhotos);
@@ -211,9 +229,12 @@ function CarsPageContent() {
             {/* RESULT LIST */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map((car) => {
+                    // Ưu tiên priceList, nếu không có thì dùng overridePrice
                     const price = car.priceList?.dailyRate
                         ? `${formatVND(car.priceList.dailyRate)} / ngày`
-                        : "—";
+                        : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
+                        ? `${formatVND((car as any).overrideDailyRate)} / ngày`
+                        : "Liên hệ";
 
                     return (
                         <div

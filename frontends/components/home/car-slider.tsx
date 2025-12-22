@@ -40,23 +40,20 @@ export default function CarSlider() {
                     });
                 }
 
-                // Filter: chỉ cần có photos, không bắt buộc priceList (có thể dùng overridePrice)
+                // Filter: chỉ cần có photos để hiển thị (backend đã filter document rồi)
+                // Price có thể hiển thị sau hoặc dùng overridePrice
                 const filtered = items.filter((v: any) => {
                     const hasPhotos = v.photos?.length > 0;
-                    const hasPrice = v.priceList || v.overridePriceEnabled;
-                    const isValid = hasPhotos && hasPrice;
-
-                    if (!isValid && items.length > 0) {
-                        console.log('[CarSlider] Filtered out vehicle:', {
+                    
+                    if (!hasPhotos && items.length > 0) {
+                        console.log('[CarSlider] Filtered out vehicle (no photos):', {
                             id: v.id,
                             name: v.name,
-                            hasPhotos,
-                            hasPrice,
-                            reason: !hasPhotos ? 'no photos' : 'no price'
+                            photosCount: v.photos?.length || 0
                         });
                     }
 
-                    return isValid;
+                    return hasPhotos;
                 });
 
                 console.log('[CarSlider] Vehicles after filter:', filtered.length, 'out of', items.length);
@@ -200,9 +197,12 @@ export default function CarSlider() {
                 <div className={`grid gap-6 ${displayCars.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
                     {displayCars.map((car, idx) => {
                         const photo = car.photos?.[0];
+                        // Ưu tiên priceList, nếu không có thì dùng overridePrice
                         const price = car.priceList?.dailyRate
                             ? formatVND(car.priceList.dailyRate) + " / ngày"
-                            : "—";
+                            : (car as any).overridePriceEnabled && (car as any).overrideDailyRate
+                            ? formatVND((car as any).overrideDailyRate) + " / ngày"
+                            : "Liên hệ";
                         const slug = car.slug ?? car.id;
 
                         // Create unique key combining car id and display index

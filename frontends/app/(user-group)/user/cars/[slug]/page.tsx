@@ -367,48 +367,80 @@ export default function CarDetailPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {reviews.map((rev) => (
-                                <div
-                                    key={rev.id}
-                                    className="p-4 rounded-xl border border-white/10 bg-white/5 shadow"
-                                >
-                                    <div className="flex items-center gap-2 text-yellow-400 mb-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-4 h-4 ${i < rev.rating
-                                                    ? "fill-yellow-400"
-                                                    : "text-gray-500"
-                                                    }`}
-                                            />
-                                        ))}
-                                        <span className="text-sm text-blue-100">
-                                            {rev.rating}/5
-                                        </span>
-                                    </div>
-                                    <p className="text-white font-semibold mb-1">
-                                        {rev.customer?.fullName || "Khách thuê"}
-                                    </p>
-                                    <p className="text-blue-100 text-sm mb-3">
-                                        {rev.comment || "Không có nhận xét"}
-                                    </p>
-                                    <div className="text-xs text-blue-200 flex flex-wrap gap-2">
-                                        {rev.booking?.bookingCode && (
-                                            <span className="px-2 py-1 bg-white/10 rounded-full">
-                                                Mã booking: {rev.booking.bookingCode}
+                            {reviews.map((rev) => {
+                                const reviewPhotos = Array.isArray(rev.photos) ? rev.photos : [];
+                                return (
+                                    <div
+                                        key={rev.id}
+                                        className="p-4 rounded-xl border border-white/10 bg-white/5 shadow"
+                                    >
+                                        <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={`w-4 h-4 ${i < rev.rating
+                                                        ? "fill-yellow-400"
+                                                        : "text-gray-500"
+                                                        }`}
+                                                />
+                                            ))}
+                                            <span className="text-sm text-blue-100">
+                                                {rev.rating}/5
                                             </span>
+                                        </div>
+                                        <p className="text-white font-semibold mb-1">
+                                            {rev.customer?.fullName || "Khách thuê"}
+                                        </p>
+                                        <p className="text-blue-100 text-sm mb-3">
+                                            {rev.comment || "Không có nhận xét"}
+                                        </p>
+                                        
+                                        {/* Hiển thị hình ảnh review */}
+                                        {reviewPhotos.length > 0 && (
+                                            <div className="mb-3">
+                                                <div className="grid grid-cols-3 gap-2">
+                                                    {reviewPhotos.slice(0, 6).map((photo: string, idx: number) => (
+                                                        <div key={idx} className="relative group">
+                                                            <img
+                                                                src={toWebP(photo)}
+                                                                alt={`Review photo ${idx + 1}`}
+                                                                className="w-full h-20 object-cover rounded-lg border border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
+                                                                loading={getImageLoading(false)}
+                                                                decoding="async"
+                                                                onClick={() => {
+                                                                    // Mở modal xem ảnh lớn
+                                                                    window.open(photo, '_blank');
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {reviewPhotos.length > 6 && (
+                                                    <p className="text-xs text-blue-200 mt-1">
+                                                        +{reviewPhotos.length - 6} hình ảnh khác
+                                                    </p>
+                                                )}
+                                            </div>
                                         )}
-                                        <span className="px-2 py-1 bg-white/10 rounded-full">
-                                            Ngày:{" "}
-                                            {rev.createdAt
-                                                ? new Date(rev.createdAt).toLocaleDateString(
-                                                    "vi-VN"
-                                                )
-                                                : "—"}
-                                        </span>
+                                        
+                                        <div className="text-xs text-blue-200 flex flex-wrap gap-2">
+                                            {rev.booking?.bookingCode && (
+                                                <span className="px-2 py-1 bg-white/10 rounded-full">
+                                                    Mã booking: {rev.booking.bookingCode}
+                                                </span>
+                                            )}
+                                            <span className="px-2 py-1 bg-white/10 rounded-full">
+                                                Ngày:{" "}
+                                                {rev.createdAt
+                                                    ? new Date(rev.createdAt).toLocaleDateString(
+                                                        "vi-VN"
+                                                    )
+                                                    : "—"}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>

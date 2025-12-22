@@ -360,6 +360,7 @@ erDiagram
     String z_id "🗝️"
     Int rating 
     String comment "❓"
+    String photos 
     DateTime createdAt 
     }
   

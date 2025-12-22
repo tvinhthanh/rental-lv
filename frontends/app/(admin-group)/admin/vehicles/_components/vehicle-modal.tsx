@@ -27,6 +27,8 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   const [documents, setDocuments] = useState<any[]>([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const defaultValues = useMemo(
     () =>
@@ -66,6 +68,9 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   const { register, setValue, handleSubmit: formHandle, watch, reset } = useForm({
     defaultValues,
   });
+
+  const photos = watch("photos") || [];
+  const photosArray = Array.isArray(photos) ? photos : (typeof photos === "string" && photos ? photos.split(",").map((s: string) => s.trim()).filter(Boolean) : []);
 
   useEffect(() => {
     reset(defaultValues);
@@ -151,8 +156,12 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
         clean.overrideHolidayRate = null;
       }
 
+      // Ensure photos is an array
       if (typeof clean.photos === "string") {
         clean.photos = clean.photos.split(",").map((s: string) => s.trim()).filter(Boolean);
+      }
+      if (!Array.isArray(clean.photos)) {
+        clean.photos = [];
       }
 
       clean.slug = clean.slug || generateSlug(clean.name);
@@ -178,8 +187,6 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   };
 
   if (!open) return null;
-
-  const photosValue = Array.isArray(selected?.photos) && selected.photos.length ? selected.photos.join(", ") : "";
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -489,13 +496,48 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
 
           {/* PHOTOS */}
             <div className="space-y-4 pt-4 border-t border-slate-700/50">
-              <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Hình ảnh</h3>
-          <textarea
-            {...register("photos")}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500 min-h-[80px]"
-                placeholder="URLs hình ảnh, phân cách bằng dấu phẩy"
-            defaultValue={photosValue}
-          />
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wide">Hình ảnh</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowPhotoUpload(true)}
+                  className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+                >
+                  + Thêm hình ảnh
+                </button>
+              </div>
+
+              {photosArray.length > 0 ? (
+                <div className="grid grid-cols-3 gap-3">
+                  {photosArray.map((url: string, index: number) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Vehicle photo ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-slate-700"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder-image.png';
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPhotos = photosArray.filter((_, i) => i !== index);
+                          setValue("photos", newPhotos);
+                        }}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        title="Xóa hình ảnh"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500 border border-dashed border-slate-700 rounded-lg">
+                  Chưa có hình ảnh. Nhấn "Thêm hình ảnh" để upload.
+                </div>
+              )}
             </div>
 
           {/* ACTION BUTTONS */}
@@ -550,55 +592,21 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     
                     const isExpired = doc.expiresAt && new Date(doc.expiresAt) < new Date();
                     
+                    // Kiểm tra xem file có phải là hình ảnh không
+                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+                    const isImage = doc.fileUrl && imageExtensions.some(ext => 
+                      doc.fileUrl.toLowerCase().includes(ext)
+                    );
+                    
                     return (
-                      <div
+                      <DocumentCard
                         key={doc.id}
-                        className={`p-4 rounded-xl border ${
-                          isExpired 
-                            ? 'border-red-500/50 bg-red-900/20' 
-                            : 'border-slate-700 bg-slate-800/50'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold text-white">
-                            {docTypeMap[doc.docType] || doc.docType}
-                          </h4>
-                          {isExpired && (
-                            <span className="px-2 py-1 text-xs bg-red-500 text-white rounded-full">
-                              Hết hạn
-                            </span>
-                          )}
-                        </div>
-                        
-                        {doc.description && (
-                          <p className="text-sm text-slate-300 mb-2">{doc.description}</p>
-                        )}
-                        
-                        {doc.expiresAt && (
-                          <p className={`text-xs mb-1 ${isExpired ? 'text-red-300' : 'text-slate-400'}`}>
-                            Hết hạn: {new Date(doc.expiresAt).toLocaleDateString('vi-VN')}
-                          </p>
-                        )}
-                        
-                        {doc.fileUrl && (
-                          <a
-                            href={doc.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-400 hover:text-blue-300 underline block mb-2"
-                          >
-                            Xem tài liệu →
-                          </a>
-                        )}
-                        
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteDocument(doc.id)}
-                          className="mt-2 px-3 py-1 text-xs bg-red-600/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-600/30"
-                        >
-                          Xóa
-                        </button>
-                      </div>
+                        doc={doc}
+                        docTypeMap={docTypeMap}
+                        isExpired={isExpired}
+                        isImage={isImage}
+                        onDelete={() => handleDeleteDocument(doc.id)}
+                      />
                     );
                   })}
                 </div>
@@ -615,6 +623,21 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                 setDocuments([...documents, newDoc]);
                 setShowUploadModal(false);
               }}
+            />
+          )}
+
+          {/* Upload Photo Modal */}
+          {showPhotoUpload && (
+            <PhotoUploadModal
+              onClose={() => setShowPhotoUpload(false)}
+              onSuccess={(newUrls: string[]) => {
+                const currentPhotos = photosArray;
+                const updatedPhotos = [...currentPhotos, ...newUrls];
+                setValue("photos", updatedPhotos);
+                setShowPhotoUpload(false);
+              }}
+              uploading={uploadingPhotos}
+              setUploading={setUploadingPhotos}
             />
           )}
         </div>
@@ -764,6 +787,209 @@ function DocumentUploadModal({ vehicleId, onClose, onSuccess }: any) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Photo Upload Modal Component
+function PhotoUploadModal({ onClose, onSuccess, uploading, setUploading }: any) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
+
+    // Filter only image files
+    const imageFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
+    
+    setFiles(imageFiles);
+    
+    // Create previews
+    const newPreviews = imageFiles.map(file => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = files.filter((_, i) => i !== index);
+    const newPreviews = previews.filter((_, i) => i !== index);
+    setFiles(newFiles);
+    setPreviews(newPreviews);
+    // Revoke object URLs to free memory
+    URL.revokeObjectURL(previews[index]);
+  };
+
+  const handleSubmit = async () => {
+    if (files.length === 0) {
+      alert('Vui lòng chọn ít nhất một hình ảnh');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const uploadPromises = files.map(file => uploadService.uploadFile(file));
+      const results = await Promise.all(uploadPromises);
+      const urls = results.map(r => r.url);
+      
+      // Clean up preview URLs
+      previews.forEach(url => URL.revokeObjectURL(url));
+      
+      onSuccess(urls);
+    } catch (err: any) {
+      alert(err?.message || 'Upload thất bại');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h3 className="text-xl font-bold text-white mb-4">Thêm hình ảnh</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Chọn hình ảnh *</label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept="image/*"
+              multiple
+              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-white rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Có thể chọn nhiều hình ảnh cùng lúc
+            </p>
+          </div>
+
+          {previews.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase">Xem trước</label>
+              <div className="grid grid-cols-3 gap-3">
+                {previews.map((preview, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border border-slate-700"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      title="Xóa"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {uploading && (
+            <div className="text-center py-4">
+              <p className="text-blue-400">Đang upload {files.length} hình ảnh lên Cloudinary...</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={uploading}
+            className="px-4 py-2 border border-slate-600 text-gray-300 rounded-lg hover:bg-slate-800 disabled:opacity-50"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={uploading || files.length === 0}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+          >
+            {uploading ? 'Đang upload...' : `Upload ${files.length} hình`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Document Card Component với preview hình ảnh
+function DocumentCard({ doc, docTypeMap, isExpired, isImage, onDelete }: any) {
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <div
+      className={`p-4 rounded-xl border ${
+        isExpired 
+          ? 'border-red-500/50 bg-red-900/20' 
+          : 'border-slate-700 bg-slate-800/50'
+      }`}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <h4 className="font-semibold text-white">
+          {docTypeMap[doc.docType] || doc.docType}
+        </h4>
+        {isExpired && (
+          <span className="px-2 py-1 text-xs bg-red-500 text-white rounded-full">
+            Hết hạn
+          </span>
+        )}
+      </div>
+      
+      {doc.description && (
+        <p className="text-sm text-slate-300 mb-2">{doc.description}</p>
+      )}
+      
+      {doc.expiresAt && (
+        <p className={`text-xs mb-1 ${isExpired ? 'text-red-300' : 'text-slate-400'}`}>
+          Hết hạn: {new Date(doc.expiresAt).toLocaleDateString('vi-VN')}
+        </p>
+      )}
+      
+      {doc.fileUrl && (
+        <div className="mb-2">
+          {isImage && !imageError ? (
+            <div className="space-y-2">
+              <img
+                src={doc.fileUrl}
+                alt={docTypeMap[doc.docType] || 'Giấy tờ'}
+                className="w-full h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => window.open(doc.fileUrl, '_blank')}
+                onError={() => setImageError(true)}
+              />
+              <a
+                href={doc.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 hover:text-blue-300 underline block"
+              >
+                Xem tài liệu đầy đủ →
+              </a>
+            </div>
+          ) : (
+            <a
+              href={doc.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-400 hover:text-blue-300 underline block"
+            >
+              Xem tài liệu →
+            </a>
+          )}
+        </div>
+      )}
+      
+      <button
+        type="button"
+        onClick={onDelete}
+        className="mt-2 px-3 py-1 text-xs bg-red-600/20 text-red-400 border border-red-500/50 rounded-lg hover:bg-red-600/30"
+      >
+        Xóa
+      </button>
     </div>
   );
 }

@@ -74,8 +74,8 @@ export function SocketNotificationProvider({ children }: { children: React.React
             });
         };
 
-        const handleConnected = (data: any) => {
-            console.log('Socket connected:', data);
+        const handleConnected = () => {
+            // Socket connected
         };
 
         // Initialize socket synchronously (now safe with conditional require)

@@ -55,14 +55,9 @@ function ReturnsContent() {
             try {
                 setLoading(true);
                 const res = await rentalProcessService.returnsByBranch(employee.branchId);
-                
-                console.log("[Returns] API Response:", res);
-                console.log("[Returns] BranchId:", employee.branchId);
 
                 const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
                 const totalCount = res?.total ?? items.length;
-
-                console.log("[Returns] Parsed items:", items.length, "Total:", totalCount);
 
                 setReturns(items);
                 setTotal(totalCount);

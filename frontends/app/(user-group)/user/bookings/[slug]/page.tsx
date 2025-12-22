@@ -78,9 +78,6 @@ export default function BookingPage() {
                 const dates = avai.dates ?? [];
                 const ranges = avai.unavailableRanges ?? [];
                 
-                console.log("Unavailable dates:", dates);
-                console.log("Unavailable ranges:", ranges);
-                
                 setUnavailableRanges(ranges);
                 setDisabledDates(dates);
             } catch (err) {

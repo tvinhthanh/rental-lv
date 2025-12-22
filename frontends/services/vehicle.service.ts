@@ -17,7 +17,6 @@ export const vehicleService = {
         const qs = Object.keys(cleanParams).length > 0 
             ? `?${new URLSearchParams(cleanParams).toString()}` 
             : "";
-        console.log('[VehicleService] getAll params:', params, '→ cleanParams:', cleanParams, '→ query:', qs);
         return api.get(`/vehicles${qs}`);
     },
 

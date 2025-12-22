@@ -188,12 +188,9 @@ Yêu cầu:
 
 ### 📚 Tài liệu thêm
 
-- `TECH_STACK.md` – Tech stack chi tiết.
-- `QUICKSTART.md` – Hướng dẫn dựng project template.
-- `INDEX.md` – Roadmap 5 phase + budget.
-- `CHECKLIST.md` – Checklist 35 bảng/tính năng.
-- `PHAN_TICH_PHAN_THIEU.md` – Phân tích phần đã làm & còn thiếu dựa trên code.
-- `KIEM_TRA_MODULES.md` – **So sánh Prisma models vs Backend modules (24/37 đã có)**
+- `TECH_STACK.md` – Tech stack chi tiết (packages, versions).
+- `QUICKSTART.md` – Hướng dẫn setup trong 10 phút.
+- `DOCS.md` – Tài liệu chi tiết (phân tích modules, roadmap, checklist).
 
 ---
 

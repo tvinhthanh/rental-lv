@@ -55,7 +55,7 @@ function ReturnsContent() {
             try {
                 setLoading(true);
                 const res = await rentalProcessService.returnsByBranch(employee.branchId);
-                
+
                 const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
                 const totalCount = res?.total ?? items.length;
                 setReturns(items);

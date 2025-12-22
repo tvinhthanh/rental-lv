@@ -75,8 +75,8 @@ export function SocketNotificationProvider({ children }: { children: ReactNode }
             });
         };
 
-        const handleConnected = (data: any) => {
-            console.log('Socket connected:', data);
+        const handleConnected = () => {
+            // Socket connected
         };
 
         socket.on('notification', handleNotification);

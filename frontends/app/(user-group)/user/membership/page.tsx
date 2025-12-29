@@ -93,22 +93,20 @@ export default function MembershipPage() {
             return;
         }
 
-        // Get customer by userId
         try {
             setUpgrading(planId);
             const customer = await customerService.getByUserId(user.id);
-            
+
             if (!customer) {
                 toast.error("Không tìm thấy thông tin khách hàng");
                 return;
             }
 
             const membershipTier = planId.toUpperCase() === "PREMIUM" ? "PREMIUM" : "VIP";
-            
             await customerService.upgradeMembership(customer.id, membershipTier);
-            
+
             toast.success(`Nâng cấp thành công lên ${membershipTier}!`);
-            router.refresh(); // Refresh để cập nhật user data
+            router.refresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message || "Nâng cấp thất bại. Vui lòng thử lại.");
         } finally {
@@ -249,7 +247,7 @@ export default function MembershipPage() {
                                 className="text-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-800 transition-all duration-300 hover:scale-105"
                             >
                                 <div className="text-3xl mb-2">{benefit.icon}</div>
-                                <h3 className="text-lg font-semibold text-white mb-2">
+                                <h3 className="text-lg font-semibold text-white mb-1">
                                     {benefit.title}
                                 </h3>
                                 <p className="text-slate-400 text-sm">{benefit.desc}</p>

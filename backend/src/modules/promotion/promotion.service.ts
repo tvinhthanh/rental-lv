@@ -49,7 +49,7 @@ export class PromotionService {
 
         if (query.status) where.status = query.status;
         if (query.code) {
-            where.code = { equals: query.code, mode: 'insensitive' };
+            where.code = query.code.trim().toUpperCase();
         }
 
         if (query.active && query.active === 'true') {

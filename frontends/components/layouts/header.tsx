@@ -8,10 +8,12 @@ import { ROLE_MENU_HEADER } from "@/lib/role-menu";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Settings, FileText } from "lucide-react";
+import { useProfile } from "@/hooks/auth/user-profile";
 
 export default function Header() {
     const router = useRouter();
     const { user, isAuthenticated, logout } = useAuth();
+    const { profile } = useProfile(); // Get profile to access avatarUrl
     const [open, setOpen] = useState(false);
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
     const { settings } = useSettings();
@@ -88,7 +90,8 @@ export default function Header() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="hover:text-cyan-300 transition-colors font-medium"
+                                className="hover:text-cyan-300 transition-colors font-medium cursor-pointer"
+                                prefetch={true}
                             >
                                 {item.label}
                             </Link>
@@ -137,9 +140,47 @@ export default function Header() {
                         <div className="relative">
                             <button
                                 onClick={() => setOpen(!open)}
-                                className="text-gray-200 font-semibold hover:text-cyan-300"
+                                className="flex items-center gap-2 text-gray-200 font-semibold hover:text-cyan-300 transition-colors"
                             >
-                                {user?.name || user?.email}
+                                {(() => {
+                                    // Get avatarUrl from profile first, then from user
+                                    const avatarUrl = profile?.avatarUrl || user?.avatarUrl || user?.avatar;
+                                    
+                                    if (avatarUrl) {
+                                        // Check if URL is absolute or relative
+                                        const isAbsoluteUrl = avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://') || avatarUrl.startsWith('//');
+                                        const imageUrl = isAbsoluteUrl 
+                                            ? avatarUrl 
+                                            : `${process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001'}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
+                                        
+                                        return (
+                                            <img 
+                                                src={imageUrl} 
+                                                alt={user?.name || user?.email || "User"}
+                                                className="w-8 h-8 rounded-full object-cover border-2 border-cyan-400/30"
+                                                onError={(e) => {
+                                                    // On error, replace with fallback
+                                                    const parent = e.currentTarget.parentElement;
+                                                    if (parent) {
+                                                        e.currentTarget.style.display = 'none';
+                                                        const fallback = document.createElement('div');
+                                                        fallback.className = 'w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm border-2 border-cyan-400/30';
+                                                        fallback.textContent = (user?.name || user?.email || "U").charAt(0).toUpperCase();
+                                                        parent.insertBefore(fallback, e.currentTarget);
+                                                    }
+                                                }}
+                                            />
+                                        );
+                                    }
+                                    
+                                    // No avatar - show fallback with initial
+                                    return (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm border-2 border-cyan-400/30">
+                                            {(user?.name || user?.email || "U").charAt(0).toUpperCase()}
+                                        </div>
+                                    );
+                                })()}
+                                <span>{user?.name || user?.email}</span>
                             </button>
 
                             {open && (

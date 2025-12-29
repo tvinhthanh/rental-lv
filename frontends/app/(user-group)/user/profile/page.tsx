@@ -142,6 +142,7 @@ export default function ProfilePage() {
             // Invalidate queries để refresh data
             queryClient.invalidateQueries({ queryKey: ["profile"] });
             queryClient.invalidateQueries({ queryKey: ["current-user"] });
+            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] }); // Refresh header user data
             
             toast.success("Tạo hồ sơ khách hàng thành công!");
             // Reload để refresh profile
@@ -182,6 +183,7 @@ export default function ProfilePage() {
             // Invalidate queries để refresh data
             queryClient.invalidateQueries({ queryKey: ["profile"] });
             queryClient.invalidateQueries({ queryKey: ["current-user"] });
+            queryClient.invalidateQueries({ queryKey: ["auth", "profile"] }); // Refresh header user data
             
             toast.success("Cập nhật hồ sơ thành công");
         } catch (err: any) {

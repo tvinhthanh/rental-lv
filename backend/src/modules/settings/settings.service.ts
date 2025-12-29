@@ -144,7 +144,7 @@ export class SettingsService {
         const result: Record<string, any> = {};
         
         for (const key of publicKeys) {
-            const setting = settings.find(s => s.key === key);
+            const setting = settings.find((s: any) => s.key === key);
             if (setting) {
                 try {
                     result[key] = JSON.parse(setting.value);

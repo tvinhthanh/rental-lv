@@ -376,7 +376,7 @@ export class BookingService {
         }
 
         // Convert từng range
-        const ranges = bookings.map(b => ({
+        const ranges = bookings.map((b: any) => ({
             start: b.pickupDate,
             end: b.returnDate
         }));

@@ -225,7 +225,7 @@ function CarsPageContent() {
                     return (
                         <div
                             key={car.id}
-                            className="relative bg-white dark:bg-zinc-900 rounded-xl shadow hover:shadow-lg transition border border-gray-200 dark:border-zinc-800"
+                            className="relative bg-slate-900 border border-slate-800 rounded-xl shadow-lg hover:shadow-xl transition"
                         >
                             <span
                                 className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-white rounded-full ${getStatusColor(
@@ -246,19 +246,19 @@ function CarsPageContent() {
                             />
 
                             <div className="p-4">
-                                <h3 className="text-xl font-bold mb-1">{car.name}</h3>
+                                <h3 className="text-xl font-bold mb-1 text-white">{car.name}</h3>
 
-                                <p className="text-blue-600 font-semibold mb-3">{price}</p>
+                                <p className="text-blue-400 font-semibold mb-3">{price}</p>
 
-                                <p className="text-sm text-gray-600 mb-2">
+                                <p className="text-sm text-slate-300 mb-2">
                                     Danh mục: {car.category?.name}
                                 </p>
 
-                                <p className="text-sm text-gray-600 mb-4">
+                                <p className="text-sm text-slate-300 mb-4">
                                     Chi nhánh: {car.branch?.name}
                                 </p>
 
-                                <p className="text-sm text-gray-600 mb-2">
+                                <p className="text-sm text-slate-300 mb-2">
                                     Hãng xe: {car.brand?.name}
                                 </p>
 

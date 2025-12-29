@@ -249,11 +249,17 @@ function CarsPageContent() {
 
                                 <p className="text-blue-400 font-semibold mb-3">{price}</p>
 
-                                <p className="text-sm text-slate-300 mb-2">Danh mục: {car.category?.name}</p>
+                                <p className="text-sm text-slate-300 mb-2">
+                                    Danh mục: {car.category?.name}
+                                </p>
 
-                                <p className="text-sm text-slate-300 mb-4">Chi nhánh: {car.branch?.name}</p>
+                                <p className="text-sm text-slate-300 mb-4">
+                                    Chi nhánh: {car.branch?.name}
+                                </p>
 
-                                <p className="text-sm text-slate-300 mb-2">Hãng xe: {car.brand?.name}</p>
+                                <p className="text-sm text-slate-300 mb-2">
+                                    Hãng xe: {car.brand?.name}
+                                </p>
 
                                 <Link
                                     href={`/user/cars/${car.slug}`}

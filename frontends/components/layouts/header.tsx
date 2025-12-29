@@ -59,14 +59,14 @@ export default function Header() {
         }
     };
     return (
-        <header className="relative w-full px-6 py-4">
+        <header className="relative z-50 w-full px-6 py-4">
             {/* BG Blur */}
             <div className="absolute" />
 
             {/* Container */}
             <div
                 className="
-        relative z-10
+        relative z-50
         max-w-7xl mx-auto
         flex items-center justify-between
       "

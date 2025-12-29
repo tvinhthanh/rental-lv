@@ -25,7 +25,8 @@ export class PromotionService {
     }
 
     private async ensureUniqueCode(code: string, ignoreId?: string) {
-        const existing = await this.prisma.promotion.findUnique({ where: { code } });
+        const normalized = code.toUpperCase();
+        const existing = await this.prisma.promotion.findUnique({ where: { code: normalized } });
         if (existing && existing.id !== ignoreId) {
             throw new BadRequestException('Promotion code already exists');
         }
@@ -48,11 +49,13 @@ export class PromotionService {
 
         if (query.status) where.status = query.status;
         if (query.code) {
-            where.code = { equals: query.code, mode: 'insensitive' };
+            where.code = query.code.trim().toUpperCase();
         }
 
         if (query.active && query.active === 'true') {
             const now = new Date();
+            const todayStart = new Date(now);
+            todayStart.setHours(0, 0, 0, 0);
             where.status = 'ACTIVE';
             where.AND = [
                 ...(where.AND || []),
@@ -65,7 +68,7 @@ export class PromotionService {
                 {
                     OR: [
                         { endDate: null },
-                        { endDate: { gte: now } }
+                        { endDate: { gte: todayStart } }
                     ]
                 }
             ];
@@ -98,7 +101,8 @@ export class PromotionService {
 
     async create(dto: CreatePromotionDto, actorId?: string) {
         this.ensureDiscount(dto);
-        await this.ensureUniqueCode(dto.code);
+        const code = dto.code.trim().toUpperCase();
+        await this.ensureUniqueCode(code);
 
         const startDate = dto.startDate ? new Date(dto.startDate) : null;
         const endDate = dto.endDate ? new Date(dto.endDate) : null;
@@ -106,7 +110,7 @@ export class PromotionService {
 
         const promotion = await this.prisma.promotion.create({
             data: {
-                code: dto.code,
+                code,
                 name: dto.name,
                 description: dto.description,
                 discountPercent: dto.discountPercent,
@@ -124,9 +128,10 @@ export class PromotionService {
 
     async update(id: string, dto: UpdatePromotionDto, actorId?: string) {
         const existing = await this.findOne(id);
+        const finalCode = dto.code ? dto.code.trim().toUpperCase() : existing.code;
 
-        if (dto.code && dto.code !== existing.code) {
-            await this.ensureUniqueCode(dto.code, id);
+        if (finalCode !== existing.code) {
+            await this.ensureUniqueCode(finalCode, id);
         }
 
         const finalPercent = dto.discountPercent ?? existing.discountPercent;
@@ -142,7 +147,7 @@ export class PromotionService {
         const promotion = await this.prisma.promotion.update({
             where: { id },
             data: {
-                code: dto.code,
+                code: finalCode,
                 name: dto.name,
                 description: dto.description,
                 discountPercent: dto.discountPercent,

@@ -47,7 +47,9 @@ export class PromotionService {
         }
 
         if (query.status) where.status = query.status;
-        if (query.code) where.code = query.code;
+        if (query.code) {
+            where.code = { equals: query.code, mode: 'insensitive' };
+        }
 
         if (query.active && query.active === 'true') {
             const now = new Date();

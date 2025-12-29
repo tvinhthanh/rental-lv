@@ -60,23 +60,6 @@ export class ContractController {
         return this.service.attachFile(id, file, user?.id);
     }
 
-    @Patch(':id/sign')
-    @UseGuards(JwtAuthGuard)
-    sign(
-        @Param('id') id: string,
-        @Body() body: { customerSignature?: string; employeeSignature?: string; signedBy?: string; fileUrl?: string },
-        @CurrentUser() user: any
-    ) {
-        return this.service.sign(id, body, user?.id);
-    }
-
-    @Post(':id/attachment')
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file'))
-    uploadAttachment(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @CurrentUser() user: any) {
-        return this.service.attachFile(id, file, user?.id);
-    }
-
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     delete(@Param('id') id: string, @CurrentUser() user: any) {

@@ -78,14 +78,8 @@ export default function CustomersPage() {
                         <p className="mt-1 text-xs sm:text-sm text-slate-400">
                             Danh sách khách hàng và điểm thưởng
                         </p>
+                    </div>
                 </div>
-                <button
-                    onClick={() => { setSelected(null); setOpen(true); }}
-                        className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm sm:text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                        + Thêm Khách Hàng
-                </button>
-            </div>
 
                 {/* Search */}
                 <div className="mb-4 sm:mb-6">

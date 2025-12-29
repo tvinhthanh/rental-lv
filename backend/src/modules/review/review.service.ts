@@ -185,7 +185,7 @@ export class ReviewService {
             return;
         }
 
-        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        const avgRating = reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length;
 
         await this.prisma.vehicle.update({
             where: { id: vehicleId },

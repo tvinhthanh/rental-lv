@@ -30,7 +30,7 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
 
         const role = localStorage.getItem("role");
 
-        if (role === "ADMIN") router.push("/admin");
+        if (role === "ADMIN") router.push("/admin/dashboard");
         else if (role === "EMPLOYEE") router.push("/employee");
         else router.push("/");
       },

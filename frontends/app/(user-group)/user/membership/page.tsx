@@ -117,7 +117,7 @@ export default function MembershipPage() {
                         return (
                             <div
                                 key={plan.id}
-                                className={`relative rounded-2xl border-2 ${plan.borderColor} bg-gradient-to-br ${plan.color} p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                                className={`relative flex flex-col rounded-2xl border-2 ${plan.borderColor} bg-gradient-to-br ${plan.color} p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                                     plan.popular ? "ring-2 ring-purple-500/50" : ""
                                 }`}
                             >
@@ -142,7 +142,7 @@ export default function MembershipPage() {
                                     </div>
                                 </div>
 
-                                <ul className="space-y-3 mb-6">
+                                <ul className="space-y-3 mb-6 flex-grow">
                                     {plan.features.map((feature, index) => (
                                         <li key={index} className="flex items-start gap-2">
                                             <Check className={`w-5 h-5 ${plan.textColor} flex-shrink-0 mt-0.5`} />
@@ -152,7 +152,7 @@ export default function MembershipPage() {
                                 </ul>
 
                                 <button
-                                    className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                                    className={`w-full py-3 rounded-lg font-semibold transition-all mt-auto ${
                                         plan.popular
                                             ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
                                             : `bg-slate-800 text-white hover:bg-slate-700 ${plan.borderColor} border`

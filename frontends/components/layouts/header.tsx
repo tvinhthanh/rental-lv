@@ -143,8 +143,8 @@ export default function Header() {
                                 className="flex items-center gap-2 text-gray-200 font-semibold hover:text-cyan-300 transition-colors"
                             >
                                 {(() => {
-                                    // Get avatarUrl from profile first, then from user
-                                    const avatarUrl = profile?.avatarUrl || user?.avatarUrl || user?.avatar;
+                                    // Get avatarUrl from profile (user object doesn't have avatarUrl)
+                                    const avatarUrl = profile?.avatarUrl;
                                     
                                     if (avatarUrl) {
                                         // Check if URL is absolute or relative

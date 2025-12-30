@@ -15,8 +15,16 @@ const isPromotionActive = (promo?: any) => {
     if (!promo) return false;
     if (promo.status && promo.status !== "ACTIVE") return false;
     const now = new Date();
-    if (promo.startDate && new Date(promo.startDate) > now) return false;
-    if (promo.endDate && new Date(promo.endDate) < now) return false;
+    if (promo.startDate) {
+        const start = new Date(promo.startDate);
+        start.setHours(0, 0, 0, 0);
+        if (start > now) return false;
+    }
+    if (promo.endDate) {
+        const end = new Date(promo.endDate);
+        end.setHours(23, 59, 59, 999);
+        if (end < now) return false;
+    }
     const used = Number(promo.usedCount || 0);
     if (promo.usageLimit && used >= promo.usageLimit) return false;
     return true;
@@ -251,13 +259,10 @@ export default function BookingPage() {
                 pickupDate: startDate.toISOString().split("T")[0],
                 returnDate: endDate.toISOString().split("T")[0],
                 baseAmount: totalAmount,
-                discountAmount: 0,
-                pickupDate: startDate,
-                returnDate: endDate,
+                discountAmount: selectedPromotion ? promoDiscount : 0,
                 ...(selectedPromotion
                     ? {
                         promotionId: selectedPromotion.id,
-                        discountAmount: promoDiscount,
                     }
                     : {}),
                 note: "",

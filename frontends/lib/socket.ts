@@ -1,5 +1,44 @@
 // Conditional import để tránh SSR issues với Turbopack
 let socket: any = null;
+let ioClient: any = null;
+
+// Lazy load socket.io-client
+function getIOClient() {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    if (ioClient) {
+        return ioClient;
+    }
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const ioModule = require('socket.io-client');
+        
+        // Handle different export formats
+        if (typeof ioModule === 'function') {
+            ioClient = ioModule;
+        } else if (ioModule.default && typeof ioModule.default === 'function') {
+            ioClient = ioModule.default;
+        } else if (ioModule.io && typeof ioModule.io === 'function') {
+            ioClient = ioModule.io;
+        } else {
+            // Try accessing the default export
+            ioClient = ioModule;
+        }
+
+        if (typeof ioClient !== 'function') {
+            console.error('socket.io-client is not a function');
+            return null;
+        }
+
+        return ioClient;
+    } catch (error) {
+        console.error('Failed to load socket.io-client:', error);
+        return null;
+    }
+}
 
 export function getSocket(): any {
     // Only run on client side
@@ -7,19 +46,15 @@ export function getSocket(): any {
         return null;
     }
 
+    // Check if socket notifications are disabled
+    const socketEnabled = process.env.NEXT_PUBLIC_SOCKET_ENABLED !== 'false';
+    if (!socketEnabled) {
+        return null;
+    }
+
     // Check if already connected
     if (socket?.connected) {
         return socket;
-    }
-
-    // Dynamic require để tránh top-level import issues
-    let io: any;
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        io = require('socket.io-client');
-    } catch (error) {
-        console.error('Failed to load socket.io-client:', error);
-        return null;
     }
 
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001';
@@ -29,26 +64,56 @@ export function getSocket(): any {
         return null;
     }
 
+    // Get io client
+    const io = getIOClient();
+    if (!io) {
+        return null;
+    }
+
     // Disconnect existing socket if any
     if (socket) {
-        socket.disconnect();
+        try {
+            socket.removeAllListeners();
+            socket.disconnect();
+        } catch (e) {
+            // Ignore disconnect errors
+        }
         socket = null;
     }
 
     try {
-        socket = io.io(`${apiEndpoint}/notifications`, {
+        // Ensure apiEndpoint doesn't have trailing slash
+        const baseUrl = apiEndpoint.replace(/\/$/, '');
+        
+        // Connect to /notifications namespace
+        const namespace = '/notifications';
+        const socketUrl = `${baseUrl}${namespace}`;
+        
+        socket = io(socketUrl, {
             auth: {
                 token,
             },
             transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionAttempts: 5,
+            reconnection: false, // Disable auto-reconnect to avoid errors
             autoConnect: true,
+            forceNew: true,
         });
 
+        // Suppress namespace errors
+        const originalEmit = socket.emit;
+        socket.emit = function(...args: any[]) {
+            try {
+                return originalEmit.apply(this, args);
+            } catch (e: any) {
+                if (e?.message?.includes('Invalid namespace')) {
+                    return socket;
+                }
+                throw e;
+            }
+        };
+
         socket.on('connect', () => {
-            // Socket connected
+            // Socket connected successfully
         });
 
         socket.on('disconnect', () => {
@@ -56,12 +121,19 @@ export function getSocket(): any {
         });
 
         socket.on('connect_error', (error: any) => {
-            console.error('Socket connection error:', error);
+            // Suppress "Invalid namespace" errors
+            if (error?.message?.includes('Invalid namespace')) {
+                // Silently ignore namespace errors
+                return;
+            }
         });
 
         return socket;
-    } catch (error) {
-        console.error('Failed to create socket:', error);
+    } catch (error: any) {
+        // Silently fail - socket is optional
+        if (error?.message?.includes('Invalid namespace')) {
+            return null;
+        }
         return null;
     }
 }

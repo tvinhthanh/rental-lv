@@ -63,11 +63,19 @@ export class BookingService {
         if (promo.status !== 'ACTIVE') throw new BadRequestException('Promotion is not active');
 
         const now = new Date();
-        if (promo.startDate && promo.startDate > now) {
-            throw new BadRequestException('Promotion not started');
+        if (promo.startDate) {
+            const start = new Date(promo.startDate);
+            start.setHours(0, 0, 0, 0);
+            if (start > now) {
+                throw new BadRequestException('Promotion not started');
+            }
         }
-        if (promo.endDate && promo.endDate < now) {
-            throw new BadRequestException('Promotion expired');
+        if (promo.endDate) {
+            const end = new Date(promo.endDate);
+            end.setHours(23, 59, 59, 999);
+            if (end < now) {
+                throw new BadRequestException('Promotion expired');
+            }
         }
         if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
             throw new BadRequestException('Promotion usage limit reached');

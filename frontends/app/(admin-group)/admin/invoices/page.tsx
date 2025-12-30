@@ -24,10 +24,12 @@ export default function AdminInvoicesPage() {
         async function loadInvoices() {
             try {
                 setLoading(true);
-                const res = await billingService.invoices();
-                const items = Array.isArray(res) ? res : (res?.items || []);
+                const res = await billingService.getAllInvoices({ limit: 1000 });
+                const data = res?.data || res;
+                const items = data?.items || (Array.isArray(data) ? data : []);
+                const totalCount = data?.total || items.length;
                 setInvoices(items);
-                setTotal(items.length);
+                setTotal(totalCount);
             } catch (err) {
                 console.error("Load invoices failed:", err);
                 setError("Không thể tải danh sách hóa đơn");

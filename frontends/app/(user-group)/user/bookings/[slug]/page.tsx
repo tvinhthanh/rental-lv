@@ -259,13 +259,10 @@ export default function BookingPage() {
                 pickupDate: startDate.toISOString().split("T")[0],
                 returnDate: endDate.toISOString().split("T")[0],
                 baseAmount: totalAmount,
-                discountAmount: 0,
-                pickupDate: startDate,
-                returnDate: endDate,
+                discountAmount: selectedPromotion ? promoDiscount : 0,
                 ...(selectedPromotion
                     ? {
                         promotionId: selectedPromotion.id,
-                        discountAmount: promoDiscount,
                     }
                     : {}),
                 note: "",

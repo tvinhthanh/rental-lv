@@ -570,6 +570,10 @@ Sau đó tạo module theo template trong MISSING_MODULES.md.
    - ✅ Đã setup webhook verification
    - ⚠️ Cần: Thêm STRIPE_SECRET_KEY và STRIPE_PUBLISHABLE_KEY vào .env
    - 📝 Xem hướng dẫn trong STRIPE_SETUP.md
+5. **Payment gateway** integration - 🔴 HIGH PRIORITY
+   - Mục đích: Xử lý thanh toán online
+   - Options: VNPay, Stripe, PayPal
+   - Cần: Payment service, webhook handlers
 
 6. **Rich snippets** implementation - 🟡 MEDIUM PRIORITY
    - Mục đích: SEO structured data (JSON-LD)

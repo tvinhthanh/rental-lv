@@ -562,10 +562,14 @@ Sau đó tạo module theo template trong MISSING_MODULES.md.
      npm install @nestjs/throttler
      ```
 
-5. **Payment gateway** integration - 🔴 HIGH PRIORITY
-   - Mục đích: Xử lý thanh toán online
-   - Options: VNPay, Stripe, PayPal
-   - Cần: Payment service, webhook handlers
+5. **Payment gateway** integration - ✅ ĐÃ IMPLEMENT (Stripe)
+   - ✅ Đã tạo PaymentGatewayModule với Stripe integration
+   - ✅ Đã tạo PaymentGatewayService với createPaymentIntent, webhook handling
+   - ✅ Đã tạo PaymentGatewayController với các endpoints
+   - ✅ Đã tạo StripePaymentButton component cho frontend
+   - ✅ Đã setup webhook verification
+   - ⚠️ Cần: Thêm STRIPE_SECRET_KEY và STRIPE_PUBLISHABLE_KEY vào .env
+   - 📝 Xem hướng dẫn trong STRIPE_SETUP.md
 
 6. **Rich snippets** implementation - 🟡 MEDIUM PRIORITY
    - Mục đích: SEO structured data (JSON-LD)

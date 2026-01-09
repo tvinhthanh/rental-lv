@@ -53,6 +53,13 @@ model Customer {
   membershipTier String @default("BASIC")
   totalSpent     Float  @default(0)
 
+  isCorporate   Boolean @default(false)
+  companyName   String?
+  taxCode       String?
+  contactPerson String?
+  creditLimit   Float?  @default(0)
+  paymentTerms  String? // NET_30, NET_60, etc.
+
   avatarUrl String?
 
   userId String? @unique @db.ObjectId
@@ -203,6 +210,7 @@ model Vehicle {
   metaTitle       String?
   metaDescription String?
   seoDescription  String?
+  viewCount       Int?    @default(0)
   rating          Float?  @default(0)
   reviewCount     Int?    @default(0)
   photos          String[]
@@ -231,6 +239,7 @@ model Vehicle {
   maintenances     Maintenance[]
   bookings         Booking[]
   reviews          Review[]
+  pricingRules     PricingRule[]
 }
 
 
@@ -665,6 +674,19 @@ model Page {
 }
 
 ///////////////////////////////////////////////////////////
+// SEO REDIRECT
+///////////////////////////////////////////////////////////
+model SeoRedirect {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromUrl   String   @unique
+  toUrl     String
+  type      String   @default("301") // 301, 302
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+///////////////////////////////////////////////////////////
 // PASSWORD RESET TOKEN
 ///////////////////////////////////////////////////////////
 model PasswordResetToken {
@@ -817,7 +839,8 @@ model Tenant {
 ///////////////////////////////////////////////////////////
 model PricingRule {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  categoryId String @db.ObjectId
+  categoryId String? @db.ObjectId
+  vehicleId  String? @db.ObjectId
   name       String
   type       String   // weekend, holiday, seasonal
   percent    Float?
@@ -827,7 +850,8 @@ model PricingRule {
 
   createdAt DateTime @default(now())
 
-  category VehicleCategory @relation(fields: [categoryId], references: [id])
+  category VehicleCategory? @relation(fields: [categoryId], references: [id])
+  vehicle  Vehicle?         @relation(fields: [vehicleId], references: [id])
 }
 
 ///////////////////////////////////////////////////////////

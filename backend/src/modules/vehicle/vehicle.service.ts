@@ -86,7 +86,7 @@ export class VehicleService {
     // ----------------------------------------------------------
     // DETAIL
     // ----------------------------------------------------------
-    async findOne(id: string) {
+    async findOne(id: string, incrementView: boolean = true) {
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { id },
             include: {
@@ -103,10 +103,20 @@ export class VehicleService {
         if (!vehicle)
             throw new NotFoundException('Vehicle not found');
 
+        // Increment view count (async, don't wait for it)
+        if (incrementView) {
+            this.prisma.vehicle.update({
+                where: { id },
+                data: { viewCount: { increment: 1 } },
+            }).catch((err) => {
+                console.error('Failed to increment viewCount:', err);
+            }); // Fire and forget - don't block response
+        }
+
         return vehicle;
     }
 
-    async findBySlug(slug: string) {
+    async findBySlug(slug: string, incrementView: boolean = true) {
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { slug },
             include: {
@@ -118,6 +128,17 @@ export class VehicleService {
         });
 
         if (!vehicle) throw new NotFoundException('Vehicle not found');
+
+        // Increment view count (async, don't wait for it)
+        if (incrementView) {
+            this.prisma.vehicle.update({
+                where: { id: vehicle.id },
+                data: { viewCount: { increment: 1 } },
+            }).catch((err) => {
+                console.error('Failed to increment viewCount:', err);
+            }); // Fire and forget - don't block response
+        }
+
         return vehicle;
     }
 

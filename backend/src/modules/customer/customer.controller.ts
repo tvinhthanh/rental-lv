@@ -42,4 +42,9 @@ export class CustomerController {
     getByUserId(@Param('userId') userId: string) {
         return this.service.getByUserId(userId);
     }
+
+    @Patch(':id/membership')
+    upgradeMembership(@Param('id') id: string, @Body() body: { membershipTier: string }) {
+        return this.service.upgradeMembership(id, body.membershipTier);
+    }
 }

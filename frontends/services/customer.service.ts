@@ -11,4 +11,6 @@ export const customerService = {
     update: (id: string, data: any) => api.put(`/customers/${id}`, data),
     delete: (id: string) => api.delete(`/customers/${id}`),
     getByUserId: (userId: string) => api.get(`/customers/user/${userId}`),
+    upgradeMembership: (id: string, membershipTier: string) => 
+        api.patch(`/customers/${id}/membership`, { membershipTier }),
 };

@@ -146,4 +146,31 @@ export class CustomerService {
     async getByUserId(userId: string) {
         return this.prisma.customer.findUnique({ where: { userId } });
     }
+
+    //  UPGRADE MEMBERSHIP
+    async upgradeMembership(id: string, membershipTier: string, actorId?: string) {
+        const customer = await this.findOne(id);
+
+        // Validate membership tier
+        const validTiers = ['BASIC', 'PREMIUM', 'VIP'];
+        if (!validTiers.includes(membershipTier.toUpperCase())) {
+            throw new BadRequestException(`Invalid membership tier. Must be one of: ${validTiers.join(', ')}`);
+        }
+
+        const before = { membershipTier: customer.membershipTier };
+
+        const updated = await this.prisma.customer.update({
+            where: { id },
+            data: {
+                membershipTier: membershipTier.toUpperCase()
+            }
+        });
+
+        await this.audit.log(actorId ?? null, 'MEMBERSHIP_UPGRADE', 'Customer', id, {
+            before,
+            after: { membershipTier: updated.membershipTier }
+        });
+
+        return updated;
+    }
 }

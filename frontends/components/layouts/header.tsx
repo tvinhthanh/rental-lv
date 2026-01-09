@@ -9,6 +9,8 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Settings, FileText } from "lucide-react";
 import { useProfile } from "@/hooks/auth/user-profile";
+import ThemeSwitch from "@/components/common/theme-switch";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 export default function Header() {
     const router = useRouter();
@@ -136,6 +138,11 @@ export default function Header() {
                 {/* RIGHT SIDE */}
                 {isAuthenticated ? (
                     <div className="flex items-center gap-4">
+                        {/* Notification Center */}
+                        <NotificationCenter />
+                        
+                        {/* Theme Switch */}
+                        <ThemeSwitch />
 
                         <div className="relative">
                             <button

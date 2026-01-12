@@ -54,6 +54,11 @@ export class BillingController {
         return this.billing.createPayment(dto);
     }
 
+    @Post('payments/cash')
+    createCashPayment(@Body() dto: CreatePaymentDto) {
+        return this.billing.createCashPayment(dto);
+    }
+
     @Get('payments/:invoiceId')
     payments(@Param('invoiceId') invoiceId: string) {
         return this.billing.findPayments(invoiceId);

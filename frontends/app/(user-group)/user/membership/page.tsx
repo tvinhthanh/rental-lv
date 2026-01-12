@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Check, Crown, Star, Zap } from "lucide-react";
+import { Check, Crown, Star, Zap, Sparkles, ArrowRight, Loader2 } from "lucide-react";
+import { customerService } from "@/services/customer.service";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function MembershipPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [loading, setLoading] = useState(true);
+    const [upgrading, setUpgrading] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         if (!userLoading) {
@@ -77,6 +82,40 @@ export default function MembershipPage() {
         },
     ];
 
+    const handleUpgrade = async (planId: string) => {
+        if (!user?.id) {
+            toast.error("Vui lòng đăng nhập để nâng cấp");
+            return;
+        }
+
+        if (planId === "basic") {
+            toast.info("Bạn đang sử dụng gói này");
+            return;
+        }
+
+        // Get customer by userId
+        try {
+            setUpgrading(planId);
+            const customer = await customerService.getByUserId(user.id);
+            
+            if (!customer) {
+                toast.error("Không tìm thấy thông tin khách hàng");
+                return;
+            }
+
+            const membershipTier = planId.toUpperCase() === "PREMIUM" ? "PREMIUM" : "VIP";
+            
+            await customerService.upgradeMembership(customer.id, membershipTier);
+            
+            toast.success(`Nâng cấp thành công lên ${membershipTier}!`);
+            router.refresh(); // Refresh để cập nhật user data
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Nâng cấp thất bại. Vui lòng thử lại.");
+        } finally {
+            setUpgrading(null);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100">
             <div className="mx-auto max-w-7xl px-4 py-8">
@@ -92,17 +131,23 @@ export default function MembershipPage() {
 
                 {/* Current Membership Status */}
                 {user && (
-                    <div className="mb-8 rounded-xl border border-slate-700 bg-slate-900/70 p-6">
+                    <div className="mb-8 rounded-xl border-2 border-slate-700 bg-gradient-to-br from-slate-900/90 to-slate-800/90 p-6 shadow-xl">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-slate-400 mb-1">Gói hiện tại</p>
-                                <p className="text-2xl font-bold text-white">
-                                    {user.membership || "Gói Cơ Bản"}
-                                </p>
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30">
+                                    <Sparkles className="w-6 h-6 text-blue-400" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-slate-400 mb-1">Gói hiện tại của bạn</p>
+                                    <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                                        {user.membership || "Gói Cơ Bản"}
+                                    </p>
+                                </div>
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-slate-400 mb-1">Trạng thái</p>
-                                <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-semibold">
+                                <span className="px-4 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 rounded-full text-sm font-semibold border border-green-500/30 flex items-center gap-1">
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                                     Đang hoạt động
                                 </span>
                             </div>
@@ -117,7 +162,7 @@ export default function MembershipPage() {
                         return (
                             <div
                                 key={plan.id}
-                                className={`relative rounded-2xl border-2 ${plan.borderColor} bg-gradient-to-br ${plan.color} p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                                className={`relative flex flex-col rounded-2xl border-2 ${plan.borderColor} bg-gradient-to-br ${plan.color} p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                                     plan.popular ? "ring-2 ring-purple-500/50" : ""
                                 }`}
                             >
@@ -142,7 +187,7 @@ export default function MembershipPage() {
                                     </div>
                                 </div>
 
-                                <ul className="space-y-3 mb-6">
+                                <ul className="space-y-3 mb-6 flex-grow">
                                     {plan.features.map((feature, index) => (
                                         <li key={index} className="flex items-start gap-2">
                                             <Check className={`w-5 h-5 ${plan.textColor} flex-shrink-0 mt-0.5`} />
@@ -152,13 +197,35 @@ export default function MembershipPage() {
                                 </ul>
 
                                 <button
-                                    className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                                    onClick={() => handleUpgrade(plan.id)}
+                                    disabled={upgrading === plan.id || (user?.membership?.toUpperCase() === plan.id.toUpperCase())}
+                                    className={`w-full py-3 rounded-lg font-semibold transition-all mt-auto disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
                                         plan.popular
-                                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-                                            : `bg-slate-800 text-white hover:bg-slate-700 ${plan.borderColor} border`
+                                            ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl hover:scale-105"
+                                            : `bg-slate-800 text-white hover:bg-slate-700 ${plan.borderColor} border hover:scale-105`
                                     }`}
                                 >
-                                    {plan.id === "basic" ? "Đang sử dụng" : "Nâng cấp ngay"}
+                                    {upgrading === plan.id ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <span>Đang xử lý...</span>
+                                        </>
+                                    ) : user?.membership?.toUpperCase() === plan.id.toUpperCase() ? (
+                                        <>
+                                            <Check className="w-4 h-4" />
+                                            <span>Đang sử dụng</span>
+                                        </>
+                                    ) : plan.id === "basic" ? (
+                                        <>
+                                            <Check className="w-4 h-4" />
+                                            <span>Đang sử dụng</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Nâng cấp ngay</span>
+                                            <ArrowRight className="w-4 h-4" />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         );
@@ -166,18 +233,22 @@ export default function MembershipPage() {
                 </div>
 
                 {/* Benefits Section */}
-                <div className="mt-12 rounded-2xl border border-slate-700 bg-slate-900/70 p-8">
-                    <h2 className="text-2xl font-bold text-white mb-6 text-center">
+                <div className="mt-12 rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-900/70 to-slate-800/70 p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 text-center bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
                         Lợi ích khi nâng cấp
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
-                            { title: "Tiết kiệm chi phí", desc: "Giảm giá lên đến 20%" },
-                            { title: "Ưu tiên đặt xe", desc: "Đặt xe nhanh chóng" },
-                            { title: "Hỗ trợ 24/7", desc: "Luôn có người hỗ trợ" },
-                            { title: "Tích điểm thưởng", desc: "Đổi quà hấp dẫn" },
+                            { title: "Tiết kiệm chi phí", desc: "Giảm giá lên đến 20%", icon: "💰" },
+                            { title: "Ưu tiên đặt xe", desc: "Đặt xe nhanh chóng", icon: "⚡" },
+                            { title: "Hỗ trợ 24/7", desc: "Luôn có người hỗ trợ", icon: "🛟" },
+                            { title: "Tích điểm thưởng", desc: "Đổi quà hấp dẫn", icon: "🎁" },
                         ].map((benefit, index) => (
-                            <div key={index} className="text-center">
+                            <div 
+                                key={index} 
+                                className="text-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-800 transition-all duration-300 hover:scale-105"
+                            >
+                                <div className="text-3xl mb-2">{benefit.icon}</div>
                                 <h3 className="text-lg font-semibold text-white mb-2">
                                     {benefit.title}
                                 </h3>

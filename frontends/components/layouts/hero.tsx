@@ -83,20 +83,6 @@ export default function Hero() {
                         />
                     ))}
                 </div>
-                <div className="flex flex-wrap justify-center gap-6 pt-2 text-sm text-blue-100/90">
-                    <span>Xe mới 2022-2024</span>
-                    <span>Bảo dưỡng định kỳ</span>
-                    <span>Hỗ trợ 24/7</span>
-                </div>
-            </div>
-
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                {heroImages.map((_, idx) => (
-                    <span
-                        key={idx}
-                        className={`h-2.5 w-2.5 rounded-full border border-white/50 backdrop-blur ${current === idx ? "bg-white shadow" : "bg-white/40"}`}
-                    />
-                ))}
             </div>
         </section>
     );

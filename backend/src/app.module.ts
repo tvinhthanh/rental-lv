@@ -29,6 +29,14 @@ import { ReviewModule } from './modules/review/review.module';
 import { VehicleDocumentModule } from './modules/vehicle-document/vehicle-document.module';
 import { DepositDetailModule } from './modules/deposit-detail/deposit-detail.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { NotificationTemplateModule } from './modules/notification-template/notification-template.module';
+import { CustomerSegmentModule } from './modules/customer-segment/customer-segment.module';
+import { MarketingCampaignModule } from './modules/marketing-campaign/marketing-campaign.module';
+import { LoyaltyProgramModule } from './modules/loyalty-program/loyalty-program.module';
+import { LoyaltyTransactionModule } from './modules/loyalty-transaction/loyalty-transaction.module';
+import { PricingRuleModule } from './modules/pricing-rule/pricing-rule.module';
+import { PartnerModule } from './modules/partner/partner.module';
+import { PaymentGatewayModule } from './modules/payment-gateway/payment-gateway.module';
 
 @Module({
   imports: [
@@ -58,7 +66,15 @@ import { NotificationModule } from './modules/notification/notification.module';
     ReviewModule,
     VehicleDocumentModule,
     DepositDetailModule,
-    NotificationModule
+    NotificationModule,
+    NotificationTemplateModule,
+    CustomerSegmentModule,
+    MarketingCampaignModule,
+    LoyaltyProgramModule,
+    LoyaltyTransactionModule,
+    PricingRuleModule,
+    PartnerModule,
+    PaymentGatewayModule
   ],
 })
 export class AppModule { }

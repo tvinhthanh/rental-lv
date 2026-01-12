@@ -4,6 +4,27 @@ import { useEffect, useState } from "react";
 import { notFound, useParams, useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
+// Custom styles for disabled dates (rented dates)
+const customDatePickerStyles = `
+    .react-datepicker__day.disabled-date-gray {
+        background-color: #4b5563 !important;
+        color: #9ca3af !important;
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        text-decoration: line-through !important;
+    }
+    .react-datepicker__day.disabled-date-gray:hover {
+        background-color: #4b5563 !important;
+        color: #9ca3af !important;
+    }
+    .react-datepicker__day--disabled {
+        background-color: #374151 !important;
+        color: #6b7280 !important;
+        opacity: 0.4 !important;
+        cursor: not-allowed !important;
+    }
+`;
 import { vehicleService } from "@/services/vehicle.service";
 import { bookingService } from "@/services/booking.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
@@ -230,6 +251,45 @@ export default function BookingPage() {
     };
 
     // ------------------------------------------------------------------
+    // VALIDATION
+    // ------------------------------------------------------------------
+    const hasDateConflict = () => {
+        if (!startDate || !endDate) return false;
+
+        // Check disabled dates
+        const hasDisabledDate = disabledDates.some(dateStr => {
+            const date = new Date(dateStr);
+            date.setHours(0, 0, 0, 0);
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+            end.setHours(0, 0, 0, 0);
+            return date >= start && date <= end;
+        });
+
+        if (hasDisabledDate) return true;
+
+        // Check unavailable ranges
+        const hasRangeConflict = unavailableRanges.some((range: any) => {
+            if (!range.startDate || !range.endDate) return false;
+            const rangeStart = new Date(range.startDate);
+            rangeStart.setHours(0, 0, 0, 0);
+            const rangeEnd = new Date(range.endDate);
+            rangeEnd.setHours(23, 59, 59, 999);
+            
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            // Check if ranges overlap
+            return (start <= rangeEnd && end >= rangeStart);
+        });
+
+        return hasRangeConflict;
+    };
+
+    // ------------------------------------------------------------------
     // SUBMIT BOOKING
     // ------------------------------------------------------------------
     const handleBooking = async () => {
@@ -237,16 +297,9 @@ export default function BookingPage() {
             return alert("Vui lòng chọn ngày hợp lệ.");
         }
 
-        // Kiểm tra xem có ngày nào trong range bị disabled không
-        const hasConflict = disabledDates.some(dateStr => {
-            if (!startDate || !endDate) return false;
-            const date = new Date(dateStr);
-            date.setHours(0, 0, 0, 0);
-            return date >= startDate && date <= endDate;
-        });
-
-        if (hasConflict) {
-            alert("Khoảng ngày bạn chọn có ngày đã được đặt. Vui lòng chọn lại.");
+        // Kiểm tra conflict với dates và ranges
+        if (hasDateConflict()) {
+            alert("Xe không khả dụng cho khoảng ngày bạn chọn. Vui lòng chọn lại.");
             return;
         }
 
@@ -259,13 +312,10 @@ export default function BookingPage() {
                 pickupDate: startDate.toISOString().split("T")[0],
                 returnDate: endDate.toISOString().split("T")[0],
                 baseAmount: totalAmount,
-                discountAmount: 0,
-                pickupDate: startDate,
-                returnDate: endDate,
+                discountAmount: selectedPromotion ? promoDiscount : 0,
                 ...(selectedPromotion
                     ? {
                         promotionId: selectedPromotion.id,
-                        discountAmount: promoDiscount,
                     }
                     : {}),
                 note: "",
@@ -292,7 +342,39 @@ export default function BookingPage() {
     // UI
     // ------------------------------------------------------------------
     return (
-        <div className="max-w-4xl mx-auto p-6 text-gray-200">
+        <>
+            {/* Custom styles for rented dates */}
+            <style jsx global>{`
+                .react-datepicker__day.rented-date-disabled {
+                    background-color: #4b5563 !important;
+                    color: #9ca3af !important;
+                    opacity: 0.6 !important;
+                    cursor: not-allowed !important;
+                    text-decoration: line-through !important;
+                    position: relative;
+                }
+                .react-datepicker__day.rented-date-disabled:hover {
+                    background-color: #4b5563 !important;
+                    color: #9ca3af !important;
+                }
+                .react-datepicker__day.rented-date-disabled::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    right: 0;
+                    height: 1px;
+                    background-color: #9ca3af;
+                    transform: translateY(-50%);
+                }
+                .react-datepicker__day--disabled {
+                    background-color: #374151 !important;
+                    color: #6b7280 !important;
+                    opacity: 0.4 !important;
+                    cursor: not-allowed !important;
+                }
+            `}</style>
+            <div className="max-w-4xl mx-auto p-6 text-gray-200">
             <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">Đặt xe: {vehicle.name}</h1>
 
             {/* VEHICLE CARD */}
@@ -335,7 +417,7 @@ export default function BookingPage() {
                             calendarClassName="bg-gray-800 border-gray-700"
                             dayClassName={(date) => {
                                 if (isDateDisabled(date)) {
-                                    return "text-gray-500 cursor-not-allowed";
+                                    return "rented-date-disabled";
                                 }
                                 return "";
                             }}
@@ -363,7 +445,7 @@ export default function BookingPage() {
                             calendarClassName="bg-gray-800 border-gray-700"
                             dayClassName={(date) => {
                                 if (isDateDisabled(date)) {
-                                    return "text-gray-500 cursor-not-allowed";
+                                    return "rented-date-disabled";
                                 }
                                 if (startDate && date <= startDate) {
                                     return "text-gray-500 cursor-not-allowed";
@@ -484,13 +566,27 @@ export default function BookingPage() {
                     </div>
                 </div>
 
+                {/* Warning message if date conflict */}
+                {startDate && endDate && hasDateConflict() && (
+                    <div className="mb-4 p-3 bg-red-900/30 border border-red-500/50 rounded-lg">
+                        <p className="text-red-300 text-sm font-semibold">
+                            ⚠️ Xe không khả dụng cho khoảng ngày bạn chọn
+                        </p>
+                        <p className="text-red-400 text-xs mt-1">
+                            Vui lòng chọn khoảng ngày khác
+                        </p>
+                    </div>
+                )}
+
                 <button
                     onClick={handleBooking}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+                    disabled={!startDate || !endDate || !customer || hasDateConflict()}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-600"
                 >
-                    Xác nhận đặt xe
+                    {hasDateConflict() ? "Xe không khả dụng" : "Xác nhận đặt xe"}
                 </button>
             </div>
         </div>
+        </>
     );
 }

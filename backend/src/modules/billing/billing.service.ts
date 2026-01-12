@@ -150,12 +150,41 @@ export class BillingService {
         method: dto.method,
         amount: dto.amount,
         referenceNo: dto.referenceNo,
-        note: dto.note
+        note: dto.note,
+        status: 'SUCCESS'
       }
     });
 
     await this.recalcInvoiceTotals(dto.invoiceId);
     return { message: 'Payment recorded successfully' };
+  }
+
+  /**
+   * Tạo thanh toán tiền mặt
+   */
+  async createCashPayment(dto: CreatePaymentDto) {
+    const invoice = await this.findInvoice(dto.invoiceId);
+
+    // Tạo payment với method = CASH
+    const payment = await this.prisma.payment.create({
+      data: {
+        invoiceId: dto.invoiceId,
+        method: 'CASH',
+        amount: dto.amount,
+        referenceNo: dto.referenceNo || `CASH-${Date.now()}`,
+        note: dto.note || 'Thanh toán tiền mặt',
+        status: 'SUCCESS', // Tiền mặt luôn thành công khi nhận
+        paidAt: new Date(),
+      }
+    });
+
+    // Recalculate invoice totals
+    await this.recalcInvoiceTotals(dto.invoiceId);
+
+    return {
+      message: 'Cash payment recorded successfully',
+      payment
+    };
   }
 
   findPayments(invoiceId: string) {

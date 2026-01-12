@@ -18,7 +18,7 @@ export default function RootPage() {
     }
 
     if (user.role === "ADMIN") {
-      if (pathname !== "/admin") router.replace("/admin");
+      if (!pathname.startsWith("/admin")) router.replace("/admin/dashboard");
       return;
     }
 
@@ -35,3 +35,4 @@ export default function RootPage() {
 
   return null;
 }
+

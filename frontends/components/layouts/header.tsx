@@ -9,6 +9,8 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Settings, FileText } from "lucide-react";
 import { useProfile } from "@/hooks/auth/user-profile";
+import ThemeSwitch from "@/components/common/theme-switch";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 export default function Header() {
     const router = useRouter();
@@ -136,6 +138,11 @@ export default function Header() {
                 {/* RIGHT SIDE */}
                 {isAuthenticated ? (
                     <div className="flex items-center gap-4">
+                        {/* Notification Center */}
+                        <NotificationCenter />
+                        
+                        {/* Theme Switch */}
+                        <ThemeSwitch />
 
                         <div className="relative">
                             <button
@@ -143,8 +150,8 @@ export default function Header() {
                                 className="flex items-center gap-2 text-gray-200 font-semibold hover:text-cyan-300 transition-colors"
                             >
                                 {(() => {
-                                    // Get avatarUrl from profile first, then from user
-                                    const avatarUrl = profile?.avatarUrl || user?.avatarUrl || user?.avatar;
+                                    // Get avatarUrl from profile (user object doesn't have avatarUrl)
+                                    const avatarUrl = profile?.avatarUrl;
                                     
                                     if (avatarUrl) {
                                         // Check if URL is absolute or relative

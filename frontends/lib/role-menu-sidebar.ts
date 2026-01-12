@@ -38,12 +38,42 @@ export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
         },
         
         {
+            label: "Marketing",
+            children: [
+                { label: "Notification Templates", href: "/admin/notification-templates" },
+                { label: "Customer Segments", href: "/admin/customer-segments" },
+                { label: "Marketing Campaigns", href: "/admin/marketing-campaigns" },
+            ]
+        },
+        
+        {
+            label: "Loyalty",
+            children: [
+                { label: "Loyalty Programs", href: "/admin/loyalty-programs" },
+                { label: "Loyalty Transactions", href: "/admin/loyalty-transactions" },
+            ]
+        },
+        
+        {
             label: "Khác",
             children: [
+                { label: "Blog", href: "/admin/blog" },
                 { label: "Khuyến mãi", href: "/admin/promotions" },
                 { label: "Đánh giá", href: "/admin/reviews" },
         { label: "Bảo dưỡng", href: "/admin/maintenance" },
         { label: "Thương hiệu", href: "/admin/brands" },
+                { label: "Pricing Rules", href: "/admin/pricing-rules" },
+                { label: "Partners", href: "/admin/partners" },
+            ]
+        },
+        
+        "---",
+        
+        {
+            label: "Hệ thống",
+            children: [
+                { label: "Cài đặt", href: "/admin/settings" },
+                { label: "Nhật ký hệ thống", href: "/admin/audit-logs" },
             ]
         },
     ],

@@ -12,6 +12,7 @@ type Props = {
 
 export default function CustomerModal({ selected, onClose }: Props) {
     const queryClient = useQueryClient();
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [form, setForm] = useState({
         fullName: "",
         phone: "",
@@ -52,11 +53,11 @@ export default function CustomerModal({ selected, onClose }: Props) {
     }, [selected]);
 
     const mutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (payload: any) => {
             if (selected) {
-                return customerService.update(selected.id, form);
+                return customerService.update(selected.id, payload);
             }
-            return customerService.create(form);
+            return customerService.create(payload);
         },
         onSuccess: () => {
             toast.success("Saved customer");
@@ -69,12 +70,49 @@ export default function CustomerModal({ selected, onClose }: Props) {
         },
     });
 
-    const onSubmit = () => {
-        if (!form.fullName || !form.phone) {
-            toast.error("Full name and phone are required");
-            return;
+    const validate = () => {
+        const errs: Record<string, string> = {};
+        if (!form.fullName || form.fullName.trim().length < 2) {
+            errs.fullName = "Họ tên tối thiểu 2 ký tự";
         }
-        mutation.mutate();
+        if (!form.phone || !/^0\d{9}$/.test(form.phone.trim())) {
+            errs.phone = "Số điện thoại phải 10 số và bắt đầu bằng 0";
+        }
+        if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+            errs.email = "Email không hợp lệ";
+        }
+        if (form.nationalId && !/^(?:\d{9}|\d{12})$/.test(form.nationalId.trim())) {
+            errs.nationalId = "CMND/CCCD phải 9 hoặc 12 số";
+        }
+        if (form.driverLicenseNo && !/^[A-Za-z0-9]{6,20}$/.test(form.driverLicenseNo.trim())) {
+            errs.driverLicenseNo = "Bằng lái 6-20 ký tự chữ/số";
+        }
+        if (form.driverLicenseExpiry) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const exp = new Date(form.driverLicenseExpiry);
+            exp.setHours(0, 0, 0, 0);
+            if (exp <= today) {
+                errs.driverLicenseExpiry = "Hạn bằng lái phải lớn hơn hôm nay";
+            }
+        }
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
+    const onSubmit = () => {
+        if (!validate()) return;
+        const payload = {
+            fullName: form.fullName.trim(),
+            phone: form.phone.trim(),
+            email: form.email?.trim() || undefined,
+            address: form.address?.trim() || undefined,
+            driverLicenseNo: form.driverLicenseNo?.trim() || undefined,
+            driverLicenseExpiry: form.driverLicenseExpiry || undefined,
+            nationalId: form.nationalId?.trim() || undefined,
+            nationality: form.nationality?.trim() || undefined,
+        };
+        mutation.mutate(payload);
     };
 
     return (
@@ -85,17 +123,18 @@ export default function CustomerModal({ selected, onClose }: Props) {
                 </h2>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Input label="Full Name *" value={form.fullName} onChange={(v:any) => setForm({ ...form, fullName: v })} />
-                    <Input label="Phone *" value={form.phone} onChange={(v:any) => setForm({ ...form, phone: v })} />
-                    <Input label="Email" value={form.email} onChange={(v:any) => setForm({ ...form, email: v })} />
+                    <Input label="Full Name *" value={form.fullName} error={errors.fullName} onChange={(v:any) => setForm({ ...form, fullName: v })} />
+                    <Input label="Phone *" value={form.phone} error={errors.phone} onChange={(v:any) => setForm({ ...form, phone: v })} />
+                    <Input label="Email" value={form.email} error={errors.email} onChange={(v:any) => setForm({ ...form, email: v })} />
                     <Input label="Address" value={form.address} onChange={(v:any) => setForm({ ...form, address: v })} />
-                    <Input label="National ID" value={form.nationalId} onChange={(v:any) => setForm({ ...form, nationalId: v })} />
+                    <Input label="National ID" value={form.nationalId} error={errors.nationalId} onChange={(v:any) => setForm({ ...form, nationalId: v })} />
                     <Input label="Nationality" value={form.nationality} onChange={(v:any) => setForm({ ...form, nationality: v })} />
-                    <Input label="Driver License No" value={form.driverLicenseNo} onChange={(v:any) => setForm({ ...form, driverLicenseNo: v })} />
+                    <Input label="Driver License No" value={form.driverLicenseNo} error={errors.driverLicenseNo} onChange={(v:any) => setForm({ ...form, driverLicenseNo: v })} />
                     <Input
                         label="License Expiry"
                         type="date"
                         value={form.driverLicenseExpiry}
+                        error={errors.driverLicenseExpiry}
                         onChange={(v:any) => setForm({ ...form, driverLicenseExpiry: v })}
                     />
                 </div>
@@ -122,7 +161,7 @@ export default function CustomerModal({ selected, onClose }: Props) {
     );
 }
 
-function Input({ label, value, onChange, type = "text" }: any) {
+function Input({ label, value, onChange, type = "text", error }: any) {
     return (
         <div>
             <label className="text-xs text-slate-400 mb-1 block">{label}</label>
@@ -132,6 +171,7 @@ function Input({ label, value, onChange, type = "text" }: any) {
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
             />
+            {error && <p className="text-xs text-rose-400 mt-1">{error}</p>}
         </div>
     );
 }

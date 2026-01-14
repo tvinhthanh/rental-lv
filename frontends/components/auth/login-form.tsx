@@ -17,14 +17,25 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
     email: "",
     password: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      errs.email = "Email không hợp lệ";
+    }
+    if (!form.password || form.password.length < 6) {
+      errs.password = "Mật khẩu tối thiểu 6 ký tự";
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = () => {
-    if (!form.email || !form.password) {
-      toast.error("Please enter email & password");
-      return;
-    }
+    if (!validate()) return;
+    const payload = { email: form.email.trim(), password: form.password };
 
-    loginMutation.mutate(form, {
+    loginMutation.mutate(payload, {
       onSuccess: (res: any) => {
         toast.success("Logged in successfully");
 
@@ -56,21 +67,23 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
             <label className="text-sm text-gray-200 mb-1 block">Email</label>
             <input
               className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
-              placeholder="your@email.com"
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-200 mb-1 block">Password</label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
-              placeholder="••••••••"
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
-          </div>
+            placeholder="your@email.com"
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
         </div>
+
+        <div>
+          <label className="text-sm text-gray-200 mb-1 block">Password</label>
+          <input
+            type="password"
+            className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
+            placeholder="••••••••"
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+          {errors.password && <p className="text-xs text-rose-400 mt-1">{errors.password}</p>}
+        </div>
+      </div>
 
         <button
           onClick={handleSubmit}

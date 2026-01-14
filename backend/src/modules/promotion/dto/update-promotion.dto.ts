@@ -1,8 +1,9 @@
-import { IsDateString, IsInt, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsDateString, IsInt, IsNumber, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 
 export class UpdatePromotionDto {
     @IsOptional()
     @IsString()
+    @Matches(/^[A-Z0-9]+$/, { message: 'code must be uppercase alphanumeric' })
     code?: string;
 
     @IsOptional()

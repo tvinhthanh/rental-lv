@@ -1,8 +1,9 @@
-import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateIf } from 'class-validator';
+import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, Min, ValidateIf } from 'class-validator';
 
 export class CreatePromotionDto {
     @IsNotEmpty()
     @IsString()
+    @Matches(/^[A-Z0-9]+$/, { message: 'code must be uppercase alphanumeric' })
     code!: string;
 
     @IsNotEmpty()

@@ -29,6 +29,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const defaultValues = useMemo(
     () =>
@@ -130,6 +131,54 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
       .trim()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9\-]/g, "");
+  const currentYear = new Date().getFullYear();
+
+  const validateForm = (data: any) => {
+    const errs: Record<string, string> = {};
+    const slug = data.slug || generateSlug(data.name || "");
+
+    if (!data.name || data.name.trim().length < 2) {
+      errs.name = "Tên xe tối thiểu 2 ký tự";
+    }
+    if (!data.licensePlate || !/^[0-9]{2}[A-Z]{1,2}-[0-9]{4,5}$/.test((data.licensePlate || "").toUpperCase())) {
+      errs.licensePlate = "Biển số phải dạng 30A-12345";
+    }
+    if (slug && !/^[a-z0-9-]+$/.test(slug)) {
+      errs.slug = "Slug chỉ gồm chữ thường, số và dấu gạch ngang";
+    }
+    if (!data.categoryId) errs.categoryId = "Chọn danh mục xe";
+    if (!data.branchId) errs.branchId = "Chọn chi nhánh";
+    if (!data.brandId) errs.brandId = "Chọn thương hiệu";
+
+    const yearVal = data.year !== "" && data.year !== undefined ? Number(data.year) : undefined;
+    if (yearVal !== undefined && (Number.isNaN(yearVal) || yearVal < 1900 || yearVal > currentYear + 1)) {
+      errs.year = `Năm sản xuất trong khoảng 1900 - ${currentYear + 1}`;
+    }
+
+    const seatVal = data.seatCount !== "" && data.seatCount !== undefined ? Number(data.seatCount) : undefined;
+    if (seatVal !== undefined && (Number.isNaN(seatVal) || seatVal < 1 || seatVal > 50)) {
+      errs.seatCount = "Số chỗ ngồi từ 1 - 50";
+    }
+
+    const mileageVal = data.mileage !== "" && data.mileage !== undefined ? Number(data.mileage) : undefined;
+    if (mileageVal !== undefined && (Number.isNaN(mileageVal) || mileageVal < 0)) {
+      errs.mileage = "Số km không âm";
+    }
+
+    const priceFields = ["overrideDailyRate", "overrideHourlyRate", "overrideWeekendRate", "overrideHolidayRate"];
+    priceFields.forEach((field) => {
+      const valRaw = data[field];
+      const hasVal = valRaw !== "" && valRaw !== undefined && valRaw !== null;
+      if (hasVal) {
+        const num = Number(valRaw);
+        if (Number.isNaN(num) || num < 0) {
+          errs[field] = "Giá phải >= 0";
+        }
+      }
+    });
+
+    return errs;
+  };
 
   const { handleSubmit, isPending } = useFormSubmit(
     (formData: any) => {
@@ -139,14 +188,14 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
       ["id", "createdAt", "updatedAt", "rating", "reviewCount"].forEach((f) => delete clean[f]);
 
       // Convert number fields
-      clean.year = clean.year ? Number(clean.year) : null;
-      clean.seatCount = clean.seatCount ? Number(clean.seatCount) : null;
-      clean.mileage = clean.mileage ? Number(clean.mileage) : null;
+      clean.year = clean.year !== "" && clean.year !== undefined ? Number(clean.year) : undefined;
+      clean.seatCount = clean.seatCount !== "" && clean.seatCount !== undefined ? Number(clean.seatCount) : undefined;
+      clean.mileage = clean.mileage !== "" && clean.mileage !== undefined ? Number(clean.mileage) : undefined;
 
-      clean.overrideDailyRate = clean.overrideDailyRate ? Number(clean.overrideDailyRate) : null;
-      clean.overrideHourlyRate = clean.overrideHourlyRate ? Number(clean.overrideHourlyRate) : null;
-      clean.overrideWeekendRate = clean.overrideWeekendRate ? Number(clean.overrideWeekendRate) : null;
-      clean.overrideHolidayRate = clean.overrideHolidayRate ? Number(clean.overrideHolidayRate) : null;
+      clean.overrideDailyRate = clean.overrideDailyRate !== "" && clean.overrideDailyRate !== undefined ? Number(clean.overrideDailyRate) : undefined;
+      clean.overrideHourlyRate = clean.overrideHourlyRate !== "" && clean.overrideHourlyRate !== undefined ? Number(clean.overrideHourlyRate) : undefined;
+      clean.overrideWeekendRate = clean.overrideWeekendRate !== "" && clean.overrideWeekendRate !== undefined ? Number(clean.overrideWeekendRate) : undefined;
+      clean.overrideHolidayRate = clean.overrideHolidayRate !== "" && clean.overrideHolidayRate !== undefined ? Number(clean.overrideHolidayRate) : undefined;
 
       if (clean.overridePriceEnabled) clean.priceListId = null;
       else {
@@ -164,6 +213,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
         clean.photos = [];
       }
 
+      clean.licensePlate = clean.licensePlate?.toUpperCase().trim();
       clean.slug = clean.slug || generateSlug(clean.name);
 
       return selected ? vehicleService.update(selected.id, clean) : vehicleService.create(clean);
@@ -172,6 +222,13 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
   );
 
   const onSubmit = async (data: any) => {
+    const errs = validateForm(data);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+
     await handleSubmit(data);
     onClose();
   };
@@ -242,6 +299,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         if (!selected) setValue("slug", generateSlug(e.target.value));
                       }}
                     />
+                    {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Slug</label>
@@ -251,6 +309,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                       placeholder="slug-tu-dong"
                       readOnly={!!selected}
                     />
+                    {errors.slug && <p className="text-xs text-rose-400 mt-1">{errors.slug}</p>}
                   </div>
                 </div>
 
@@ -271,6 +330,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                       placeholder="30A-12345"
                       required
                     />
+                    {errors.licensePlate && <p className="text-xs text-rose-400 mt-1">{errors.licensePlate}</p>}
                   </div>
                 </div>
 
@@ -291,6 +351,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                       className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                       placeholder="2024"
                     />
+                    {errors.year && <p className="text-xs text-rose-400 mt-1">{errors.year}</p>}
                   </div>
                 </div>
 
@@ -311,6 +372,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                       className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                       placeholder="5"
                     />
+                    {errors.seatCount && <p className="text-xs text-rose-400 mt-1">{errors.seatCount}</p>}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Số km</label>
@@ -320,6 +382,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                       className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                       placeholder="0"
                     />
+                    {errors.mileage && <p className="text-xs text-rose-400 mt-1">{errors.mileage}</p>}
                   </div>
                 </div>
 
@@ -374,6 +437,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         </option>
                       ))}
                     </select>
+                    {errors.brandId && <p className="text-xs text-rose-400 mt-1">{errors.brandId}</p>}
                   </div>
 
                   <div>
@@ -390,6 +454,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         </option>
                       ))}
                     </select>
+                    {errors.branchId && <p className="text-xs text-rose-400 mt-1">{errors.branchId}</p>}
                   </div>
 
                   <div>
@@ -406,6 +471,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                         </option>
                       ))}
                     </select>
+                    {errors.categoryId && <p className="text-xs text-rose-400 mt-1">{errors.categoryId}</p>}
                   </div>
                 </div>
               </div>
@@ -456,6 +522,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                           className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                           placeholder="0"
                         />
+                        {errors.overrideDailyRate && <p className="text-xs text-rose-400 mt-1">{errors.overrideDailyRate}</p>}
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá theo giờ (đ)</label>
@@ -466,6 +533,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                           className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                           placeholder="0"
                         />
+                        {errors.overrideHourlyRate && <p className="text-xs text-rose-400 mt-1">{errors.overrideHourlyRate}</p>}
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá cuối tuần (đ)</label>
@@ -476,6 +544,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                           className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                           placeholder="0"
                         />
+                        {errors.overrideWeekendRate && <p className="text-xs text-rose-400 mt-1">{errors.overrideWeekendRate}</p>}
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Giá ngày lễ (đ)</label>
@@ -486,6 +555,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                           className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500"
                           placeholder="0"
                         />
+                        {errors.overrideHolidayRate && <p className="text-xs text-rose-400 mt-1">{errors.overrideHolidayRate}</p>}
                       </div>
                     </div>
                   )}

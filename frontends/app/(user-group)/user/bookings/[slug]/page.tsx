@@ -74,6 +74,7 @@ export default function BookingPage() {
     const [promoCode, setPromoCode] = useState("");
     const [promoNote, setPromoNote] = useState<string | null>(null);
     const [promoLoading, setPromoLoading] = useState(false);
+    const [dateError, setDateError] = useState<string | null>(null);
 
     const todayStr = new Date().toISOString().split("T")[0];
 
@@ -177,6 +178,7 @@ export default function BookingPage() {
         if (!date) return;
         
         setStartDate(date);
+        setDateError(null);
         
         // Reset end date nếu nó invalid
         if (endDate && endDate <= date) {
@@ -188,10 +190,10 @@ export default function BookingPage() {
         if (!date) return;
         
         if (startDate && date <= startDate) {
-            alert("Ngày trả phải lớn hơn ngày bắt đầu!");
+            setDateError("Ngày trả phải lớn hơn ngày bắt đầu");
             return;
         }
-        
+        setDateError(null);
         setEndDate(date);
     };
 
@@ -293,15 +295,25 @@ export default function BookingPage() {
     // SUBMIT BOOKING
     // ------------------------------------------------------------------
     const handleBooking = async () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         if (!startDate || !endDate) {
-            return alert("Vui lòng chọn ngày hợp lệ.");
-        }
-
-        // Kiểm tra conflict với dates và ranges
-        if (hasDateConflict()) {
-            alert("Xe không khả dụng cho khoảng ngày bạn chọn. Vui lòng chọn lại.");
+            setDateError("Vui lòng chọn ngày bắt đầu và ngày trả");
             return;
         }
+        if (startDate < today) {
+            setDateError("Ngày bắt đầu không được ở quá khứ");
+            return;
+        }
+        if (endDate <= startDate) {
+            setDateError("Ngày trả phải lớn hơn ngày bắt đầu");
+            return;
+        }
+        if (hasDateConflict()) {
+            setDateError("Xe không khả dụng cho khoảng ngày bạn chọn. Vui lòng chọn lại.");
+            return;
+        }
+        setDateError(null);
 
         try {
             const payload = {
@@ -426,6 +438,9 @@ export default function BookingPage() {
                             <p className="text-xs text-gray-400 mt-1">
                                 {disabledDates.length} ngày đã được đặt (không thể chọn)
                             </p>
+                        )}
+                        {dateError && (
+                            <p className="text-xs text-rose-400 mt-1">{dateError}</p>
                         )}
                     </div>
 

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AuditInterceptor } from './interceptors/audit.interceptor';
@@ -18,6 +19,14 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidUnknownValues: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
 
   //  GLOBAL AUDIT LOGGER 
   const auditService = app.get(AuditLogService);

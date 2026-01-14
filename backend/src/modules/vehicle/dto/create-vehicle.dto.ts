@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 
 export class CreateVehicleDto {
     @IsString()
@@ -9,6 +9,7 @@ export class CreateVehicleDto {
     vehicleType?: string;
 
     @IsString()
+    @Matches(/^[0-9]{2}[A-Z]{1,2}-[0-9]{4,5}$/, { message: 'licensePlate must follow format 30A-12345' })
     licensePlate!: string;
 
     @IsOptional()
@@ -17,6 +18,8 @@ export class CreateVehicleDto {
 
     @IsOptional()
     @IsInt()
+    @Min(1900)
+    @Max(new Date().getFullYear() + 1)
     year?: number;
 
     @IsOptional()
@@ -25,6 +28,8 @@ export class CreateVehicleDto {
 
     @IsOptional()
     @IsInt()
+    @Min(1)
+    @Max(50)
     seatCount?: number;
 
     @IsOptional()
@@ -37,6 +42,7 @@ export class CreateVehicleDto {
 
     @IsOptional()
     @IsInt()
+    @Min(0)
     mileage?: number;
 
     @IsOptional()
@@ -45,6 +51,7 @@ export class CreateVehicleDto {
 
     @IsOptional()
     @IsString()
+    @Matches(/^[a-z0-9-]+$/, { message: 'slug must be lowercase and use hyphens' })
     slug?: string;
 
     @IsOptional()
@@ -91,14 +98,22 @@ export class CreateVehicleDto {
     // --- PRICE OVERRIDE FIELDS ---------------------------------
 
     @IsOptional()
+    @IsNumber()
+    @Min(0)
     overrideDailyRate?: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(0)
     overrideHourlyRate?: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(0)
     overrideWeekendRate?: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(0)
     overrideHolidayRate?: number;
 }

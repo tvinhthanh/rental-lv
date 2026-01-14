@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { employeeService } from "@/services/employee.service";
 import { branchService } from "@/services/branch.service";
 import { authService } from "@/services/auth.service";
+import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["ACTIVE", "INACTIVE", "ON_LEAVE"];
 
@@ -19,6 +20,8 @@ const normalizeList = (res: any) => {
 
 export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
     const [branches, setBranches] = useState<any[]>([]);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [submitting, setSubmitting] = useState(false);
 
     const [form, setForm] = useState({
         fullName: data?.fullName || "",
@@ -76,21 +79,55 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const validate = () => {
+        const errs: Record<string, string> = {};
+        if (!form.fullName || form.fullName.trim().length < 2) errs.fullName = "Họ tên tối thiểu 2 ký tự";
+        if (form.phone && !/^0\d{9}$/.test(form.phone.trim())) errs.phone = "Số điện thoại phải 10 số và bắt đầu bằng 0";
+        if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.email = "Email không hợp lệ";
+        if (form.salary !== "" && form.salary !== null) {
+            const salaryNum = Number(form.salary);
+            if (Number.isNaN(salaryNum) || salaryNum < 0) errs.salary = "Lương phải >= 0";
+        }
+        if (form.hireDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const hire = new Date(form.hireDate);
+            hire.setHours(0, 0, 0, 0);
+            if (hire > today) errs.hireDate = "Ngày vào làm không được lớn hơn hôm nay";
+        }
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
     //  SUBMIT
     const handleSubmit = async () => {
+        if (!validate()) return;
+        setSubmitting(true);
         const payload: any = {
             ...form,
             salary: form.salary === "" ? undefined : Number(form.salary),
             hireDate: form.hireDate || undefined,
             branchId: form.branchId || undefined,
+            fullName: form.fullName.trim(),
+            phone: form.phone?.trim() || undefined,
+            email: form.email?.trim() || undefined,
         };
 
-        if (mode === "create") {
-            await authService.createEmployee(payload);
-        } else {
-            await employeeService.update(data.id, payload);
+        try {
+            if (mode === "create") {
+                await authService.createEmployee(payload);
+                toast.success("Tạo nhân viên thành công");
+            } else {
+                await employeeService.update(data.id, payload);
+                toast.success("Cập nhật nhân viên thành công");
+            }
+            onSuccess();
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || err?.message || "Lưu nhân viên thất bại";
+            toast.error(msg);
+        } finally {
+            setSubmitting(false);
         }
-        onSuccess();
     };
 
     return (
@@ -117,6 +154,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
                         required
                     />
+                            {errors.fullName && <p className="text-xs text-rose-400 mt-1">{errors.fullName}</p>}
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
@@ -129,6 +167,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
                     />
+                                {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone}</p>}
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Email</label>
@@ -139,6 +178,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
                     />
+                                {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
                             </div>
                         </div>
 
@@ -168,14 +208,15 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                     <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Lương</label>
-                        <input
-                            name="salary"
-                            type="number"
+                    <input
+                        name="salary"
+                        type="number"
                                     placeholder="0"
-                            value={form.salary}
-                            onChange={handleChange}
+                        value={form.salary}
+                        onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-slate-500"
-                        />
+                    />
+                                {errors.salary && <p className="text-xs text-rose-400 mt-1">{errors.salary}</p>}
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Trạng thái</label>
@@ -218,6 +259,7 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                             onChange={handleChange}
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         />
+                                {errors.hireDate && <p className="text-xs text-rose-400 mt-1">{errors.hireDate}</p>}
                             </div>
                     </div>
 
@@ -242,9 +284,10 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                         </button>
                         <button
                             onClick={handleSubmit}
-                                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl"
+                            disabled={submitting}
+                                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-60"
                         >
-                                    {mode === "create" ? "Tạo" : "Lưu"}
+                                    {submitting ? "Đang lưu..." : mode === "create" ? "Tạo" : "Lưu"}
                         </button>
                             </div>
                         </div>

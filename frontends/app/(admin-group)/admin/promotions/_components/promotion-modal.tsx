@@ -26,6 +26,7 @@ const baseForm = {
 export default function PromotionModal({ open, selected, onClose, onSaved }: PromotionModalProps) {
     const [form, setForm] = useState<any>(baseForm);
     const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (selected) {
@@ -49,15 +50,50 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
         [form.discountAmount, form.discountPercent]
     );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!hasDiscount) {
-            toast.error("Cần nhập % hoặc số tiền giảm.");
-            return;
+    const validate = () => {
+        const errs: Record<string, string> = {};
+        const code = (form.code || "").trim().toUpperCase();
+        if (!code) errs.code = "Mã khuyến mãi bắt buộc";
+        else if (!/^[A-Z0-9]+$/.test(code)) errs.code = "Mã chỉ gồm chữ in hoa và số, không cách";
+
+        if (!form.name || form.name.trim().length < 2) errs.name = "Tên tối thiểu 2 ký tự";
+        if (!hasDiscount) errs.discount = "Cần nhập % hoặc số tiền giảm";
+
+        if (form.discountPercent !== "" && form.discountPercent !== null) {
+            const val = Number(form.discountPercent);
+            if (Number.isNaN(val) || val < 0 || val > 100) errs.discountPercent = "Phần trăm 0 - 100";
+        }
+        if (form.discountAmount !== "" && form.discountAmount !== null) {
+            const val = Number(form.discountAmount);
+            if (Number.isNaN(val) || val <= 0) errs.discountAmount = "Số tiền phải > 0";
+        }
+        if (form.usageLimit !== "" && form.usageLimit !== null) {
+            const val = Number(form.usageLimit);
+            if (Number.isNaN(val) || val <= 0) errs.usageLimit = "Giới hạn phải > 0";
+        }
+        if (form.startDate && form.endDate) {
+            const start = new Date(form.startDate);
+            const end = new Date(form.endDate);
+            if (start >= end) errs.dateRange = "Ngày kết thúc phải sau ngày bắt đầu";
+        }
+        if (form.endDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const end = new Date(form.endDate);
+            end.setHours(0, 0, 0, 0);
+            if (end < today) errs.endDate = "Ngày kết thúc không được ở quá khứ";
         }
 
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validate()) return;
+
         const payload: any = {
-            code: form.code?.trim(),
+            code: form.code?.trim().toUpperCase(),
             name: form.name?.trim(),
             description: form.description?.trim() || undefined,
             discountPercent: form.discountPercent === "" ? undefined : Number(form.discountPercent),
@@ -118,6 +154,7 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                                 placeholder="VD: SUMMER50"
                             />
+                            {errors.code && <p className="text-xs text-rose-400">{errors.code}</p>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm text-slate-200">Tên chương trình *</label>
@@ -128,6 +165,7 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                                 placeholder="Giảm giá mùa hè"
                             />
+                            {errors.name && <p className="text-xs text-rose-400">{errors.name}</p>}
                         </div>
                         <div className="md:col-span-2 space-y-1">
                             <label className="text-sm text-slate-200">Mô tả</label>
@@ -154,6 +192,7 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                                 placeholder="Ví dụ: 10"
                             />
+                            {errors.discountPercent && <p className="text-xs text-rose-400">{errors.discountPercent}</p>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm text-slate-200">Giảm tiền (đ)</label>
@@ -165,6 +204,7 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                                 placeholder="Ví dụ: 50000"
                             />
+                            {errors.discountAmount && <p className="text-xs text-rose-400">{errors.discountAmount}</p>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm text-slate-200">Giới hạn lượt dùng</label>
@@ -176,8 +216,10 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                                 placeholder="Không bắt buộc"
                             />
+                            {errors.usageLimit && <p className="text-xs text-rose-400">{errors.usageLimit}</p>}
                         </div>
                     </div>
+                    {errors.discount && <p className="text-xs text-rose-400">{errors.discount}</p>}
 
                     <div className="grid md:grid-cols-3 gap-4">
                         <div className="space-y-1">
@@ -197,6 +239,7 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                             />
+                            {(errors.dateRange || errors.endDate) && <p className="text-xs text-rose-400">{errors.dateRange || errors.endDate}</p>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm text-slate-200">Trạng thái</label>
@@ -232,4 +275,3 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
         </div>
     );
 }
-

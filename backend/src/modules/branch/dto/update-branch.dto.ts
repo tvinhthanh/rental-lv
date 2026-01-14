@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNumber, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 
 export class UpdateBranchDto {
     @IsOptional()
@@ -7,6 +7,7 @@ export class UpdateBranchDto {
 
     @IsOptional()
     @IsString()
+    @Matches(/^[A-Z0-9-]+$/, { message: 'code must be uppercase alphanumeric' })
     code?: string;
 
     @IsOptional()
@@ -23,16 +24,23 @@ export class UpdateBranchDto {
 
     @IsOptional()
     @IsString()
+    @Matches(/^0\d{9}$/, { message: 'phone must be 10 digits starting with 0' })
     phone?: string;
 
     @IsOptional()
-    @IsString()
+    @IsEmail()
     email?: string;
 
     @IsOptional()
+    @IsNumber()
+    @Min(-90)
+    @Max(90)
     latitude?: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(-180)
+    @Max(180)
     longitude?: number;
 
     @IsOptional()
@@ -44,6 +52,7 @@ export class UpdateBranchDto {
     businessHours?: string;
 
     @IsOptional()
+    @IsBoolean()
     isActive?: boolean;
 
     @IsOptional()
@@ -52,6 +61,7 @@ export class UpdateBranchDto {
 
     @IsOptional()
     @IsString()
+    @Matches(/^[a-z0-9-]+$/, { message: 'slug must be lowercase and use hyphens' })
     slug?: string;
 
     createdAt?: Date;

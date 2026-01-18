@@ -10,6 +10,7 @@ export const billingService = {
         api.get(`/billing/invoices/branch/${branchId}`),
 
     pay: (data: any) => api.post("/billing/payments", data),
+    payCash: (data: any) => api.post("/billing/payments/cash", data),
     payments: (invoiceId: string) =>
         api.get(`/billing/payments/${invoiceId}`),
 

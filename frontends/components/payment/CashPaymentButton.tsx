@@ -29,9 +29,8 @@ export default function CashPaymentButton({
     setIsProcessing(true);
 
     try {
-      await billingService.pay({
+      await billingService.payCash({
         invoiceId,
-        method: "CASH",
         amount,
         referenceNo: `CASH-${Date.now()}`,
         note: note || "Thanh toán tiền mặt",

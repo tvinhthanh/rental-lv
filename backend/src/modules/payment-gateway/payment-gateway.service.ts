@@ -5,7 +5,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class PaymentGatewayService {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
 
   constructor(
     private configService: ConfigService,
@@ -16,7 +16,7 @@ export class PaymentGatewayService {
       console.warn('⚠️ STRIPE_SECRET_KEY not found in environment variables');
     } else {
       this.stripe = new Stripe(stripeSecretKey, {
-        apiVersion: '2024-12-18.acacia',
+        apiVersion: '2025-12-15.clover',
       });
     }
   }
@@ -39,7 +39,9 @@ export class PaymentGatewayService {
     }
 
     // Convert VND to cents (Stripe uses smallest currency unit)
-    const amountInCents = currency === 'vnd' ? Math.round(amount) : Math.round(amount * 100);
+    // Note: VND doesn't have cents, so we use the amount directly
+    // For other currencies, multiply by 100 to convert to cents
+    const amountInSmallestUnit = currency === 'vnd' ? Math.round(amount) : Math.round(amount * 100);
 
     const paymentIntent = await this.stripe.paymentIntents.create({
       amount: amountInSmallestUnit,
@@ -90,7 +92,8 @@ export class PaymentGatewayService {
     try {
       return this.stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      throw new BadRequestException(`Webhook signature verification failed: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      throw new BadRequestException(`Webhook signature verification failed: ${errorMessage}`);
     }
   }
 

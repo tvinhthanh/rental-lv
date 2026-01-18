@@ -137,11 +137,11 @@ export default function MembershipPage() {
                                 <div className="p-3 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30">
                                     <Sparkles className="w-6 h-6 text-blue-400" />
                                 </div>
-                                <div>
+                            <div>
                                     <p className="text-sm text-slate-400 mb-1">Gói hiện tại của bạn</p>
                                     <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                                        {user.membership || "Gói Cơ Bản"}
-                                    </p>
+                                    {user.membership || "Gói Cơ Bản"}
+                                </p>
                                 </div>
                             </div>
                             <div className="text-right">

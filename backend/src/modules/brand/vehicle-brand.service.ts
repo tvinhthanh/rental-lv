@@ -27,23 +27,33 @@ export class VehicleBrandService {
             ];
         }
 
-        const [items, total] = await this.prisma.$transaction([
-            this.prisma.vehicleBrand.findMany({
-                where,
-                skip,
-                take: limit,
-                orderBy: { createdAt: 'desc' }
-            }),
-            this.prisma.vehicleBrand.count({ where })
-        ]);
+        // For MongoDB, transactions are not needed for read-only operations
+        // Use Promise.all for parallel execution instead
+        try {
+            const [items, total] = await Promise.all([
+                this.prisma.vehicleBrand.findMany({
+                    where,
+                    skip,
+                    take: limit,
+                    orderBy: { createdAt: 'desc' }
+                }),
+                this.prisma.vehicleBrand.count({ where })
+            ]);
 
-        return {
-            items,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit)
-        };
+            return {
+                items,
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            };
+        } catch (error: any) {
+            // Handle connection errors
+            if (error.code === 'P1001' || error.message?.includes('connection') || error.message?.includes('aborted')) {
+                throw new BadRequestException('Database connection error. Please try again.');
+            }
+            throw error;
+        }
     }
 
     async findOne(id: string) {

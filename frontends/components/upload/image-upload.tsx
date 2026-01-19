@@ -44,10 +44,16 @@ export default function ImageUpload({
             const formData = new FormData();
             formData.append("files", file);
 
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3001";
+            const token = localStorage.getItem("accessToken");
+            
             const response = await fetch(`${apiUrl}/upload/images`, {
                 method: "POST",
                 body: formData,
+                headers: {
+                    // Don't set Content-Type, let browser set it with boundary for FormData
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                },
             });
 
             if (!response.ok) {

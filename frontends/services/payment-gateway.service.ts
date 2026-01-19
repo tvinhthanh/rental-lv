@@ -18,8 +18,8 @@ export const paymentGatewayService = {
    * Tạo Stripe Payment Intent
    */
   createStripePaymentIntent: async (data: CreatePaymentIntentDto): Promise<PaymentIntentResponse> => {
-    const response = await api.post<PaymentIntentResponse>("/payment-gateway/stripe/create-intent", data);
-    return response;
+    const response = await api.post("/payment-gateway/stripe/create-intent", data);
+    return response as PaymentIntentResponse;
   },
 
   /**

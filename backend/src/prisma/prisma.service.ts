@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaService
@@ -52,12 +52,14 @@ export class PrismaService
    * Safe transaction wrapper for MongoDB
    * Note: For read-only operations, use Promise.all instead of transactions
    */
-  async safeTransaction<T>(callback: (tx: PrismaClient) => Promise<T>): Promise<T> {
+  async safeTransaction<T>(
+    callback: Parameters<PrismaClient['$transaction']>[0]
+  ): Promise<T> {
     try {
-      return await this.$transaction(callback, {
+      return (await this.$transaction(callback, {
         maxWait: 5000, // 5 seconds
         timeout: 10000, // 10 seconds
-      });
+      })) as T;
     } catch (error: any) {
       // Handle connection errors
       if (error.code === 'P1001' || error.message?.includes('connection') || error.message?.includes('aborted')) {

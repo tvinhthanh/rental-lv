@@ -8,6 +8,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { CustomerDTO } from './dto/user.dto';
@@ -36,5 +37,10 @@ export class AuthController {
   @Post('create-employee')
   createEmployee(@Body() dto: RegisterDto, @Body() empDto: CreateEmployeeDto) {
     return this.authService.createEmployee(dto, empDto);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
   }
 }

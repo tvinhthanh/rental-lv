@@ -33,7 +33,8 @@ export class BranchService {
             where.isActive = query.isActive === 'true';
         }
 
-        const [items, total] = await this.prisma.$transaction([
+        // For MongoDB, use Promise.all instead of transaction for read operations
+        const [items, total] = await Promise.all([
             this.prisma.branch.findMany({
                 where,
                 skip,

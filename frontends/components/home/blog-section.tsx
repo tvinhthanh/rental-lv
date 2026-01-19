@@ -27,6 +27,8 @@ export default function BlogSection() {
             })
             .catch((err) => {
                 console.error("Load blog failed:", err);
+                // Set empty array on error to prevent UI breakage
+                setPosts([]);
             })
             .finally(() => setLoading(false));
     }, []);

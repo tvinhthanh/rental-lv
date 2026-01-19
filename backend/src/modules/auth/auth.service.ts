@@ -9,6 +9,7 @@ import { UserService } from '../user/user.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CustomerDTO, EmployeeDTO } from './dto/user.dto';
 import { CreateEmployeeDto } from '../employee/dto/create-employee.dto';
@@ -156,5 +157,59 @@ export class AuthService {
 
   async me(user: any) {
     return this.userService.findOne(user.id);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    // Find user by email
+    const user = await this.userService.findByEmail(dto.email);
+    
+    // Always return success message for security (don't reveal if email exists)
+    // In production, you would:
+    // 1. Generate a reset token (JWT with short expiry or random token stored in DB)
+    // 2. Save token to database with expiry time
+    // 3. Send email with reset link containing the token
+    // 4. User clicks link → goes to reset password page → submits new password with token
+    
+    if (user) {
+      // Generate reset token (JWT with 1 hour expiry)
+      const resetToken = await this.jwtService.signAsync(
+        { sub: user.id, email: user.email, type: 'password-reset' },
+        {
+          secret: process.env.JWT_SECRET || 'change-this-secret',
+          expiresIn: '1h'
+        }
+      );
+
+      // TODO: In production, save resetToken to database with expiry
+      // await this.prisma.passwordReset.create({
+      //   data: {
+      //     userId: user.id,
+      //     token: resetToken,
+      //     expiresAt: new Date(Date.now() + 3600000) // 1 hour
+      //   }
+      // });
+
+      // TODO: Send email with reset link
+      // await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+
+      // Log the action
+      await this.audit.log(user.id, 'FORGOT_PASSWORD_REQUEST', 'Auth', user.id, {
+        email: dto.email
+      });
+
+      // For now, just log the token (in production, this would be sent via email)
+      console.log(`Password reset token for ${dto.email}: ${resetToken}`);
+    } else {
+      // Log failed attempt (but don't reveal to user)
+      await this.audit.log(null, 'FORGOT_PASSWORD_FAILED', 'Auth', undefined, {
+        email: dto.email
+      });
+    }
+
+    // Always return success message (security best practice)
+    return {
+      message: 'If an account with that email exists, a password reset link has been sent.',
+      success: true
+    };
   }
 }

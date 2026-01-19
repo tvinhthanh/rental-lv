@@ -161,55 +161,63 @@ function CarsPageContent() {
                     onChange={(e) => setSearch(e.target.value)}
                 />
 
-                <select
-                    className="input-dark border p-2 rounded"
-                    value={branchId}
-                    onChange={(e) => setBranchId(e.target.value)}
-                >
-                    <option value="">Tất cả chi nhánh</option>
-                    {branches.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    <select
+                        className="input-dark border p-2 rounded w-full appearance-none bg-slate-800 text-white pr-8 cursor-pointer"
+                        value={branchId}
+                        onChange={(e) => setBranchId(e.target.value)}
+                    >
+                        <option value="">Tất cả chi nhánh</option>
+                        {branches.map((b) => (
+                            <option key={b.id} value={b.id}>
+                                {b.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                <select
-                    className="input-dark border p-2 rounded"
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                >
-                    <option value="">Tất cả hãng xe</option>
-                    {brands.map((b, i) => (
-                        <option key={i} value={b}>
-                            {b}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    <select
+                        className="input-dark border p-2 rounded w-full appearance-none bg-slate-800 text-white pr-8 cursor-pointer"
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                    >
+                        <option value="">Tất cả hãng xe</option>
+                        {brands.map((b, i) => (
+                            <option key={i} value={b}>
+                                {b}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                <select
-                    className="input-dark border p-2 rounded"
-                    value={priceListId}
-                    onChange={(e) => setPriceListId(e.target.value)}
-                >
-                    <option value="">Tất cả bảng giá</option>
-                    {priceLists.map((p) => (
-                        <option key={p.id} value={p.id}>
-                            {p.name}
-                        </option>
-                    ))}
-                </select>
+                <div className="relative">
+                    <select
+                        className="input-dark border p-2 rounded w-full appearance-none bg-slate-800 text-white pr-8 cursor-pointer"
+                        value={priceListId}
+                        onChange={(e) => setPriceListId(e.target.value)}
+                    >
+                        <option value="">Tất cả bảng giá</option>
+                        {priceLists.map((p) => (
+                            <option key={p.id} value={p.id}>
+                                {p.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                <select
-                    className="input-dark border p-2 rounded"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                >
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="AVAILABLE">Sẵn sàng</option>
-                    <option value="MAINTENANCE">Bảo dưỡng</option>
-                    <option value="UNAVAILABLE">Không khả dụng</option>
-                </select>
+                <div className="relative">
+                    <select
+                        className="input-dark border p-2 rounded w-full appearance-none bg-slate-800 text-white pr-8 cursor-pointer"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                    >
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="AVAILABLE">Sẵn sàng</option>
+                        <option value="MAINTENANCE">Bảo dưỡng</option>
+                        <option value="UNAVAILABLE">Không khả dụng</option>
+                    </select>
+                </div>
             </div>
 
             {/* RESULT LIST */}

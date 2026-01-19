@@ -425,6 +425,7 @@ erDiagram
     String z_id "🗝️"
     String token 
     DateTime expiresAt 
+    Boolean isUsed 
     DateTime createdAt 
     }
   

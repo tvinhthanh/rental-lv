@@ -111,7 +111,7 @@ export default function Header() {
                                 </button>
                                 
                                 {adminMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg py-2 z-50 border border-white/20">
+                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg py-2 z-[100] border border-white/20">
                                         <Link
                                             href="/admin/settings"
                                             onClick={() => setAdminMenuOpen(false)}
@@ -191,9 +191,9 @@ export default function Header() {
                             </button>
 
                             {open && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50">
+                                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-[100]">
                                     <button
-                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-gray-800 w-full text-left"
                                         onClick={handleProfile}
                                     >
                                         Profile Settings

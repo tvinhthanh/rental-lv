@@ -38,7 +38,8 @@ export class BlogService {
             ];
         }
 
-        const [items, total] = await this.prisma.$transaction([
+        // For MongoDB, use Promise.all instead of transaction for read operations
+        const [items, total] = await Promise.all([
             this.prisma.blogCategory.findMany({
                 where,
                 skip,
@@ -135,7 +136,8 @@ export class BlogService {
         if (query.status) where.status = query.status;
         if (query.categoryId) where.categoryId = query.categoryId;
 
-        const [items, total] = await this.prisma.$transaction([
+        // For MongoDB, use Promise.all instead of transaction for read operations
+        const [items, total] = await Promise.all([
             this.prisma.blogPost.findMany({
                 where,
                 skip,

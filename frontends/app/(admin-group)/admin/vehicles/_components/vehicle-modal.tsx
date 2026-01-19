@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
 
 import { vehicleService } from "@/services/vehicle.service";
 import { brandService } from "@/services/brand.service";
@@ -249,11 +250,21 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <div className="mb-6 pb-4 border-b border-slate-700/50">
-            <h2 className="text-2xl font-bold text-white">{selected ? "Chỉnh sửa Xe" : "Thêm Xe"}</h2>
-            <p className="text-sm text-slate-400 mt-1">
-              {selected ? "Cập nhật thông tin xe" : "Thêm xe mới vào hệ thống"}
-            </p>
+          <div className="mb-6 pb-4 border-b border-slate-700/50 flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">{selected ? "Chỉnh sửa Xe" : "Thêm Xe"}</h2>
+              <p className="text-sm text-slate-400 mt-1">
+                {selected ? "Cập nhật thông tin xe" : "Thêm xe mới vào hệ thống"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded-lg"
+              title="Đóng"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
           {/* Tabs */}
@@ -768,7 +779,17 @@ function DocumentUploadModal({ vehicleId, onClose, onSuccess }: any) {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-xl font-bold text-white mb-4">Thêm giấy tờ</h3>
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="text-xl font-bold text-white">Thêm giấy tờ</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded-lg"
+            title="Đóng"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -913,7 +934,18 @@ function PhotoUploadModal({ onClose, onSuccess, uploading, setUploading }: any) 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h3 className="text-xl font-bold text-white mb-4">Thêm hình ảnh</h3>
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="text-xl font-bold text-white">Thêm hình ảnh</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={uploading}
+            className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded-lg disabled:opacity-50"
+            title="Đóng"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           <div>

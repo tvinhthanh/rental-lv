@@ -22,6 +22,8 @@ export default function QuickBooking() {
                 setBranches(items);
             } catch (err) {
                 console.error("Load branches failed", err);
+                // Set empty array on error to prevent UI breakage
+                setBranches([]);
             } finally {
                 setLoading(false);
             }

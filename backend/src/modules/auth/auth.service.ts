@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UserService } from '../user/user.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { EmailService } from '../email/email.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -20,7 +21,8 @@ export class AuthService {
     private jwtService: JwtService,
     private userService: UserService,
     private audit: AuditLogService,
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private emailService: EmailService
   ) { }
 
   async validateUser(email: string, pass: string) {

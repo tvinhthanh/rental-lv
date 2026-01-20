@@ -86,8 +86,13 @@ export class ContractService {
             where: { id: dto.bookingId },
             include: {
                 customer: true,
-                vehicle: true,
-                branch: true
+                vehicle: {
+                    include: {
+                        brand: true
+                    }
+                },
+                branch: true,
+                returnBranch: true
             }
         });
 
@@ -245,209 +250,421 @@ export class ContractService {
         const fs = require('fs');
         const path = require('path');
 
-        // Tìm font hỗ trợ tiếng Việt
+        // Tìm font hỗ trợ tiếng Việt tốt nhất
+        // Ưu tiên: Times New Roman (Windows), Arial Unicode MS, Noto Sans, Roboto
+        const windowsFontsPath = process.platform === 'win32' 
+            ? 'C:/Windows/Fonts' 
+            : '/usr/share/fonts';
+        
+        let fonts: any = {};
+        let defaultFont = 'Roboto';
+        
+        // 1. Thử Times New Roman (Windows - hỗ trợ tiếng Việt tốt)
+        const timesNewRomanPaths = [
+            path.join(windowsFontsPath, 'times.ttf'),
+            path.join(windowsFontsPath, 'timesi.ttf'),
+            path.join(windowsFontsPath, 'timesbd.ttf'),
+            path.join(windowsFontsPath, 'timesbi.ttf'),
+            'C:/Windows/Fonts/times.ttf',
+            'C:/Windows/Fonts/timesi.ttf',
+            'C:/Windows/Fonts/timesbd.ttf',
+            'C:/Windows/Fonts/timesbi.ttf'
+        ];
+        
+        if (fs.existsSync(timesNewRomanPaths[0])) {
+            fonts.TimesNewRoman = {
+                normal: timesNewRomanPaths[0],
+                bold: fs.existsSync(timesNewRomanPaths[2]) ? timesNewRomanPaths[2] : timesNewRomanPaths[0],
+                italics: fs.existsSync(timesNewRomanPaths[1]) ? timesNewRomanPaths[1] : timesNewRomanPaths[0],
+                bolditalics: fs.existsSync(timesNewRomanPaths[3]) ? timesNewRomanPaths[3] : timesNewRomanPaths[0]
+            };
+            defaultFont = 'TimesNewRoman';
+        }
+        
+        // 2. Thử Arial Unicode MS (hỗ trợ Unicode đầy đủ)
+        const arialUnicodePaths = [
+            path.join(windowsFontsPath, 'ARIALUNI.TTF'),
+            'C:/Windows/Fonts/ARIALUNI.TTF',
+            path.join(process.cwd(), 'assets', 'fonts', 'arial-unicode.ttf')
+        ];
+        
+        for (const arialPath of arialUnicodePaths) {
+            if (fs.existsSync(arialPath)) {
+                fonts.ArialUnicode = {
+                    normal: arialPath,
+                    bold: arialPath,
+                    italics: arialPath,
+                    bolditalics: arialPath
+                };
+                defaultFont = 'ArialUnicode';
+                break;
+            }
+        }
+        
+        // 3. Thử Arial (Windows)
+        const arialPaths = [
+            path.join(windowsFontsPath, 'arial.ttf'),
+            path.join(windowsFontsPath, 'ariali.ttf'),
+            path.join(windowsFontsPath, 'arialbd.ttf'),
+            path.join(windowsFontsPath, 'arialbi.ttf'),
+            'C:/Windows/Fonts/arial.ttf',
+            'C:/Windows/Fonts/ariali.ttf',
+            'C:/Windows/Fonts/arialbd.ttf',
+            'C:/Windows/Fonts/arialbi.ttf'
+        ];
+        
+        if (!fonts.ArialUnicode && fs.existsSync(arialPaths[0])) {
+            fonts.Arial = {
+                normal: arialPaths[0],
+                bold: fs.existsSync(arialPaths[2]) ? arialPaths[2] : arialPaths[0],
+                italics: fs.existsSync(arialPaths[1]) ? arialPaths[1] : arialPaths[0],
+                bolditalics: fs.existsSync(arialPaths[3]) ? arialPaths[3] : arialPaths[0]
+            };
+            if (defaultFont === 'Roboto') {
+                defaultFont = 'Arial';
+            }
+        }
+        
+        // 4. Thử Noto Sans (nếu có)
+        const notoSansPaths = [
+            path.join(process.cwd(), 'assets', 'fonts', 'NotoSans-Regular.ttf'),
+            path.join(process.cwd(), 'assets', 'fonts', 'NotoSans-Bold.ttf'),
+            path.join(process.cwd(), 'assets', 'fonts', 'NotoSans-Italic.ttf'),
+            path.join(process.cwd(), 'assets', 'fonts', 'NotoSans-BoldItalic.ttf')
+        ];
+        
+        if (fs.existsSync(notoSansPaths[0])) {
+            fonts.NotoSans = {
+                normal: notoSansPaths[0],
+                bold: fs.existsSync(notoSansPaths[1]) ? notoSansPaths[1] : notoSansPaths[0],
+                italics: fs.existsSync(notoSansPaths[2]) ? notoSansPaths[2] : notoSansPaths[0],
+                bolditalics: fs.existsSync(notoSansPaths[3]) ? notoSansPaths[3] : notoSansPaths[0]
+            };
+            if (defaultFont === 'Roboto') {
+                defaultFont = 'NotoSans';
+            }
+        }
+        
+        // 5. Fallback: Roboto (từ pdfmake)
         const robotoPath = path.join(process.cwd(), 'node_modules', 'pdfmake', 'build', 'fonts', 'Roboto');
-        let fonts: any = {
-            Roboto: {
+        if (fs.existsSync(robotoPath)) {
+            fonts.Roboto = {
                 normal: path.join(robotoPath, 'Roboto-Regular.ttf'),
                 bold: path.join(robotoPath, 'Roboto-Medium.ttf'),
                 italics: path.join(robotoPath, 'Roboto-Italic.ttf'),
                 bolditalics: path.join(robotoPath, 'Roboto-MediumItalic.ttf')
-            }
-        };
-
-        // Thử tìm font Vietnamese
-        const fontPaths = [
-            path.join(process.cwd(), 'assets', 'fonts', 'arial-unicode.ttf'),
-            path.join(process.cwd(), 'assets', 'fonts', 'NotoSans-Regular.ttf'),
-            'C:/Windows/Fonts/arial.ttf',
-        ];
-
-        for (const fontPath of fontPaths) {
-            if (fs.existsSync(fontPath)) {
-                fonts.Vietnamese = {
-                    normal: fontPath,
-                    bold: fontPath,
-                    italics: fontPath,
-                    bolditalics: fontPath
-                };
-                break;
-            }
+            };
         }
 
         const printer = new PdfPrinter(fonts);
-        const defaultFont = fonts.Vietnamese ? 'Vietnamese' : 'Roboto';
+        const currentDate = new Date();
+        const contractDate = new Date(contract.startDate || booking.pickupDate);
+        const returnDate = new Date(contract.endDate || booking.returnDate);
+        const daysDiff = Math.ceil((returnDate.getTime() - contractDate.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Định nghĩa document content với pdfmake
+        // Định nghĩa document content với pdfmake - Form chuẩn
+        // Lưu defaultFont vào biến để dùng trong closure
+        const fontName = defaultFont;
+        
         const docDefinition = {
+            pageSize: 'A4',
+            pageMargins: [60, 80, 60, 80],
+            header: function(currentPage: number, pageCount: number) {
+                return {
+                    margin: [60, 20, 60, 0],
+                    columns: [
+                        {
+                            text: 'RENTAL SYSTEM',
+                            fontSize: 16,
+                            bold: true,
+                            color: '#1e40af',
+                            font: fontName
+                        },
+                        {
+                            text: `Trang ${currentPage}/${pageCount}`,
+                            fontSize: 10,
+                            alignment: 'right',
+                            color: '#6b7280',
+                            font: fontName
+                        }
+                    ]
+                };
+            },
+            footer: function(currentPage: number, pageCount: number) {
+                return {
+                    margin: [60, 10, 60, 20],
+                    text: [
+                        { text: 'Hotline: 1900 1234 | Email: info@rentalsystem.com\n', fontSize: 9, color: '#6b7280', font: fontName },
+                        { text: 'Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM', fontSize: 9, color: '#6b7280', font: fontName }
+                    ],
+                    alignment: 'center'
+                };
+            },
             content: [
-                { text: 'HỢP ĐỒNG THUÊ XE', style: 'header', alignment: 'center' },
-                { text: '\n' },
+                // Header với border
                 {
-                    text: [
-                        { text: 'Số hợp đồng: ', bold: true },
-                        contract.contractNo
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 20],
+                    table: {
+                        widths: ['*'],
+                        body: [[
+                            {
+                                text: 'HỢP ĐỒNG THUÊ XE',
+                                style: 'header',
+                                alignment: 'center',
+                                border: [false, false, false, true],
+                                borderColor: '#1e40af',
+                                borderLineWidth: 2,
+                                margin: [0, 0, 0, 10]
+                            }
+                        ]]
+                    },
+                    layout: 'noBorders'
                 },
+                
+                // Thông tin hợp đồng
                 {
-                    text: [
-                        { text: 'Ngày lập: ', bold: true },
-                        new Date().toLocaleDateString('vi-VN')
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 15],
+                    table: {
+                        widths: ['*', '*'],
+                        body: [
+                            [
+                                {
+                                    text: [
+                                        { text: 'Số hợp đồng: ', bold: true, font: fontName },
+                                        { text: contract.contractNo, font: fontName }
+                                    ],
+                                    border: [false, false, false, false]
+                                },
+                                {
+                                    text: [
+                                        { text: 'Ngày lập: ', bold: true, font: fontName },
+                                        { text: currentDate.toLocaleDateString('vi-VN'), font: fontName }
+                                    ],
+                                    border: [false, false, false, false],
+                                    alignment: 'right'
+                                }
+                            ]
+                        ]
+                    },
+                    layout: 'noBorders'
                 },
-                { text: '\n' },
+
+                // 1. Thông tin khách hàng - Table format
                 {
-                    text: '1. Thông tin khách hàng',
+                    text: '1. THÔNG TIN KHÁCH HÀNG',
                     style: 'sectionHeader',
-                    font: defaultFont
+                    margin: [0, 0, 0, 10]
                 },
                 {
-                    text: [
-                        { text: 'Họ tên: ', bold: true },
-                        booking.customer?.fullName || ''
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 15],
+                    table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                            [
+                                { text: 'Họ và tên:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.fullName || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Số CMND/CCCD:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.nationalId || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Số bằng lái xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.driverLicenseNo || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Ngày hết hạn bằng lái:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.driverLicenseExpiry 
+                                    ? new Date(booking.customer.driverLicenseExpiry).toLocaleDateString('vi-VN')
+                                    : 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Điện thoại:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.phone || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Email:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.email || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Địa chỉ:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.customer?.address || 'N/A', font: fontName }
+                            ]
+                        ]
+                    }
                 },
+
+                // 2. Thông tin xe - Table format
                 {
-                    text: [
-                        { text: 'Điện thoại: ', bold: true },
-                        booking.customer?.phone || ''
-                    ],
-                    font: defaultFont
-                },
-                {
-                    text: [
-                        { text: 'Email: ', bold: true },
-                        booking.customer?.email || ''
-                    ],
-                    font: defaultFont
-                },
-                {
-                    text: [
-                        { text: 'Địa chỉ: ', bold: true },
-                        booking.customer?.address || ''
-                    ],
-                    font: defaultFont
-                },
-                { text: '\n' },
-                {
-                    text: '2. Thông tin xe',
+                    text: '2. THÔNG TIN XE',
                     style: 'sectionHeader',
-                    font: defaultFont
+                    margin: [0, 0, 0, 10]
                 },
                 {
-                    text: [
-                        { text: 'Tên xe: ', bold: true },
-                        booking.vehicle?.name || ''
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 15],
+                    table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                            [
+                                { text: 'Tên xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.name || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Biển số:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.licensePlate || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Hãng xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.brand?.name || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Loại xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.vehicleType || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Màu sắc:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.color || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Số chỗ ngồi:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.vehicle?.seatCount?.toString() || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Chi nhánh:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.branch?.name || 'N/A', font: fontName }
+                            ]
+                        ]
+                    }
                 },
+
+                // 3. Thời gian thuê - Table format
                 {
-                    text: [
-                        { text: 'Biển số: ', bold: true },
-                        booking.vehicle?.licensePlate || ''
-                    ],
-                    font: defaultFont
-                },
-                {
-                    text: [
-                        { text: 'Loại xe: ', bold: true },
-                        booking.vehicle?.vehicleType || ''
-                    ],
-                    font: defaultFont
-                },
-                {
-                    text: [
-                        { text: 'Màu: ', bold: true },
-                        booking.vehicle?.color || ''
-                    ],
-                    font: defaultFont
-                },
-                { text: '\n' },
-                {
-                    text: '3. Thời gian thuê',
+                    text: '3. THỜI GIAN THUÊ',
                     style: 'sectionHeader',
-                    font: defaultFont
+                    margin: [0, 0, 0, 10]
                 },
                 {
-                    text: [
-                        { text: 'Từ ngày: ', bold: true },
-                        new Date(contract.startDate).toLocaleDateString('vi-VN'),
-                        { text: ' đến ngày: ', bold: true },
-                        new Date(contract.endDate).toLocaleDateString('vi-VN')
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 15],
+                    table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                            [
+                                { text: 'Ngày nhận xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: contractDate.toLocaleDateString('vi-VN') + ' ' + contractDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }), font: fontName }
+                            ],
+                            [
+                                { text: 'Ngày trả xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: returnDate.toLocaleDateString('vi-VN') + ' ' + returnDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }), font: fontName }
+                            ],
+                            [
+                                { text: 'Số ngày thuê:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: `${daysDiff} ngày`, font: fontName }
+                            ],
+                            [
+                                { text: 'Địa điểm nhận xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.branch?.address || booking.branch?.name || 'N/A', font: fontName }
+                            ],
+                            [
+                                { text: 'Địa điểm trả xe:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: booking.returnBranch?.address || booking.returnBranch?.name || booking.branch?.address || booking.branch?.name || 'N/A', font: fontName }
+                            ]
+                        ]
+                    }
                 },
-                { text: '\n' },
+
+                // 4. Thanh toán - Table format
                 {
-                    text: '4. Thanh toán',
+                    text: '4. THANH TOÁN',
                     style: 'sectionHeader',
-                    font: defaultFont
+                    margin: [0, 0, 0, 10]
                 },
                 {
-                    text: [
-                        { text: 'Tổng tiền thuê: ', bold: true },
-                        (contract.totalAmount ?? booking.totalAmount ?? 0).toLocaleString('vi-VN') + ' đ'
-                    ],
-                    font: defaultFont
+                    margin: [0, 0, 0, 15],
+                    table: {
+                        widths: ['30%', '70%'],
+                        body: [
+                            [
+                                { text: 'Tổng tiền thuê:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: (contract.totalAmount ?? booking.totalAmount ?? 0).toLocaleString('vi-VN') + ' đ', font: fontName, color: '#1e40af', bold: true }
+                            ],
+                            ...(contract.depositAmount ? [[
+                                { text: 'Tiền đặt cọc:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: contract.depositAmount.toLocaleString('vi-VN') + ' đ', font: fontName }
+                            ]] : []),
+                            [
+                                { text: 'Phương thức thanh toán:', bold: true, font: fontName, fillColor: '#f3f4f6' },
+                                { text: 'Chưa thanh toán', font: fontName }
+                            ]
+                        ]
+                    }
                 },
-                ...(contract.depositAmount ? [{
-                    text: [
-                        { text: 'Tiền đặt cọc: ', bold: true },
-                        contract.depositAmount.toLocaleString('vi-VN') + ' đ'
-                    ],
-                    font: defaultFont
-                }] : []),
-                { text: '\n' },
+
+                // 5. Điều khoản
                 {
-                    text: '5. Điều khoản',
+                    text: '5. ĐIỀU KHOẢN VÀ ĐIỀU KIỆN',
                     style: 'sectionHeader',
-                    font: defaultFont
+                    margin: [0, 0, 0, 10]
                 },
                 {
-                    text: contract.terms || 'Default rental contract terms...',
-                    font: defaultFont,
-                    alignment: 'justify'
+                    text: contract.terms || this.getDefaultTerms(),
+                    font: fontName,
+                    alignment: 'justify',
+                    margin: [0, 0, 0, 20],
+                    lineHeight: 1.5
                 },
-                { text: '\n\n' },
+
+                // Chữ ký
                 {
+                    margin: [0, 30, 0, 0],
                     columns: [
                         {
                             text: [
-                                { text: 'Đại diện bên cho thuê\n\n', font: defaultFont },
-                                { text: '(Ký và ghi rõ họ tên)', fontSize: 10, font: defaultFont }
+                                { text: 'ĐẠI DIỆN BÊN CHO THUÊ\n\n\n', bold: true, fontSize: 12, font: fontName, alignment: 'center' },
+                                { text: '(Ký và ghi rõ họ tên)', fontSize: 10, font: fontName, italics: true }
                             ],
-                            width: '50%'
+                            width: '50%',
+                            alignment: 'center'
                         },
                         {
                             text: [
-                                { text: 'Đại diện bên thuê\n\n', font: defaultFont, alignment: 'right' },
-                                { text: '(Ký và ghi rõ họ tên)', fontSize: 10, font: defaultFont, alignment: 'right' }
+                                { text: 'ĐẠI DIỆN BÊN THUÊ\n\n\n', bold: true, fontSize: 12, font: fontName, alignment: 'center' },
+                                { text: '(Ký và ghi rõ họ tên)', fontSize: 10, font: fontName, italics: true }
                             ],
                             width: '50%',
-                            alignment: 'right'
+                            alignment: 'center'
                         }
                     ]
                 }
             ],
             styles: {
                 header: {
-                    fontSize: 20,
+                    fontSize: 22,
                     bold: true,
-                    font: defaultFont
+                    color: '#1e40af',
+                    font: fontName,
+                    margin: [0, 10, 0, 10]
                 },
                 sectionHeader: {
                     fontSize: 14,
                     bold: true,
-                    decoration: 'underline',
-                    font: defaultFont
+                    color: '#1e40af',
+                    font: fontName,
+                    margin: [0, 5, 0, 5]
                 }
             },
             defaultStyle: {
-                font: defaultFont,
-                fontSize: 12
+                font: fontName,
+                fontSize: 11,
+                lineHeight: 1.5,
+                characterSpacing: 0
+            },
+            // Đảm bảo encoding UTF-8 cho tiếng Việt
+            info: {
+                title: 'Hợp đồng thuê xe',
+                author: 'Rental System',
+                subject: 'Hợp đồng thuê xe',
+                creator: 'Rental System',
+                producer: 'Rental System PDF Generator'
             }
         };
 
@@ -461,5 +678,33 @@ export class ContractService {
 
             pdfDoc.end();
         });
+    }
+
+    /**
+     * Default terms cho hợp đồng thuê xe
+     */
+    private getDefaultTerms(): string {
+        return `Điều 1: Bên cho thuê cam kết cung cấp xe đúng như thông tin đã thỏa thuận, đảm bảo chất lượng và an toàn.
+
+Điều 2: Bên thuê có trách nhiệm:
+- Sử dụng xe đúng mục đích, không vi phạm pháp luật
+- Bảo quản và giữ gìn xe cẩn thận
+- Thanh toán đầy đủ các khoản phí theo hợp đồng
+- Trả xe đúng thời gian và địa điểm đã thỏa thuận
+- Chịu trách nhiệm về các vi phạm giao thông trong thời gian thuê
+
+Điều 3: Bên cho thuê có quyền:
+- Yêu cầu bên thuê thanh toán đầy đủ các khoản phí
+- Thu hồi xe nếu bên thuê vi phạm điều khoản hợp đồng
+- Yêu cầu bồi thường thiệt hại nếu xe bị hư hỏng do lỗi của bên thuê
+
+Điều 4: Trường hợp xe bị hư hỏng, tai nạn:
+- Bên thuê phải báo ngay cho bên cho thuê
+- Bên thuê chịu trách nhiệm về các chi phí sửa chữa, bảo hiểm
+- Nếu xe không thể sửa chữa được, bên thuê phải bồi thường theo giá trị thị trường
+
+Điều 5: Hợp đồng có hiệu lực từ ngày ký và kết thúc khi bên thuê trả xe và thanh toán đầy đủ các khoản phí.
+
+Điều 6: Mọi tranh chấp phát sinh sẽ được giải quyết thông qua thương lượng. Nếu không thỏa thuận được, sẽ đưa ra Tòa án có thẩm quyền.`;
     }
 }

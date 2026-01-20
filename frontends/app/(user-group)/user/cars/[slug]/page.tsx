@@ -14,11 +14,13 @@ import { useFormatVND } from "@/hooks/useFormatVND";
 import { useCustomer } from "@/hooks/useCustomer";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toWebP, getImageLoading } from "@/lib/image-utils";
+import BookingWizard from "@/components/booking/BookingWizard";
 
 export default function CarDetailPage() {
     const { slug } = useParams();
     const [vehicle, setVehicle] = useState<any>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showBookingWizard, setShowBookingWizard] = useState(false);
     const [reviews, setReviews] = useState<any[]>([]);
     const [reviewLoading, setReviewLoading] = useState(false);
     const [reviewError, setReviewError] = useState<string | null>(null);
@@ -213,15 +215,23 @@ export default function CarDetailPage() {
                             </button>
                         ) : (
                             <button
-                                className="mt-8 px-6 py-3 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                onClick={() => router.push(`/user/bookings/${vehicle.slug}`)}
-                                disabled={customerLoading || !hasCustomer}
+                                className="mt-8 px-6 py-3 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                onClick={() => {
+                                    if (hasCustomer) {
+                                        setShowBookingWizard(true);
+                                    } else {
+                                        setShowCreateModal(true);
+                                    }
+                                }}
+                                disabled={customerLoading || vehicle.status !== "AVAILABLE"}
                             >
                                 {customerLoading
                                     ? "Đang tải..."
-                                    : hasCustomer
-                                        ? "Thuê ngay"
-                                        : "Vui lòng tạo hồ sơ"}
+                                    : vehicle.status !== "AVAILABLE"
+                                        ? "Xe không khả dụng"
+                                        : hasCustomer
+                                            ? "Thuê ngay"
+                                            : "Vui lòng tạo hồ sơ"}
                             </button>
                         )}
                     </div>
@@ -453,6 +463,18 @@ export default function CarDetailPage() {
                     onClose={() => setShowCreateModal(false)}
                     onSubmit={(formData: any) => createCustomerMutation.mutate(formData)}
                     isLoading={createCustomerMutation.isPending}
+                />
+            )}
+
+            {/* ⚡ Booking Wizard */}
+            {showBookingWizard && vehicle && (
+                <BookingWizard
+                    vehicle={vehicle}
+                    onClose={() => setShowBookingWizard(false)}
+                    onSuccess={() => {
+                        setShowBookingWizard(false);
+                        router.push("/user/bookings");
+                    }}
                 />
             )}
         </>

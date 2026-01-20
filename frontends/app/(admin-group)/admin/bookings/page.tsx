@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import { bookingService } from "@/services/booking.service";
 import BookingCard from "./_components/booking-card";
 import AdminBookingModal from "./_components/BookingModal";
+import ExportButtons from "@/components/common/ExportButtons";
 
 export default function AdminBookingsPage() {
     const queryClient = useQueryClient();
@@ -65,16 +66,23 @@ export default function AdminBookingsPage() {
                     <div className="flex-1">
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
                             Quản lý Booking
-            </h1>
+                        </h1>
                         <p className="mt-1 text-xs sm:text-sm text-slate-400">
                             Tất cả lượt đặt xe từ mọi chi nhánh
                         </p>
                     </div>
-                    <div className="rounded-lg sm:rounded-xl border border-slate-700 bg-slate-900/70 px-3 sm:px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng booking</p>
-                        <p className="text-base sm:text-lg font-semibold text-blue-400">
-                            {total.toLocaleString("vi-VN")}
-                        </p>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div className="rounded-lg sm:rounded-xl border border-slate-700 bg-slate-900/70 px-3 sm:px-4 py-2 text-right flex-1">
+                            <p className="text-xs uppercase text-slate-500">Tổng booking</p>
+                            <p className="text-base sm:text-lg font-semibold text-blue-400">
+                                {total.toLocaleString("vi-VN")}
+                            </p>
+                        </div>
+                        <ExportButtons
+                            exportExcelUrl={`${process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001'}/api/reports/bookings/export-excel`}
+                            exportPdfUrl={`${process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:3001'}/api/reports/bookings/export-pdf`}
+                            filename="bookings-report"
+                        />
                     </div>
                 </div>
 

@@ -40,7 +40,8 @@ export class NotificationTemplateService {
             where.code = query.code.trim().toUpperCase();
         }
 
-        const [items, total] = await this.prisma.$transaction([
+        // For MongoDB, use Promise.all instead of transaction for read operations
+        const [items, total] = await Promise.all([
             this.prisma.notificationTemplate.findMany({
                 where,
                 skip,

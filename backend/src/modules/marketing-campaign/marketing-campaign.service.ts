@@ -28,7 +28,8 @@ export class MarketingCampaignService {
         if (query.status) where.status = query.status;
         if (query.segmentId) where.segmentId = query.segmentId;
 
-        const [items, total] = await this.prisma.$transaction([
+        // For MongoDB, use Promise.all instead of transaction for read operations
+        const [items, total] = await Promise.all([
             this.prisma.marketingCampaign.findMany({
                 where,
                 skip,

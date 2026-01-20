@@ -58,20 +58,65 @@ export class APIRequest {
 
         const contentType = response.headers.get("content-type") || "";
 
-        // ❗ Nếu trả HTML → LỖI BACKEND hoặc ROUTE SAI
-        if (!contentType.includes("application/json")) {
-            const html = await response.text();
-            console.error("NON-JSON RESPONSE:", html);
-            throw new Error("Server did not return JSON");
+        // 204 No Content (or empty body) is valid for many APIs
+        if (response.status === 204) {
+            return null;
         }
 
-        const json = await response.json();
+        // If server doesn't declare JSON, it might still be a valid non-JSON payload
+        // e.g. "0" for counts, or a plain-text message.
+        const rawText = !contentType.includes("application/json")
+            ? await response.text()
+            : null;
 
+        // JSON response path
+        if (contentType.includes("application/json")) {
+            const json = await response.json();
+            if (!response.ok) {
+                throw json; // BE error (JSON)
+            }
+            return json;
+        }
+
+        // Non-JSON response path
+        const text = (rawText ?? "").trim();
+
+        // Empty string: treat as no content
+        if (!text) {
+            if (!response.ok) {
+                throw new Error(`Request failed (${response.status})`);
+            }
+            return null;
+        }
+
+        // Common case: backend returns numeric text like "0"
+        if (/^-?\d+(\.\d+)?$/.test(text)) {
+            const num = Number(text);
+            if (!response.ok) {
+                throw new Error(text);
+            }
+            return num;
+        }
+
+        // If it looks like JSON even without header, try parse
+        if ((text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"))) {
+            try {
+                const parsed = JSON.parse(text);
+                if (!response.ok) {
+                    throw parsed;
+                }
+                return parsed;
+            } catch {
+                // fall through
+            }
+        }
+
+        // Probably HTML (login page) or unexpected plain text
+        console.error("NON-JSON RESPONSE:", text);
         if (!response.ok) {
-            throw json; // BE error (JSON)
+            throw new Error(text);
         }
-
-        return json;
+        return text;
     }
 
     get(url: string, options?: RequestInit) {

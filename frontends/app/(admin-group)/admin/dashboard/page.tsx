@@ -379,13 +379,16 @@ export default function AdminDashboardPage() {
         <div className="min-h-screen bg-slate-950/90 text-gray-100">
             <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
                 {/* Header */}
-                <div className="mb-4 sm:mb-6">
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
-                        Dashboard Quản Trị
-                    </h1>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-400">
-                        Tổng quan hệ thống và thống kê
-                    </p>
+                <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-md">
+                            Dashboard Quản Trị
+                        </h1>
+                        <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                            Tổng quan hệ thống và thống kê
+                        </p>
+                    </div>
+                    {/* Export buttons will be added when backend API is ready */}
                 </div>
 
                 {(statsError || chartError) && (

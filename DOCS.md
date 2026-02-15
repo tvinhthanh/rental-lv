@@ -227,9 +227,7 @@
 - **Contract PDF Form chuẩn** ✅
 
 ### ⚠️ Còn thiếu (<1%)
-- Email/SMS service integration (có EmailService wrapper, chỉ cần cài package và config)
-- Testing coverage (có setup guide trong TESTING_SETUP.md)
-- Docker & CI/CD setup
+- Email/SMS service integration (có EmailService wrapper, chỉ cần cài package và config) | Testing coverage (có setup guide trong TESTING_SETUP.md, cần viết tests) | CI/CD pipeline (có Docker setup, thiếu GitHub Actions/workflows)
 
 ### ✅ Đã hoàn thành gần đây
 - **Export Excel/PDF UI buttons**: Component `ExportButtons` đã được tạo và tích hợp vào trang Bookings

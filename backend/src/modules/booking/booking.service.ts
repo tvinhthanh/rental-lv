@@ -185,6 +185,23 @@ export class BookingService {
 
         if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
 
+        // Kiểm tra thông tin khách hàng - bắt buộc có số bằng lái
+        const customer = await this.prisma.customer.findUnique({
+            where: { id: dto.customerId },
+            select: { id: true, fullName: true, driverLicenseNo: true, driverLicenseExpiry: true }
+        });
+        if (!customer) throw new BadRequestException('Customer not found');
+        if (!customer.driverLicenseNo) {
+            throw new BadRequestException('Customer must provide driver license number before booking');
+        }
+        if (customer.driverLicenseExpiry) {
+            const expiry = new Date(customer.driverLicenseExpiry);
+            const now = new Date();
+            if (expiry < now) {
+                throw new BadRequestException('Driver license is expired');
+            }
+        }
+
         // check xem xe có available không 1. xe có đang có booking nào không 2. xe có đang có maintenance nào không 3. xe active không
         const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
         if (!available) throw new BadRequestException('Vehicle not available for selected dates');

@@ -152,6 +152,20 @@ export default function BookingPage() {
         );
     }
 
+    if (!customer.driverLicenseNo) {
+        return (
+            <div className="p-10 text-yellow-200 space-y-3">
+                <p className="text-lg font-semibold">Bạn cần bổ sung số bằng lái trước khi đặt xe.</p>
+                <button
+                    onClick={() => router.push("/user/profile")}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                    Cập nhật hồ sơ
+                </button>
+            </div>
+        );
+    }
+
     // ------------------------------------------------------------------
     // DATE UTILITIES
     // ------------------------------------------------------------------

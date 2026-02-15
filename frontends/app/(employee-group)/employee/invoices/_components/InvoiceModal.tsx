@@ -114,31 +114,33 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                     </section>
 
                     {/* Invoice Info */}
-                    <section className="md:col-span-2 rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2">
-                        <h3 className="text-sm font-semibold text-blue-300 mb-1">
+                    <section className="md:col-span-2 rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-3">
+                        <h3 className="text-sm font-semibold text-blue-300 mb-2">
                             Thông tin hóa đơn
                         </h3>
+                        
+                        {/* Main Summary */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                                <p className="text-xs text-slate-400">Tổng tiền</p>
+                            <div className="bg-slate-950/50 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Tổng tiền</p>
                                 <p className="font-bold text-lg text-emerald-400">
                                     {invoice.totalAmount?.toLocaleString("vi-VN")} đ
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Đã thanh toán</p>
+                            <div className="bg-slate-950/50 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Đã thanh toán</p>
                                 <p className="font-semibold text-blue-400">
                                     {paymentsTotal.toLocaleString("vi-VN")} đ
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Còn lại</p>
+                            <div className="bg-slate-950/50 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Còn lại</p>
                                 <p className={`font-semibold ${remaining > 0 ? "text-red-400" : "text-emerald-400"}`}>
                                     {remaining.toLocaleString("vi-VN")} đ
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Trạng thái</p>
+                            <div className="bg-slate-950/50 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Trạng thái</p>
                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${
                                     invoice.status === "PAID" ? "bg-emerald-500/20 text-emerald-400" :
                                     invoice.status === "UNPAID" ? "bg-red-500/20 text-red-400" :
@@ -148,23 +150,36 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                                 </span>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 pt-2 border-t border-slate-800">
-                            <div>
-                                <p className="text-xs text-slate-400">Tổng phụ</p>
-                                <p className="text-sm text-slate-300">{invoice.subtotal?.toLocaleString("vi-VN")} đ</p>
+                        
+                        {/* Financial Breakdown */}
+                        <div className="mt-3 pt-3 border-t border-slate-800">
+                            <p className="text-xs text-slate-400 mb-2 font-semibold">Phân tích tài chính</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div>
+                                    <p className="text-xs text-slate-400">Tổng phụ</p>
+                                    <p className="text-sm text-slate-300 font-semibold">{invoice.subtotal?.toLocaleString("vi-VN")} đ</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400">Phí phát sinh</p>
+                                    <p className="text-sm text-yellow-400 font-semibold">+{surchargesTotal.toLocaleString("vi-VN")} đ</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400">Giảm giá</p>
+                                    <p className="text-sm text-blue-400 font-semibold">-{invoice.discountTotal?.toLocaleString("vi-VN") || 0} đ</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400">Tiền cọc áp dụng</p>
+                                    <p className="text-sm text-purple-400 font-semibold">-{invoice.depositApplied?.toLocaleString("vi-VN") || 0} đ</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Phí phát sinh</p>
-                                <p className="text-sm text-yellow-400">{surchargesTotal.toLocaleString("vi-VN")} đ</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Giảm giá</p>
-                                <p className="text-sm text-blue-400">{invoice.discountTotal?.toLocaleString("vi-VN") || 0} đ</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-400">Tiền cọc áp dụng</p>
-                                <p className="text-sm text-purple-400">{invoice.depositApplied?.toLocaleString("vi-VN") || 0} đ</p>
-                            </div>
+                            {(invoice.vatAmount || 0) > 0 && (
+                                <div className="mt-2 pt-2 border-t border-slate-800">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-400">VAT ({invoice.vatPercent || 0}%):</span>
+                                        <span className="text-sm text-slate-300 font-semibold">+{invoice.vatAmount?.toLocaleString("vi-VN") || 0} đ</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         {(invoice.vatPercent || invoice.vatAmount) && (
                             <div className="grid grid-cols-2 gap-4 mt-2 pt-2 border-t border-slate-800">
@@ -249,28 +264,70 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                     {/* Payments */}
                     {payments.length > 0 && (
                         <section className="md:col-span-2 rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-                            <h3 className="text-sm font-semibold text-blue-300 mb-2">
-                                Thanh toán ({payments.length})
+                            <h3 className="text-sm font-semibold text-blue-300 mb-3">
+                                Lịch sử thanh toán ({payments.length})
                             </h3>
-                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
                                 {payments.map((p: any, idx: number) => (
                                     <div
                                         key={idx}
-                                        className="flex justify-between items-center text-xs bg-slate-950/60 p-2 rounded border border-slate-800"
+                                        className="flex justify-between items-start text-xs bg-slate-950/60 p-3 rounded-lg border border-slate-800"
                                     >
-                                        <div>
-                                            <p className="font-semibold">{p.method}</p>
-                                            {p.referenceNo && <p className="text-slate-400">Mã tham chiếu: {p.referenceNo}</p>}
-                                            {p.note && <p className="text-slate-500">{p.note}</p>}
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                                    p.method === 'CASH' ? 'bg-purple-500/20 text-purple-400' :
+                                                    p.method === 'STRIPE' || p.method === 'ONLINE' ? 'bg-blue-500/20 text-blue-400' :
+                                                    'bg-slate-500/20 text-slate-400'
+                                                }`}>
+                                                    {p.method === 'CASH' ? 'Tiền mặt' : p.method === 'STRIPE' || p.method === 'ONLINE' ? 'Stripe' : p.method}
+                                                </span>
+                                                {p.status && (
+                                                    <span className={`px-2 py-0.5 rounded text-xs ${
+                                                        p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                        'bg-slate-500/20 text-slate-400'
+                                                    }`}>
+                                                        {p.status}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {p.referenceNo && (
+                                                <p className="text-slate-400 text-xs mb-1">Mã tham chiếu: <span className="text-slate-300">{p.referenceNo}</span></p>
+                                            )}
+                                            {p.note && (
+                                                <p className="text-slate-500 text-xs mb-1">{p.note}</p>
+                                            )}
                                             <p className="text-slate-500 text-xs">
-                                                {p.paidAt ? new Date(p.paidAt).toLocaleDateString("vi-VN") : ""}
+                                                {p.paidAt ? new Date(p.paidAt).toLocaleDateString("vi-VN", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit"
+                                                }) : p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : ""}
                                             </p>
                                         </div>
-                                        <p className="font-semibold text-emerald-400">
+                                        <p className="font-bold text-emerald-400 text-base ml-4">
                                             {p.amount?.toLocaleString("vi-VN")} đ
                                         </p>
                                     </div>
                                 ))}
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-slate-800">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-slate-300 font-semibold">Tổng đã thanh toán:</span>
+                                    <span className="text-blue-400 font-bold text-lg">
+                                        {paymentsTotal.toLocaleString("vi-VN")} đ
+                                    </span>
+                                </div>
+                                {remaining > 0 && (
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className="text-sm text-slate-300">Còn lại:</span>
+                                        <span className="text-red-400 font-bold">
+                                            {remaining.toLocaleString("vi-VN")} đ
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </section>
                     )}

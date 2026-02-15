@@ -79,6 +79,8 @@ export default function BookingWizard({ vehicle, onClose, onSuccess }: BookingWi
         if (step === 2) {
             if (!customer) {
                 newErrors.customer = "Vui lòng hoàn thiện thông tin khách hàng";
+            } else if (!customer.driverLicenseNo) {
+                newErrors.customer = "Bạn cần bổ sung số bằng lái trước khi đặt xe";
             }
         }
 

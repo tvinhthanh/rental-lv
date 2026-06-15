@@ -36,7 +36,7 @@ function SurchargesContent() {
             }
         }
 
-        loadSurcharges();
+        Promise.resolve().then(() => loadSurcharges());
     }, [user, userLoading]);
 
     return (

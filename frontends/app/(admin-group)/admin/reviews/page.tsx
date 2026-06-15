@@ -33,7 +33,7 @@ export default function AdminReviewsPage() {
             }
         }
 
-        loadReviews();
+        Promise.resolve().then(() => loadReviews());
     }, [user, userLoading]);
 
     if (userLoading || loading) {

@@ -73,7 +73,7 @@ export default function AdminPaymentsPage() {
             }
         }
 
-        loadPayments();
+        Promise.resolve().then(() => loadPayments());
     }, [user, userLoading]);
 
     if (userLoading || loading) {

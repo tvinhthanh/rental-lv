@@ -58,7 +58,7 @@ export default function AdminReturnsPage() {
             }
         }
 
-        loadReturns();
+        Promise.resolve().then(() => loadReturns());
     }, [user, userLoading]);
 
     if (userLoading || loading) {

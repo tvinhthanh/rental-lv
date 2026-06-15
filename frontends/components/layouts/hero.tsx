@@ -54,13 +54,13 @@ export default function Hero() {
                             <div className="flex flex-wrap gap-3 pt-2">
                         <a
                             href="/user/cars"
-                                    className="px-5 py-3 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow-lg hover:-translate-y-0.5 transition hover:shadow-xl"
+                                    className="px-5 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg shadow-lg hover:bg-white/20 hover:-translate-y-0.5 transition hover:shadow-xl"
                         >
                             Xem danh sách xe
                         </a>
                         <a
                             href="/user/bookings"
-                                    className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition"
+                                    className="px-5 py-3 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] text-white font-semibold rounded-lg shadow-lg shadow-cyan-500/20 hover:shadow-xl transition"
                         >
                             Bắt đầu đặt xe
                         </a>

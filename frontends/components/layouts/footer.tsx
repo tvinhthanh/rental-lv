@@ -4,8 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone, Facebook, Instagram, Youtube } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+    const pathname = usePathname();
+
+    // Hide footer on admin and employee routes
+    if (pathname?.startsWith("/admin") || pathname?.startsWith("/employee")) {
+        return null;
+    }
+
     const [email, setEmail] = useState("");
     const { settings } = useSettings();
     

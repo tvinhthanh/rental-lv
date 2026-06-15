@@ -82,9 +82,15 @@ export function getSocket(): any {
     }
 
     try {
-        // Ensure apiEndpoint doesn't have trailing slash
-        const baseUrl = apiEndpoint.replace(/\/$/, '');
-        
+        // Extract the root origin (e.g., http://localhost:3001) from apiEndpoint (e.g., http://localhost:3001/api)
+        let baseUrl = apiEndpoint;
+        try {
+            const urlObj = new URL(apiEndpoint);
+            baseUrl = urlObj.origin;
+        } catch (e) {
+            baseUrl = apiEndpoint.replace(/\/api\/?$/, '').replace(/\/$/, '');
+        }
+
         // Connect to /notifications namespace
         const namespace = '/notifications';
         const socketUrl = `${baseUrl}${namespace}`;
@@ -94,7 +100,9 @@ export function getSocket(): any {
                 token,
             },
             transports: ['websocket', 'polling'],
-            reconnection: false, // Disable auto-reconnect to avoid errors
+            reconnection: true, // Enable auto-reconnect now that URL is correct
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
             autoConnect: true,
             forceNew: true,
         });

@@ -9,7 +9,7 @@ import { RotateCcw } from "lucide-react";
 export default function AdminReturnsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [returns, setReturns] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
     const [selectedReturn, setSelectedReturn] = useState<any | null>(null);
@@ -17,10 +17,7 @@ export default function AdminReturnsPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
+        if (!user || user.role !== "ADMIN") return;
 
         async function loadReturns() {
             try {

@@ -871,6 +871,20 @@ model Partner {
   updatedAt DateTime @updatedAt
 }
 
+///////////////////////////////////////////////////////////
+// CHAT MESSAGE (realtime customer support)
+///////////////////////////////////////////////////////////
+model ChatMessage {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String   @db.ObjectId
+  senderName String
+  senderRole String   // "CUSTOMER", "EMPLOYEE", "ADMIN"
+  receiverId String?  @db.ObjectId // Nếu null thì gửi cho kênh chung Support (Admins/Employees)
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
 generator erd {
   provider = "prisma-erd-generator"
   output   = "./erd.md"

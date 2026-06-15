@@ -1,5 +1,7 @@
 "use client";
 
+import { translateStatus } from "@/lib/utils";
+
 type DepositModalProps = {
     deposit: any;
     onClose: () => void;
@@ -32,7 +34,7 @@ export default function DepositModal({ deposit, onClose }: DepositModalProps) {
                                 minute: '2-digit'
                             }) : "—"} • Trạng thái:{" "}
                             <span className="text-emerald-400 font-semibold">
-                                {deposit.status}
+                                {translateStatus(deposit.status, 'deposit')}
                             </span>
                         </p>
                     </div>
@@ -141,7 +143,7 @@ export default function DepositModal({ deposit, onClose }: DepositModalProps) {
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

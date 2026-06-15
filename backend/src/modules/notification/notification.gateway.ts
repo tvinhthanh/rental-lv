@@ -40,7 +40,8 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
                 return;
             }
 
-            const payload = await this.jwtService.verifyAsync(token);
+            const secret = this.configService.get<string>('JWT_SECRET') || 'change-this-secret';
+            const payload = await this.jwtService.verifyAsync(token, { secret });
             const userId = payload.sub || payload.id;
 
             if (!userId) {

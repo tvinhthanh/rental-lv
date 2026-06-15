@@ -16,7 +16,8 @@ export default function ForgotForm({ onChangeView }: ForgotFormProps) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!email) {
             toast.error("Please enter your email");
             return;
@@ -42,17 +43,14 @@ export default function ForgotForm({ onChangeView }: ForgotFormProps) {
         );
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") {
-            handleSubmit();
-        }
-    };
-
     return (
         <div className="relative">
             <div className="absolute inset-0 bg-linear-to-br from-blue-600/30 via-purple-500/20 to-pink-400/20 blur-2xl opacity-70 pointer-events-none" />
 
-            <div className="relative z-10 p-6 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.45)]">
+            <form 
+                onSubmit={handleSubmit}
+                className="relative z-10 p-6 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.45)]"
+            >
                 <h1 className="text-3xl font-extrabold mb-4 text-center bg-linear-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
                     Reset Password
                 </h1>
@@ -71,15 +69,14 @@ export default function ForgotForm({ onChangeView }: ForgotFormProps) {
                         className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/50 transition-all"
                         placeholder="your@email.com"
                         onChange={(e) => setEmail(e.target.value)}
-                        onKeyPress={handleKeyPress}
                         disabled={forgotMutation.isPending}
                     />
                 </div>
 
                 <button
-                    onClick={handleSubmit}
+                    type="submit"
                     disabled={forgotMutation.isPending}
-                    className="mt-6 w-full py-3 rounded-lg bg-linear-to-r from-blue-500 to-purple-500 text-white font-bold hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="mt-6 w-full py-3 rounded-lg bg-linear-to-r from-blue-500 to-purple-500 text-white font-bold hover:scale-[1.03] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
                 >
                     {forgotMutation.isPending ? (
                         <span className="flex items-center justify-center gap-2">
@@ -100,7 +97,7 @@ export default function ForgotForm({ onChangeView }: ForgotFormProps) {
                 >
                     Remember your password? <span className="font-semibold">Login</span>
                 </p>
-            </div>
+            </form>
 
             <div className="absolute inset-0 -z-10 rounded-xl bg-linear-to-r from-blue-600/40 via-purple-500/30 to-pink-400/40 blur-3xl" />
         </div>

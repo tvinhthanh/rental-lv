@@ -19,7 +19,7 @@ export default function BranchPage() {
     const branches = Array.isArray(data) ? data : data?.items ?? [];
 
     async function handleDelete(id: string) {
-        if (!confirm("Delete this branch?")) return;
+        if (!confirm("Bạn có chắc chắn muốn xóa chi nhánh này?")) return;
 
         await branchService.delete(id);
         queryClient.invalidateQueries({ queryKey: ["branches"] });
@@ -29,18 +29,18 @@ export default function BranchPage() {
         <div className="p-4 text-gray-200">
 
             <div className="flex justify-between mb-6">
-                <h1 className="text-2xl font-bold">Branches</h1>
+                <h1 className="text-2xl font-bold">Chi Nhánh</h1>
                 <button
                     onClick={() => { setSelected(null); setOpen(true); }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                 >
-                    + Add Branch
+                    + Thêm chi nhánh
                 </button>
             </div>
 
             <input
-                placeholder="Search..."
-                className="bg-slate-800 border border-slate-700 text-gray-200 p-2 rounded w-60 mb-4"
+                placeholder="Tìm kiếm..."
+                className="bg-slate-800 border border-slate-700 text-gray-200 p-2 rounded w-60 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
@@ -49,13 +49,13 @@ export default function BranchPage() {
                 <table className="w-full bg-slate-900">
                     <thead className="bg-slate-800 text-gray-300">
                         <tr>
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Code</th>
-                            <th className="p-3 text-left">Address</th>
-                            <th className="p-3 text-left">City</th>
-                            <th className="p-3 text-left">Phone</th>
-                            <th className="p-3 text-left">Status</th>
-                            <th className="p-3 text-left">Actions</th>
+                            <th className="p-3 text-left">Tên</th>
+                            <th className="p-3 text-left">Mã</th>
+                            <th className="p-3 text-left">Địa chỉ</th>
+                            <th className="p-3 text-left">Thành phố</th>
+                            <th className="p-3 text-left">Điện thoại</th>
+                            <th className="p-3 text-left">Trạng thái</th>
+                            <th className="p-3 text-left">Thao tác</th>
                         </tr>
                     </thead>
 
@@ -63,7 +63,7 @@ export default function BranchPage() {
                         {isLoading && (
                             <tr>
                                 <td colSpan={7} className="p-4 text-center text-gray-400">
-                                    Loading...
+                                    Đang tải...
                                 </td>
                             </tr>
                         )}
@@ -71,7 +71,7 @@ export default function BranchPage() {
                         {isError && (
                             <tr>
                                 <td colSpan={7} className="p-4 text-center text-red-400">
-                                    Failed to load.
+                                    Lỗi tải dữ liệu.
                                 </td>
                             </tr>
                         )}
@@ -79,7 +79,7 @@ export default function BranchPage() {
                         {!isLoading && branches.length === 0 && (
                             <tr>
                                 <td colSpan={7} className="p-4 text-center text-gray-500">
-                                    No branches.
+                                    Không có chi nhánh nào.
                                 </td>
                             </tr>
                         )}
@@ -94,25 +94,25 @@ export default function BranchPage() {
 
                                 <td className="p-3">
                                     {item.isActive ? (
-                                        <span className="text-green-400">Active</span>
+                                        <span className="text-green-400">Hoạt động</span>
                                     ) : (
-                                        <span className="text-red-400">Inactive</span>
+                                        <span className="text-red-400">Không hoạt động</span>
                                     )}
                                 </td>
 
                                 <td className="p-3 flex gap-4">
                                     <button
-                                        className="text-blue-400"
+                                        className="text-blue-400 hover:text-blue-300"
                                         onClick={() => { setSelected(item); setOpen(true); }}
                                     >
-                                        Edit
+                                        Sửa
                                     </button>
 
                                     <button
-                                        className="text-red-400"
+                                        className="text-red-400 hover:text-red-300"
                                         onClick={() => handleDelete(item.id)}
                                     >
-                                        Delete
+                                        Xóa
                                     </button>
                                 </td>
                             </tr>

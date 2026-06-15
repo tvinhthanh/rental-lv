@@ -140,7 +140,7 @@ export default function AdminMaintenancePage() {
                                         </span>
                                     </div>
                                     <span className={`px-2 py-1 text-xs rounded-full ${statusColors[maintenance.status] || statusColors.PENDING}`}>
-                                        {maintenance.status || "PENDING"}
+                                        {maintenance.status === 'PENDING' ? 'Chờ xử lý' : maintenance.status === 'IN_PROGRESS' ? 'Đang thực hiện' : maintenance.status === 'COMPLETED' ? 'Đã hoàn thành' : maintenance.status === 'CANCELLED' ? 'Đã hủy' : maintenance.status || 'Chờ xử lý'}
                                     </span>
                                 </div>
 
@@ -182,7 +182,7 @@ export default function AdminMaintenancePage() {
                                 <div>
                                     <p className="text-slate-400">Trạng thái</p>
                                     <p className={`text-lg font-semibold ${statusColors[selectedMaintenance.status] || statusColors.PENDING}`}>
-                                        {selectedMaintenance.status || "PENDING"}
+                                        {selectedMaintenance.status === 'PENDING' ? 'Chờ xử lý' : selectedMaintenance.status === 'IN_PROGRESS' ? 'Đang thực hiện' : selectedMaintenance.status === 'COMPLETED' ? 'Đã hoàn thành' : selectedMaintenance.status === 'CANCELLED' ? 'Đã hủy' : selectedMaintenance.status || 'Chờ xử lý'}
                                     </p>
                                 </div>
 

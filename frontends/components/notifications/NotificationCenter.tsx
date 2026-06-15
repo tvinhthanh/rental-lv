@@ -94,7 +94,7 @@ export default function NotificationCenter() {
         try {
             await notificationService.markAsRead(id);
             setNotifications((prev) =>
-                prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+                prev.map((n) => (n.id === id ? { ...n, status: 'READ' } : n))
             );
             setUnreadCount((prev) => Math.max(0, prev - 1));
         } catch (err: any) {
@@ -105,7 +105,7 @@ export default function NotificationCenter() {
     const handleMarkAllAsRead = async () => {
         try {
             await notificationService.markAllAsRead();
-            setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+            setNotifications((prev) => prev.map((n) => ({ ...n, status: 'READ' })));
             setUnreadCount(0);
             toast.success("Đã đánh dấu tất cả là đã đọc");
         } catch (err: any) {
@@ -193,59 +193,62 @@ export default function NotificationCenter() {
                             </div>
                         ) : (
                             <div className="divide-y divide-slate-700/50">
-                                {notifications.map((notification, index) => (
-                                    <div
-                                        key={notification.id}
-                                        className={`p-4 hover:bg-slate-800/50 transition-all duration-200 ${
-                                            !notification.read ? "bg-blue-500/10 border-l-2 border-l-blue-500" : ""
-                                        }`}
-                                        style={{
-                                            animationDelay: `${index * 50}ms`,
-                                        }}
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            {!notification.read && (
-                                                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0 animate-pulse" />
-                                            )}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <h4 className="font-medium text-white text-sm">
-                                                        {notification.title || "Thông báo"}
-                                                    </h4>
-                                                    {!notification.read && (
-                                                        <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                                {notifications.map((notification, index) => {
+                                    const isUnread = notification.status !== 'READ';
+                                    return (
+                                        <div
+                                            key={notification.id}
+                                            className={`p-4 hover:bg-slate-800/50 transition-all duration-200 ${
+                                                isUnread ? "bg-blue-500/10 border-l-2 border-l-blue-500" : ""
+                                            }`}
+                                            style={{
+                                                animationDelay: `${index * 50}ms`,
+                                            }}
+                                        >
+                                            <div className="flex items-start justify-between gap-3">
+                                                {isUnread && (
+                                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0 animate-pulse" />
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="font-medium text-white text-sm">
+                                                            {notification.title || "Thông báo"}
+                                                        </h4>
+                                                        {isUnread && (
+                                                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                                                        )}
+                                                    </div>
+                                                    <p className="text-slate-300 text-xs mb-2 line-clamp-2">
+                                                        {notification.message || notification.content}
+                                                    </p>
+                                                    {notification.createdAt && (
+                                                        <p className="text-slate-500 text-xs flex items-center gap-1">
+                                                            {formatTimeAgo(notification.createdAt)}
+                                                        </p>
                                                     )}
                                                 </div>
-                                                <p className="text-slate-300 text-xs mb-2 line-clamp-2">
-                                                    {notification.message || notification.content}
-                                                </p>
-                                                {notification.createdAt && (
-                                                    <p className="text-slate-500 text-xs flex items-center gap-1">
-                                                        {formatTimeAgo(notification.createdAt)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div className="flex items-center gap-1 flex-shrink-0">
-                                                {!notification.read && (
+                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                    {isUnread && (
+                                                        <button
+                                                            onClick={() => handleMarkAsRead(notification.id)}
+                                                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded transition-all"
+                                                            title="Đánh dấu đã đọc"
+                                                        >
+                                                            <Check className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => handleMarkAsRead(notification.id)}
-                                                        className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded transition-all"
-                                                        title="Đánh dấu đã đọc"
+                                                        onClick={() => handleDelete(notification.id)}
+                                                        className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded transition-all"
+                                                        title="Xóa"
                                                     >
-                                                        <Check className="w-4 h-4" />
+                                                        <X className="w-4 h-4" />
                                                     </button>
-                                                )}
-                                                <button
-                                                    onClick={() => handleDelete(notification.id)}
-                                                    className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded transition-all"
-                                                    title="Xóa"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

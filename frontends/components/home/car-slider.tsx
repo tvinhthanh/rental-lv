@@ -219,13 +219,13 @@ export default function CarSlider() {
                                     <div className="flex gap-3 pt-3">
                                         <Link
                                             href={`/user/cars/${slug}`}
-                                            className="flex-1 px-4 py-2.5 bg-white text-[#0b1f3a] font-semibold rounded-lg shadow hover:-translate-y-0.5 transition text-center text-sm"
+                                            className="flex-1 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-lg shadow hover:-translate-y-0.5 transition text-center text-sm"
                                         >
                                             Xem chi tiết
                                         </Link>
                                         <Link
                                             href={`/user/bookings/${slug}`}
-                                            className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow text-center text-sm"
+                                            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] text-white font-semibold rounded-lg shadow shadow-cyan-500/20 text-center text-sm transition"
                                         >
                                             Đặt ngay
                                         </Link>

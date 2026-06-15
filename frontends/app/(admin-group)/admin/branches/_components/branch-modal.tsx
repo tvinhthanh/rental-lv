@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 
 const MapPicker = dynamic(() => import("@/components/add-ons/map-picker"), {
     ssr: false,
-    loading: () => <p>Loading Map...</p>,
+    loading: () => <p>Đang tải bản đồ...</p>,
 });
 
 interface BranchModalProps {
@@ -123,7 +123,7 @@ export default function BranchModal({ open, selected, onClose }: BranchModalProp
                 <div className="bg-slate-900 border border-slate-700 p-6 w-[420px] rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
 
                     <h2 className="text-xl font-semibold mb-4 text-gray-200">
-                        {selected ? "Edit Branch" : "Add Branch"}
+                        {selected ? "Chỉnh sửa chi nhánh" : "Thêm chi nhánh"}
                     </h2>
 
                     <form onSubmit={formHandle(onSubmit)} className="space-y-3">
@@ -132,29 +132,29 @@ export default function BranchModal({ open, selected, onClose }: BranchModalProp
                         <input
                             {...register("name")}
                             className="input-dark"
-                            placeholder="Name *"
+                            placeholder="Tên chi nhánh *"
                             required
                             onBlur={(e) => setValue("slug", generateSlug(e.target.value))}
                         />
                         {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
 
-                        <input {...register("code")} className="input-dark" placeholder="Code (optional)" />
+                        <input {...register("code")} className="input-dark" placeholder="Mã chi nhánh (không bắt buộc)" />
                         {errors.code && <p className="text-xs text-rose-400 mt-1">{errors.code}</p>}
                         <input {...register("slug")} className="input-dark" placeholder="Slug" />
                         {errors.slug && <p className="text-xs text-rose-400 mt-1">{errors.slug}</p>}
 
-                        <input {...register("email")} className="input-dark" placeholder="Email" />
+                        <input {...register("email")} className="input-dark" placeholder="Địa chỉ Email" />
                         {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
-                        <input {...register("address")} className="input-dark" placeholder="Address" />
-                        <input {...register("city")} className="input-dark" placeholder="City" />
-                        <input {...register("country")} className="input-dark" placeholder="Country" />
-                        <input {...register("phone")} className="input-dark" placeholder="Phone" />
+                        <input {...register("address")} className="input-dark" placeholder="Địa chỉ" />
+                        <input {...register("city")} className="input-dark" placeholder="Thành phố" />
+                        <input {...register("country")} className="input-dark" placeholder="Quốc gia" />
+                        <input {...register("phone")} className="input-dark" placeholder="Số điện thoại" />
                         {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone}</p>}
 
                         {/* MAP PICKER */}
                         <div className="grid grid-cols-2 gap-3">
-                            <input {...register("latitude")} className="input-dark" placeholder="Latitude" />
-                            <input {...register("longitude")} className="input-dark" placeholder="Longitude" />
+                            <input {...register("latitude")} className="input-dark" placeholder="Vĩ độ" />
+                            <input {...register("longitude")} className="input-dark" placeholder="Kinh độ" />
                             {errors.latitude && <p className="text-xs text-rose-400 mt-1 col-span-2">{errors.latitude}</p>}
                             {errors.longitude && !errors.latitude && <p className="text-xs text-rose-400 mt-1 col-span-2">{errors.longitude}</p>}
                         </div>
@@ -165,35 +165,35 @@ export default function BranchModal({ open, selected, onClose }: BranchModalProp
                             className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center justify-center gap-2"
                         >
                             <MapPin className="w-4 h-4" />
-                            Pick Location on Map
+                            Chọn vị trí trên bản đồ
                         </button>
 
                         <input {...register("googleMapUrl")} className="input-dark" placeholder="Google Map URL" />
-                        <input {...register("businessHours")} className="input-dark" placeholder="08:00 - 17:00" />
+                        <input {...register("businessHours")} className="input-dark" placeholder="Giờ mở cửa (VD: 08:00 - 17:00)" />
 
-                        <input {...register("metaTitle")} className="input-dark" placeholder="Meta Title (SEO)" />
-                        <textarea {...register("metaDescription")} className="input-dark" placeholder="Meta Description (SEO)" />
+                        <input {...register("metaTitle")} className="input-dark" placeholder="Tiêu đề SEO" />
+                        <textarea {...register("metaDescription")} className="input-dark" placeholder="Mô tả SEO" />
 
-                        <label className="flex items-center gap-2 text-gray-300">
+                        <label className="flex items-center gap-2 text-gray-300 cursor-pointer">
                             <input type="checkbox" {...register("isActive")} />
-                            Active
+                            Hoạt động
                         </label>
 
                         <div className="flex justify-end gap-3 pt-4">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
+                                className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700 transition-colors"
                             >
-                                Cancel
+                                Hủy
                             </button>
 
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50"
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50 transition-colors"
                             >
-                                {isPending ? "Saving..." : "Save"}
+                                {isPending ? "Đang lưu..." : "Lưu"}
                             </button>
                         </div>
 

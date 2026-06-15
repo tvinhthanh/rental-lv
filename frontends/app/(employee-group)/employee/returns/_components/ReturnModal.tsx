@@ -1,5 +1,7 @@
 "use client";
 
+import { translateStatus } from "@/lib/utils";
+
 type ReturnModalProps = {
     returnReport: any;
     onClose: () => void;
@@ -89,7 +91,7 @@ export default function ReturnModal({ returnReport, onClose }: ReturnModalProps)
                             <div>
                                 <p className="text-xs text-slate-400">Tình trạng</p>
                                 <p className="font-semibold text-emerald-400">
-                                    {returnReport.condition || "—"}
+                                    {translateStatus(returnReport.condition, 'condition')}
                                 </p>
                             </div>
                         </div>
@@ -139,7 +141,7 @@ export default function ReturnModal({ returnReport, onClose }: ReturnModalProps)
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

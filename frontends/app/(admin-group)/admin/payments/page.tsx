@@ -5,11 +5,12 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { billingService } from "@/services/billing.service";
 import { branchService } from "@/services/branch.service";
 import { CreditCard } from "lucide-react";
+import { translateStatus } from "@/lib/utils";
 
 export default function AdminPaymentsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [payments, setPayments] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
     const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
@@ -17,10 +18,7 @@ export default function AdminPaymentsPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
+        if (!user || user.role !== "ADMIN") return;
 
         async function loadPayments() {
             try {
@@ -158,7 +156,7 @@ export default function AdminPaymentsPage() {
                                         </span>
                                     </div>
                                     <span className={`px-2 py-1 text-xs rounded-full ${methodColors[payment.method] || methodColors.OTHER}`}>
-                                        {payment.method || "OTHER"}
+                                        {translateStatus(payment.method, 'payment')}
                                     </span>
                                 </div>
 
@@ -203,7 +201,7 @@ export default function AdminPaymentsPage() {
                                 <div>
                                     <p className="text-slate-400">Phương thức</p>
                                     <p className={`text-lg font-semibold ${methodColors[selectedPayment.method] || methodColors.OTHER}`}>
-                                        {selectedPayment.method || "OTHER"}
+                                        {translateStatus(selectedPayment.method, 'payment')}
                                     </p>
                                 </div>
 

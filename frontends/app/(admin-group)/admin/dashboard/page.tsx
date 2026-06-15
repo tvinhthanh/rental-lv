@@ -26,6 +26,7 @@ import {
     AreaChart,
     Area
 } from "recharts";
+import { ChevronLeft, ChevronRight, FileCheck } from "lucide-react";
 
 export default function AdminDashboardPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -37,6 +38,8 @@ export default function AdminDashboardPage() {
     const [showDetailModal, setShowDetailModal] = useState<'bookings' | 'customers' | 'employees' | 'branches' | 'vehicles' | 'invoices' | null>(null);
     const [modalData, setModalData] = useState<any[]>([]);
     const [modalDetailLoading, setModalDetailLoading] = useState(false);
+    const [docSlide, setDocSlide] = useState(0);
+    const [chartSlide, setChartSlide] = useState(0);
 
     // Load statistics with React Query for caching
     const { data: statsData, isLoading: statsLoading, error: statsError } = useQuery({
@@ -221,12 +224,12 @@ export default function AdminDashboardPage() {
                 const timer = setTimeout(() => setShowCharts(true), 100);
                 return () => clearTimeout(timer);
             } catch (error: any) {
-                setChartError(error?.message || 'Lỗi khi tải charts');
+                Promise.resolve().then(() => setChartError(error?.message || 'Lỗi khi tải charts'));
             }
         }
     }, [statsLoading, statsData]);
 
-    const stats = statsData || {
+    const stats = useMemo(() => statsData || {
         totalBookings: 0,
         completedBookings: 0,
         pendingBookings: 0,
@@ -248,7 +251,7 @@ export default function AdminDashboardPage() {
         employeesByBranch: [],
         allVehicles: [],
         vehiclesWithDocumentsList: [],
-    };
+    }, [statsData]);
 
     // Handler để mở modal và load danh sách xe
     const handleOpenVehicleModal = async (type: 'with-docs' | 'without-docs') => {
@@ -349,6 +352,261 @@ export default function AdminDashboardPage() {
         return data.filter(d => d.value > 0).length > 0 ? data : [{ name: "Chưa có dữ liệu", value: 1 }];
     }, [stats.completedBookings, stats.pendingBookings, stats.ongoingBookings]);
 
+    const COLORS = useMemo(() => ({
+        available: "#10b981",
+        rented: "#a855f7",
+        maintenance: "#f59e0b",
+        completed: "#3b82f6",
+        pending: "#f59e0b",
+        ongoing: "#6366f1",
+    }), []);
+
+    const chartTabs = useMemo(() => [
+        {
+            label: "Trạng Thái Xe",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Phân Tích Trạng Thái Hoạt Động Của Xe</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={vehicleChartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                            <XAxis 
+                                dataKey="name" 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <YAxis 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                            />
+                            <Legend />
+                            <Bar 
+                                dataKey="value" 
+                                fill="#10b981"
+                                radius={[8, 8, 0, 0]}
+                                name="Số lượng xe"
+                            >
+                                {vehicleChartData.map((entry, index) => (
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={
+                                            entry.name === "Đang Rảnh" ? COLORS.available :
+                                            entry.name === "Đang Thuê" ? COLORS.rented :
+                                            COLORS.maintenance
+                                        } 
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        },
+        {
+            label: "Trạng Thái Booking",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Tỷ Lệ Trạng Thái Đơn Đặt Xe</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <PieChart>
+                            <Pie
+                                data={bookingStatusData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                                outerRadius={90}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {bookingStatusData.map((entry, index) => (
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={
+                                            entry.name === "Hoàn Thành" ? COLORS.completed :
+                                            entry.name === "Chờ Xử Lý" ? COLORS.pending :
+                                            COLORS.ongoing
+                                        } 
+                                    />
+                                ))}
+                            </Pie>
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                            />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        },
+        {
+            label: "Đơn Hàng",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Biến Động Số Lượng Đơn Đặt Xe Theo Tháng</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <AreaChart data={stats.bookingsByMonth || []}>
+                            <defs>
+                                <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                            <XAxis 
+                                dataKey="month" 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <YAxis 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                            />
+                            <Area 
+                                type="monotone" 
+                                dataKey="bookings" 
+                                stroke="#3b82f6" 
+                                fillOpacity={1} 
+                                fill="url(#colorBookings)" 
+                                name="Đơn hàng"
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        },
+        {
+            label: "Doanh Thu",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Biểu Đồ Tăng Trưởng Doanh Thu Hàng Tháng</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <LineChart data={stats.revenueByMonth || []}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                            <XAxis 
+                                dataKey="month" 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <YAxis 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                                tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                                formatter={(value: any) => `${value.toLocaleString('vi-VN')} đ`}
+                            />
+                            <Line 
+                                type="monotone" 
+                                dataKey="revenue" 
+                                stroke="#10b981" 
+                                strokeWidth={2.5}
+                                dot={{ fill: "#10b981", r: 5 }}
+                                name="Doanh thu"
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        },
+        {
+            label: "Xe / Chi Nhánh",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Phân Bổ Và Trạng Thái Xe Tại Các Chi Nhánh</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={stats.vehiclesByBranch || []}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                            <XAxis 
+                                dataKey="name" 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                                angle={-30}
+                                textAnchor="end"
+                                height={70}
+                            />
+                            <YAxis 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                            />
+                            <Legend />
+                            <Bar dataKey="vehicles" fill="#6366f1" radius={[6, 6, 0, 0]} name="Tổng xe" />
+                            <Bar dataKey="available" fill="#10b981" radius={[6, 6, 0, 0]} name="Sẵn sàng" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        },
+        {
+            label: "NV / Chi Nhánh",
+            component: (
+                <div className="animate-fadeIn">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-4">Phân Bổ Nhân Sự Tại Các Chi Nhánh</h4>
+                    <ResponsiveContainer width="100%" height={320}>
+                        <BarChart data={stats.employeesByBranch || []}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                            <XAxis 
+                                dataKey="name" 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                                angle={-30}
+                                textAnchor="end"
+                                height={70}
+                            />
+                            <YAxis 
+                                stroke="#94a3b8"
+                                style={{ fontSize: "12px" }}
+                            />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: "#1e293b", 
+                                    border: "1px solid #334155",
+                                    borderRadius: "8px",
+                                    color: "#e2e8f0"
+                                }}
+                            />
+                            <Bar dataKey="employees" fill="#06b6d4" radius={[8, 8, 0, 0]} name="Nhân viên" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            )
+        }
+    ], [stats, vehicleChartData, bookingStatusData, COLORS]);
+
     const loading = userLoading || statsLoading;
 
     // Guards - AFTER all hooks
@@ -366,14 +624,7 @@ export default function AdminDashboardPage() {
         return null;
     }
 
-    const COLORS = {
-        available: "#10b981",
-        rented: "#a855f7",
-        maintenance: "#f59e0b",
-        completed: "#3b82f6",
-        pending: "#f59e0b",
-        ongoing: "#6366f1",
-    };
+
 
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100">
@@ -515,304 +766,148 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Vehicle Document Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-                    {/* Xe Sẵn Sàng (Có Document) */}
-                    <div 
-                        onClick={() => handleOpenVehicleModal('with-docs')}
-                        className="rounded-xl border-2 border-emerald-500/50 bg-gradient-to-br from-emerald-900/40 to-teal-900/40 p-6 cursor-pointer hover:border-emerald-400 hover:bg-emerald-900/50 transition-all shadow-lg hover:shadow-emerald-500/20"
-                    >
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs uppercase text-emerald-300 font-semibold">Xe Sẵn Sàng</p>
-                            <span className="px-2 py-1 bg-emerald-500/30 text-emerald-200 text-xs rounded-full font-semibold">✓ Có Document</span>
+                {/* Vehicle Document Stats Slideshow */}
+                <div className="mb-6 sm:mb-8 bg-slate-900/40 rounded-2xl border border-slate-800/80 p-5 sm:p-6 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60">
+                        <div>
+                            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                                <FileCheck className="w-5 h-5 text-cyan-400" />
+                                Hồ Sơ & Giấy Tờ Xe
+                            </h3>
+                            <p className="text-xs text-slate-400">Xem thống kê tình trạng pháp lý xe</p>
                         </div>
-                        <p className="text-3xl font-bold text-emerald-300 mb-1">
-                            {stats.vehiclesWithDocuments || 0}
-                        </p>
-                        <p className="text-sm text-emerald-200/80 mb-3">
-                            Xe đã có đầy đủ giấy tờ, sẵn sàng cho thuê
-                        </p>
-                        <div className="mt-3 pt-3 border-t border-emerald-700/50">
-                            <p className="text-xs text-emerald-300/70">
-                                Tỷ lệ: {(() => {
-                                    const total = Number(stats.totalVehicles) || 0;
-                                    const withDocs = Number(stats.vehiclesWithDocuments) || 0;
-                                    return total > 0 ? ((withDocs / total) * 100).toFixed(1) : '0.0';
-                                })()}% tổng số xe
-                            </p>
-                            <p className="text-xs text-emerald-400/60 mt-1 italic">Click để xem chi tiết →</p>
+                        {/* Dot indicator/Controls */}
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setDocSlide((prev) => (prev === 0 ? 1 : 0))}
+                                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition active:scale-95"
+                                title="Chuyển slide"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => setDocSlide((prev) => (prev === 1 ? 0 : 1))}
+                                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition active:scale-95"
+                                title="Chuyển slide"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
 
-                    {/* Xe Chưa Có Document */}
-                    <div 
-                        onClick={() => handleOpenVehicleModal('without-docs')}
-                        className="rounded-xl border-2 border-orange-500/50 bg-gradient-to-br from-orange-900/40 to-amber-900/40 p-6 cursor-pointer hover:border-orange-400 hover:bg-orange-900/50 transition-all shadow-lg hover:shadow-orange-500/20"
-                    >
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs uppercase text-orange-300 font-semibold">Xe Chưa Có Document</p>
-                            <span className="px-2 py-1 bg-orange-500/30 text-orange-200 text-xs rounded-full font-semibold">⚠ Cần Bổ Sung</span>
-                        </div>
-                        <p className="text-3xl font-bold text-orange-300 mb-1">
-                            {stats.vehiclesWithoutDocuments || 0}
-                        </p>
-                        <p className="text-sm text-orange-200/80 mb-3">
-                            Xe chưa có đầy đủ giấy tờ, chưa thể cho thuê
-                        </p>
-                        <div className="mt-3 pt-3 border-t border-orange-700/50">
-                            <p className="text-xs text-orange-300/70">
-                                Tỷ lệ: {(() => {
-                                    const total = Number(stats.totalVehicles) || 0;
-                                    const withoutDocs = Number(stats.vehiclesWithoutDocuments) || 0;
-                                    return total > 0 ? ((withoutDocs / total) * 100).toFixed(1) : '0.0';
-                                })()}% tổng số xe
-                            </p>
-                            <p className="text-xs text-orange-400/60 mt-1 italic">Click để xem chi tiết →</p>
-                        </div>
+                    <div className="relative min-h-[180px]">
+                        {/* Slide 1: Xe Sẵn Sàng (Có Document) */}
+                        {docSlide === 0 && (
+                            <div 
+                                onClick={() => handleOpenVehicleModal('with-docs')}
+                                className="animate-fadeIn rounded-xl border-2 border-emerald-500/50 bg-gradient-to-br from-emerald-900/40 to-teal-900/40 p-6 cursor-pointer hover:border-emerald-400 hover:bg-emerald-900/50 transition-all shadow-lg hover:shadow-emerald-500/20"
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs uppercase text-emerald-300 font-semibold tracking-wider">Xe Sẵn Sàng</p>
+                                    <span className="px-2.5 py-1 bg-emerald-500/30 text-emerald-200 text-xs rounded-full font-semibold">✓ Có Document</span>
+                                </div>
+                                <p className="text-4xl font-black text-emerald-300 mb-1">
+                                    {stats.vehiclesWithDocuments || 0}
+                                </p>
+                                <p className="text-sm text-emerald-200/80 mb-3">
+                                    Xe đã có đầy đủ giấy tờ, sẵn sàng cho thuê
+                                </p>
+                                <div className="mt-3 pt-3 border-t border-emerald-700/50 flex justify-between items-center text-xs text-emerald-300/70">
+                                    <span>
+                                        Tỷ lệ: {(() => {
+                                            const total = Number(stats.totalVehicles) || 0;
+                                            const withDocs = Number(stats.vehiclesWithDocuments) || 0;
+                                            return total > 0 ? ((withDocs / total) * 100).toFixed(1) : '0.0';
+                                        })()}% tổng số xe
+                                    </span>
+                                    <span className="text-emerald-400/60 italic font-medium">Click để xem chi tiết →</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Slide 2: Xe Chưa Có Document */}
+                        {docSlide === 1 && (
+                            <div 
+                                onClick={() => handleOpenVehicleModal('without-docs')}
+                                className="animate-fadeIn rounded-xl border-2 border-orange-500/50 bg-gradient-to-br from-orange-900/40 to-amber-900/40 p-6 cursor-pointer hover:border-orange-400 hover:bg-orange-900/50 transition-all shadow-lg hover:shadow-orange-500/20"
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs uppercase text-orange-300 font-semibold tracking-wider">Xe Chưa Có Document</p>
+                                    <span className="px-2.5 py-1 bg-orange-500/30 text-orange-200 text-xs rounded-full font-semibold">⚠ Cần Bổ Sung</span>
+                                </div>
+                                <p className="text-4xl font-black text-orange-300 mb-1">
+                                    {stats.vehiclesWithoutDocuments || 0}
+                                </p>
+                                <p className="text-sm text-orange-200/80 mb-3">
+                                    Xe chưa có đầy đủ giấy tờ, chưa thể cho thuê
+                                </p>
+                                <div className="mt-3 pt-3 border-t border-orange-700/50 flex justify-between items-center text-xs text-orange-300/70">
+                                    <span>
+                                        Tỷ lệ: {(() => {
+                                            const total = Number(stats.totalVehicles) || 0;
+                                            const withoutDocs = Number(stats.vehiclesWithoutDocuments) || 0;
+                                            return total > 0 ? ((withoutDocs / total) * 100).toFixed(1) : '0.0';
+                                        })()}% tổng số xe
+                                    </span>
+                                    <span className="text-orange-400/60 italic font-medium">Click để xem chi tiết →</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Charts Grid - Lazy loaded */}
+                {/* Charts Slider */}
                 {showCharts && typeof window !== 'undefined' ? (
-                    <div className="space-y-6">
-                        {/* Row 1: Vehicle Status & Booking Status */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                            {/* Vehicle Status Chart */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Xe</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={vehicleChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                        <XAxis 
-                                            dataKey="name" 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <YAxis 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                        />
-                                        <Legend />
-                                        <Bar 
-                                            dataKey="value" 
-                                            fill="#10b981"
-                                            radius={[8, 8, 0, 0]}
-                                        >
-                                            {vehicleChartData.map((entry, index) => (
-                                                <Cell 
-                                                    key={`cell-${index}`} 
-                                                    fill={
-                                                        entry.name === "Đang Rảnh" ? COLORS.available :
-                                                        entry.name === "Đang Thuê" ? COLORS.rented :
-                                                        COLORS.maintenance
-                                                    } 
-                                                />
-                                            ))}
-                                        </Bar>
-                                    </BarChart>
-                                </ResponsiveContainer>
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 sm:p-6 shadow-xl backdrop-blur-sm">
+                        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-6 pb-4 border-b border-slate-800/80">
+                            <div>
+                                <h3 className="text-base sm:text-lg font-bold text-white">Biểu Đồ Thống Kê Hệ Thống</h3>
+                                <p className="text-xs text-slate-400 mt-1">Chọn tab hoặc dùng nút chuyển đổi để xem các khía cạnh thống kê</p>
                             </div>
-
-                            {/* Booking Status Pie Chart */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Trạng Thái Booking</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={bookingStatusData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {bookingStatusData.map((entry, index) => (
-                                                <Cell 
-                                                    key={`cell-${index}`} 
-                                                    fill={
-                                                        entry.name === "Hoàn Thành" ? COLORS.completed :
-                                                        entry.name === "Chờ Xử Lý" ? COLORS.pending :
-                                                        COLORS.ongoing
-                                                    } 
-                                                />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                            
+                            {/* Navigation Tabs */}
+                            <div className="flex flex-wrap gap-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80 max-w-full">
+                                {chartTabs.map((tab, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setChartSlide(idx)}
+                                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                                            chartSlide === idx
+                                                ? "bg-gradient-to-r from-indigo-600 to-cyan-500 text-white shadow-md"
+                                                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Row 2: Bookings by Month & Revenue by Month */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                            {/* Bookings by Month */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Đơn Hàng Theo Tháng</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <AreaChart data={stats.bookingsByMonth || []}>
-                                        <defs>
-                                            <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                        <XAxis 
-                                            dataKey="month" 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <YAxis 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                        />
-                                        <Area 
-                                            type="monotone" 
-                                            dataKey="bookings" 
-                                            stroke="#3b82f6" 
-                                            fillOpacity={1} 
-                                            fill="url(#colorBookings)" 
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-
-                            {/* Revenue by Month */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Doanh Thu Theo Tháng</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <LineChart data={stats.revenueByMonth || []}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                        <XAxis 
-                                            dataKey="month" 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <YAxis 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                            tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                            formatter={(value: any) => `${value.toLocaleString('vi-VN')} đ`}
-                                        />
-                                        <Line 
-                                            type="monotone" 
-                                            dataKey="revenue" 
-                                            stroke="#10b981" 
-                                            strokeWidth={2}
-                                            dot={{ fill: "#10b981", r: 4 }}
-                                        />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
+                        {/* Chart Slide Component */}
+                        <div className="relative overflow-hidden min-h-[360px] flex flex-col justify-center">
+                            {chartTabs[chartSlide].component}
                         </div>
 
-                        {/* Row 3: Vehicles by Branch & Employees by Branch */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                            {/* Vehicles by Branch */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Xe Theo Chi Nhánh</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={stats.vehiclesByBranch || []}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                        <XAxis 
-                                            dataKey="name" 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                            angle={-45}
-                                            textAnchor="end"
-                                            height={80}
-                                        />
-                                        <YAxis 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                        />
-                                        <Legend />
-                                        <Bar dataKey="vehicles" fill="#6366f1" radius={[8, 8, 0, 0]} name="Tổng xe" />
-                                        <Bar dataKey="available" fill="#10b981" radius={[8, 8, 0, 0]} name="Sẵn sàng" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-
-                            {/* Employees by Branch */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6">
-                                <h3 className="text-lg font-semibold text-white mb-4">Nhân Viên Theo Chi Nhánh</h3>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={stats.employeesByBranch || []}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                                        <XAxis 
-                                            dataKey="name" 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                            angle={-45}
-                                            textAnchor="end"
-                                            height={80}
-                                        />
-                                        <YAxis 
-                                            stroke="#94a3b8"
-                                            style={{ fontSize: "12px" }}
-                                        />
-                                        <Tooltip 
-                                            contentStyle={{ 
-                                                backgroundColor: "#1e293b", 
-                                                border: "1px solid #334155",
-                                                borderRadius: "8px",
-                                                color: "#e2e8f0"
-                                            }}
-                                        />
-                                        <Bar dataKey="employees" fill="#06b6d4" radius={[8, 8, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
+                        {/* Slider Controls */}
+                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-800/80">
+                            <button
+                                onClick={() => setChartSlide((prev) => (prev === 0 ? chartTabs.length - 1 : prev - 1))}
+                                className="px-3 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition active:scale-95 flex items-center gap-1"
+                            >
+                                <ChevronLeft className="w-4 h-4" /> Trước
+                            </button>
+                            
+                            <button
+                                onClick={() => setChartSlide((prev) => (prev === chartTabs.length - 1 ? 0 : prev + 1))}
+                                className="px-3 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition active:scale-95 flex items-center gap-1"
+                            >
+                                Sau <ChevronRight className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 h-[380px] flex items-center justify-center">
-                                <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                            </div>
-                        ))}
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 h-[380px] flex items-center justify-center">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                     </div>
                 )}
 
@@ -868,7 +963,9 @@ export default function AdminDashboardPage() {
                                                         vehicle.status === 'RENTED' ? 'bg-blue-500/20 text-blue-400' :
                                                         'bg-red-500/20 text-red-400'
                                                     }`}>
-                                                        {vehicle.status}
+                                                        {vehicle.status === 'AVAILABLE' ? 'Đang rảnh' :
+                                                         vehicle.status === 'MAINTENANCE' ? 'Bảo dưỡng' :
+                                                         vehicle.status === 'RENTED' ? 'Đang thuê' : vehicle.status}
                                                     </span>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-sm mb-3">
@@ -945,7 +1042,14 @@ export default function AdminDashboardPage() {
                                         {showDetailModal === 'invoices' && 'Danh Sách Hóa Đơn'}
                                     </h2>
                                     <p className="text-sm text-slate-400 mt-1">
-                                        Tổng: {modalData.length} {showDetailModal}
+                                        Tổng: {modalData.length} {
+                                            showDetailModal === 'bookings' ? 'đơn hàng' :
+                                            showDetailModal === 'customers' ? 'khách hàng' :
+                                            showDetailModal === 'employees' ? 'nhân viên' :
+                                            showDetailModal === 'branches' ? 'chi nhánh' :
+                                            showDetailModal === 'vehicles' ? 'xe' :
+                                            showDetailModal === 'invoices' ? 'hóa đơn' : ''
+                                        }
                                     </p>
                                 </div>
                                 <button
@@ -984,7 +1088,12 @@ export default function AdminDashboardPage() {
                                                                 item.status === 'ONGOING' ? 'bg-purple-500/20 text-purple-400' :
                                                                 'bg-gray-500/20 text-gray-400'
                                                             }`}>
-                                                                {item.status}
+                                                                {item.status === 'COMPLETED' ? 'Đã hoàn thành' :
+                                                                 item.status === 'PENDING' ? 'Chờ xử lý' :
+                                                                 item.status === 'CONTRACTED' ? 'Đã ký hợp đồng' :
+                                                                 item.status === 'ONGOING' ? 'Đang diễn ra' :
+                                                                 item.status === 'CONFIRMED' ? 'Đã xác nhận' :
+                                                                 item.status === 'CANCELLED' ? 'Đã hủy' : item.status}
                                                             </span>
                                                         </div>
                                                         <p className="text-sm text-slate-400">
@@ -1029,7 +1138,7 @@ export default function AdminDashboardPage() {
                                                                     item.status === 'INACTIVE' ? 'bg-red-500/20 text-red-400' :
                                                                     'bg-gray-500/20 text-gray-400'
                                                                 }`}>
-                                                                    {item.status}
+                                                                    {item.status === 'ACTIVE' ? 'Hoạt động' : 'Khóa'}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1089,7 +1198,7 @@ export default function AdminDashboardPage() {
                                                                 item.status === 'INACTIVE' ? 'bg-red-500/20 text-red-400' :
                                                                 'bg-gray-500/20 text-gray-400'
                                                             }`}>
-                                                                {item.status || '—'}
+                                                                {item.status === 'ACTIVE' ? 'Hoạt động' : item.status === 'INACTIVE' ? 'Nghỉ việc' : item.status || '—'}
                                                             </span>
                                                         </div>
                                                         <p className="text-sm text-slate-400">Email: {item.email || '—'}</p>
@@ -1175,7 +1284,9 @@ export default function AdminDashboardPage() {
                                                                 item.status === 'RENTED' ? 'bg-blue-500/20 text-blue-400' :
                                                                 'bg-red-500/20 text-red-400'
                                                             }`}>
-                                                                {item.status}
+                                                                {item.status === 'AVAILABLE' ? 'Đang rảnh' :
+                                                                 item.status === 'MAINTENANCE' ? 'Bảo dưỡng' :
+                                                                 item.status === 'RENTED' ? 'Đang thuê' : item.status}
                                                             </span>
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -1215,7 +1326,9 @@ export default function AdminDashboardPage() {
                                                                 item.status === 'CANCELLED' ? 'bg-red-500/20 text-red-400' :
                                                                 'bg-gray-500/20 text-gray-400'
                                                             }`}>
-                                                                {item.status}
+                                                                {item.status === 'PAID' ? 'Đã thanh toán' :
+                                                                 item.status === 'PENDING' ? 'Chưa thanh toán' :
+                                                                 item.status === 'CANCELLED' ? 'Đã hủy' : item.status}
                                                             </span>
                                                         </div>
                                                         {item.booking && (
@@ -1290,7 +1403,14 @@ export default function AdminDashboardPage() {
                             {/* Footer */}
                             <div className="p-4 border-t border-slate-700 bg-slate-800/30">
                                 <p className="text-sm text-slate-400 text-center">
-                                    Tổng: {modalData.length} {showDetailModal}
+                                    Tổng: {modalData.length} {
+                                        showDetailModal === 'bookings' ? 'đơn hàng' :
+                                        showDetailModal === 'customers' ? 'khách hàng' :
+                                        showDetailModal === 'employees' ? 'nhân viên' :
+                                        showDetailModal === 'branches' ? 'chi nhánh' :
+                                        showDetailModal === 'vehicles' ? 'xe' :
+                                        showDetailModal === 'invoices' ? 'hóa đơn' : ''
+                                    }
                                 </p>
                             </div>
                         </div>

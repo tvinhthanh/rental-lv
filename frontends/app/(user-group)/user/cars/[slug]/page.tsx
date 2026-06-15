@@ -75,31 +75,39 @@ export default function CarDetailPage() {
 
             setVehicle(data);
             
-            // Load documents for this vehicle
-            setDocumentsLoading(true);
-            documentService.list({ vehicleId: data.id })
-                .then((docRes) => {
-                    const items = Array.isArray(docRes?.items) ? docRes.items : Array.isArray(docRes) ? docRes : [];
-                    setDocuments(items);
-                })
-                .catch((err) => {
-                    console.error("Load documents failed:", err);
-                })
-                .finally(() => setDocumentsLoading(false));
+            // 🟩 Optimization: Use pre-fetched documents if available
+            if (Array.isArray(data.vehicleDocuments)) {
+                setDocuments(data.vehicleDocuments);
+            } else {
+                setDocumentsLoading(true);
+                documentService.list({ vehicleId: data.id })
+                    .then((docRes) => {
+                        const items = Array.isArray(docRes?.items) ? docRes.items : Array.isArray(docRes) ? docRes : [];
+                        setDocuments(items);
+                    })
+                    .catch((err) => {
+                        console.error("Load documents failed:", err);
+                    })
+                    .finally(() => setDocumentsLoading(false));
+            }
             
-            // Load reviews for this vehicle
-            setReviewLoading(true);
-            reviewService
-                .list({ vehicleId: data.id, limit: 20 })
-                .then((revRes) => {
-                    const items = Array.isArray(revRes?.items) ? revRes.items : Array.isArray(revRes) ? revRes : [];
-                    setReviews(items);
-                })
-                .catch((err) => {
-                    console.error("Load reviews failed:", err);
-                    setReviewError(err?.message || "Không thể tải đánh giá");
-                })
-                .finally(() => setReviewLoading(false));
+            // 🟩 Optimization: Use pre-fetched reviews if available
+            if (Array.isArray(data.reviews)) {
+                setReviews(data.reviews);
+            } else {
+                setReviewLoading(true);
+                reviewService
+                    .list({ vehicleId: data.id, limit: 20 })
+                    .then((revRes) => {
+                        const items = Array.isArray(revRes?.items) ? revRes.items : Array.isArray(revRes) ? revRes : [];
+                        setReviews(items);
+                    })
+                    .catch((err) => {
+                        console.error("Load reviews failed:", err);
+                        setReviewError(err?.message || "Không thể tải đánh giá");
+                    })
+                    .finally(() => setReviewLoading(false));
+            }
         });
     }, [slug]);
 

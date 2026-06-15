@@ -6,14 +6,21 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingQueryDto } from './dto/booking-query.dto';
 import { randomBytes } from 'crypto';
 import { checkVehicleDocumentsComplete } from '@/common/utils/vehicle-document-checker';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { RedisService } from '@/shared/redis/redis.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class BookingService {
+
     constructor(
         private prisma: PrismaService,
         private audit: AuditLogService,
-        @Optional() @Inject(forwardRef(() => import('../notification/notification.gateway').then(m => m.NotificationGateway)))
-        private notificationGateway?: any
+        private redisService: RedisService,
+        @InjectQueue('booking-queue') private bookingQueue: Queue,
+        @Optional() @Inject(forwardRef(() => NotificationGateway))
+        private notificationGateway?: NotificationGateway
     ) { }
 
     //  GENERATE BOOKING CODE 
@@ -180,86 +187,103 @@ export class BookingService {
 
     //  CREATE BOOKING 
     async create(dto: CreateBookingDto, actorId?: string) {
-        const pickup = new Date(dto.pickupDate);
-        const rt = new Date(dto.returnDate);
-
-        if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
-
-        // Kiểm tra thông tin khách hàng - bắt buộc có số bằng lái
-        const customer = await this.prisma.customer.findUnique({
-            where: { id: dto.customerId },
-            select: { id: true, fullName: true, driverLicenseNo: true, driverLicenseExpiry: true }
-        });
-        if (!customer) throw new BadRequestException('Customer not found');
-        if (!customer.driverLicenseNo) {
-            throw new BadRequestException('Customer must provide driver license number before booking');
+        const lockToken = await this.redisService.acquireLock(`vehicle:${dto.vehicleId}`, 10000);
+        if (!lockToken) {
+            throw new BadRequestException('Hệ thống đang xử lý giao dịch cho xe này, vui lòng thử lại sau.');
         }
-        if (customer.driverLicenseExpiry) {
-            const expiry = new Date(customer.driverLicenseExpiry);
-            const now = new Date();
-            if (expiry < now) {
-                throw new BadRequestException('Driver license is expired');
+        try {
+            const pickup = new Date(dto.pickupDate);
+            const rt = new Date(dto.returnDate);
+
+            if (pickup >= rt) throw new BadRequestException('Invalid pickup/return date');
+
+            // Kiểm tra thông tin khách hàng - bắt buộc có số bằng lái
+            const customer = await this.prisma.customer.findUnique({
+                where: { id: dto.customerId },
+                select: { id: true, fullName: true, driverLicenseNo: true, driverLicenseExpiry: true }
+            });
+            if (!customer) throw new BadRequestException('Customer not found');
+            if (!customer.driverLicenseNo) {
+                throw new BadRequestException('Customer must provide driver license number before booking');
             }
-        }
-
-        // check xem xe có available không 1. xe có đang có booking nào không 2. xe có đang có maintenance nào không 3. xe active không
-        const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
-        if (!available) throw new BadRequestException('Vehicle not available for selected dates');
-
-        // Kiểm tra giấy tờ xe - nếu thiếu thì không cho thuê
-        await this.checkVehicleDocuments(dto.vehicleId);
-
-        const baseAmount = await this.calcPrice(dto.vehicleId, pickup, rt);
-        let discount = dto.discountAmount ?? 0;
-        let promotionId = dto.promotionId;
-
-        if (promotionId) {
-            const promo = await this.validatePromotion(promotionId);
-            const promoDiscount = promo.discountPercent
-                ? (baseAmount * promo.discountPercent) / 100
-                : promo.discountAmount || 0;
-            if (dto.discountAmount === undefined) {
-                discount = promoDiscount;
-            }
-            discount = Math.min(discount, baseAmount);
-        }
-
-        const total = Math.max(baseAmount - discount, 0);
-
-        const [booking] = await this.prisma.$transaction([
-            this.prisma.booking.create({
-                data: {
-                    bookingCode: this.generateBookingCode(),
-                    customerId: dto.customerId,
-                    vehicleId: dto.vehicleId,
-                    branchId: dto.branchId,
-                    returnBranchId: dto.returnBranchId,
-                    pickupDate: pickup,
-                    returnDate: rt,
-                    baseAmount,
-                    discountAmount: discount,
-                    totalAmount: total,
-                    promotionId,
-                    note: dto.note,
-                    status: 'PENDING'
+            if (customer.driverLicenseExpiry) {
+                const expiry = new Date(customer.driverLicenseExpiry);
+                const now = new Date();
+                if (expiry < now) {
+                    throw new BadRequestException('Driver license is expired');
                 }
-            }),
-            ...(promotionId
-                ? [this.prisma.promotion.update({
-                    where: { id: promotionId },
-                    data: { usedCount: { increment: 1 } }
-                })]
-                : [])
-        ]);
+            }
 
-        await this.audit.log(actorId ?? null, 'CREATE', 'Booking', booking.id, booking);
+            // check xem xe có available không 1. xe có đang có booking nào không 2. xe có đang có maintenance nào không 3. xe active không
+            const available = await this.checkVehicleAvailable(dto.vehicleId, pickup, rt);
+            if (!available) throw new BadRequestException('Vehicle not available for selected dates');
 
-        // Send notification to customer and employees (async, non-blocking)
-        this.sendBookingNotification(dto.customerId, dto.branchId, booking.bookingCode, booking.id).catch(err => {
-            console.error('Failed to send booking notification:', err);
-        });
+            // Kiểm tra giấy tờ xe - nếu thiếu thì không cho thuê
+            await this.checkVehicleDocuments(dto.vehicleId);
 
-        return booking;
+            const baseAmount = await this.calcPrice(dto.vehicleId, pickup, rt);
+            let discount = dto.discountAmount ?? 0;
+            let promotionId = dto.promotionId;
+
+            if (promotionId) {
+                const promo = await this.validatePromotion(promotionId);
+                const promoDiscount = promo.discountPercent
+                    ? (baseAmount * promo.discountPercent) / 100
+                    : promo.discountAmount || 0;
+                if (dto.discountAmount === undefined) {
+                    discount = promoDiscount;
+                }
+                discount = Math.min(discount, baseAmount);
+            }
+
+            const total = Math.max(baseAmount - discount, 0);
+
+            const [booking] = await this.prisma.$transaction([
+                this.prisma.booking.create({
+                    data: {
+                        bookingCode: this.generateBookingCode(),
+                        customerId: dto.customerId,
+                        vehicleId: dto.vehicleId,
+                        branchId: dto.branchId,
+                        returnBranchId: dto.returnBranchId,
+                        pickupDate: pickup,
+                        returnDate: rt,
+                        baseAmount,
+                        discountAmount: discount,
+                        totalAmount: total,
+                        promotionId,
+                        note: dto.note,
+                        status: 'PENDING'
+                    }
+                }),
+                ...(promotionId
+                    ? [this.prisma.promotion.update({
+                        where: { id: promotionId },
+                        data: { usedCount: { increment: 1 } }
+                    })]
+                    : [])
+            ]);
+
+            await this.audit.log(actorId ?? null, 'CREATE', 'Booking', booking.id, booking);
+
+            // Queue booking for auto-cancel if not paid/confirmed within 30 minutes (async, non-blocking)
+            this.bookingQueue.add(
+                'auto-cancel',
+                { bookingId: booking.id },
+                { delay: 30 * 60 * 1000 } // 30 minutes
+            ).catch(err => {
+                console.error('Failed to add booking auto-cancel job:', err);
+            });
+
+            // Send notification to customer and employees (async, non-blocking)
+            this.sendBookingNotification(dto.customerId, dto.branchId, booking.bookingCode, booking.id).catch(err => {
+                console.error('Failed to send booking notification:', err);
+            });
+
+            return booking;
+        } finally {
+            await this.redisService.releaseLock(`vehicle:${dto.vehicleId}`, lockToken);
+        }
     }
 
     private async sendBookingNotification(
@@ -284,8 +308,15 @@ export class BookingService {
                     message: `Bạn đã đặt xe thành công với mã booking: ${bookingCode}`
                 });
 
-                // Notification record sẽ được tạo qua socket event handler nếu cần
-                // Socket notification là phương thức chính
+                // Create database notification record for customer
+                await this.prisma.notification.create({
+                    data: {
+                        userId: customer.userId,
+                        title: 'Đặt xe thành công',
+                        message: `Bạn đã đặt xe thành công với mã booking: ${bookingCode}`,
+                        status: 'UNREAD'
+                    }
+                });
             }
 
             // 2. Send notification to all employees of the branch
@@ -312,8 +343,15 @@ export class BookingService {
                         message: `Có đơn đặt xe mới từ ${customerName} - Mã booking: ${bookingCode}`
                     });
 
-                    // Notification record sẽ được tạo qua socket event handler nếu cần
-                    // Socket notification là phương thức chính
+                    // Create database notification record for employee
+                    await this.prisma.notification.create({
+                        data: {
+                            userId: employee.userId,
+                            title: 'Đơn đặt xe mới',
+                            message: `Có đơn đặt xe mới từ ${customerName} - Mã booking: ${bookingCode}`,
+                            status: 'UNREAD'
+                        }
+                    });
                 }
             }
         } catch (err) {
@@ -334,17 +372,45 @@ export class BookingService {
             await this.validatePromotion(dto.promotionId);
         }
 
-        const updated = await this.prisma.booking.update({
-            where: { id },
-            data: dto
-        });
+        const vehicleId = dto.vehicleId ?? before.vehicleId;
+        const lockToken = await this.redisService.acquireLock(`vehicle:${vehicleId}`, 10000);
+        if (!lockToken) {
+            throw new BadRequestException('Hệ thống đang xử lý giao dịch cho xe này, vui lòng thử lại sau.');
+        }
+        try {
+            if (dto.pickupDate || dto.returnDate || dto.vehicleId) {
+                const overlapping = await this.prisma.booking.findFirst({
+                    where: {
+                        id: { not: id },
+                        vehicleId,
+                        status: { in: ['PENDING', 'CONFIRMED', 'ONGOING'] },
+                        OR: [
+                            {
+                                pickupDate: { lte: rt },
+                                returnDate: { gte: pickup }
+                            }
+                        ]
+                    }
+                });
+                if (overlapping) {
+                    throw new BadRequestException('Vehicle not available for updated dates');
+                }
+            }
 
-        await this.audit.log(actorId ?? null, 'UPDATE', 'Booking', id, {
-            before,
-            after: updated
-        });
+            const updated = await this.prisma.booking.update({
+                where: { id },
+                data: dto
+            });
 
-        return updated;
+            await this.audit.log(actorId ?? null, 'UPDATE', 'Booking', id, {
+                before,
+                after: updated
+            });
+
+            return updated;
+        } finally {
+            await this.redisService.releaseLock(`vehicle:${vehicleId}`, lockToken);
+        }
     }
 
     //  CHANGE STATUS 

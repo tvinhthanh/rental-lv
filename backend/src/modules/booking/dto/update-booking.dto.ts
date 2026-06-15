@@ -6,6 +6,10 @@ export class UpdateBookingDto {
     returnBranchId?: string;
 
     @IsOptional()
+    @IsString()
+    vehicleId?: string;
+
+    @IsOptional()
     @IsDateString()
     pickupDate?: string;
 

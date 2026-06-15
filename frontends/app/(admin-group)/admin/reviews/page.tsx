@@ -8,7 +8,7 @@ import { Star } from "lucide-react";
 export default function AdminReviewsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [reviews, setReviews] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
     const [selectedReview, setSelectedReview] = useState<any | null>(null);
@@ -16,10 +16,7 @@ export default function AdminReviewsPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
+        if (!user || user.role !== "ADMIN") return;
 
         async function loadReviews() {
             try {

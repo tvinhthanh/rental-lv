@@ -42,5 +42,11 @@ export class MarketingCampaignController {
     delete(@Param('id') id: string, @CurrentUser() user: any) {
         return this.service.delete(id, user?.id);
     }
+
+    @Post(':id/execute')
+    @Roles('ADMIN')
+    execute(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.service.execute(id, user?.id);
+    }
 }
 

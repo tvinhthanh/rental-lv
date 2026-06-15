@@ -5,18 +5,48 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehicleQueryDto } from './dto/vehicle-query.dto';
 import { checkVehicleDocumentsComplete } from '@/common/utils/vehicle-document-checker';
+import { RedisService } from '@/shared/redis/redis.service';
+
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class VehicleService {
     constructor(
         private prisma: PrismaService,
-        private audit: AuditLogService
+        private audit: AuditLogService,
+        private redisService: RedisService,
+        private notificationGateway: NotificationGateway
     ) { }
 
     // ----------------------------------------------------------
     // LIST
     // ----------------------------------------------------------
+    async clearVehicleCache() {
+        try {
+            const redis = this.redisService.getClient();
+            if (redis && redis.status === 'ready') {
+                const keys = await redis.keys('vehicles:*');
+                if (keys.length > 0) {
+                    await redis.del(...keys);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to clear vehicles cache:', err);
+        }
+    }
+
     async findAll(query: VehicleQueryDto) {
+        const cacheKey = `vehicles:list:${JSON.stringify(query)}`;
+        
+        try {
+            const cached = await this.redisService.get(cacheKey);
+            if (cached) {
+                return JSON.parse(cached);
+            }
+        } catch (err) {
+            console.error('Failed to get vehicles from cache:', err);
+        }
+
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 20;
         const skip = (page - 1) * limit;
@@ -45,7 +75,8 @@ export class VehicleService {
                     category: true,
                     branch: true,
                     priceList: true,
-                    brand: true
+                    brand: true,
+                    vehicleDocuments: true
                 }
             }),
             this.prisma.vehicle.count({ where })
@@ -54,33 +85,57 @@ export class VehicleService {
         // Nếu skipDocumentCheck=true (admin), không filter giấy tờ
         const skipDocumentCheck = query.skipDocumentCheck === 'true';
         
+        let result: any;
         if (skipDocumentCheck) {
             // Admin: trả về tất cả xe không filter
-        return {
+            result = {
                 items: allVehicles,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit)
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            };
+        } else {
+            // User: Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
+            const itemsWithDocuments = [];
+            const now = new Date();
+            const requiredDocTypes = ['REGISTRATION', 'INSURANCE'];
+
+            for (const vehicle of allVehicles) {
+                const docs = (vehicle as any).vehicleDocuments ?? [];
+                let isValid = true;
+                for (const requiredType of requiredDocTypes) {
+                    const doc = docs.find((d: any) => d.docType === requiredType);
+                    if (!doc) {
+                        isValid = false;
+                        break;
+                    }
+                    if (doc.expiresAt && new Date(doc.expiresAt) < now) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid) {
+                    itemsWithDocuments.push(vehicle);
+                }
+            }
+
+            result = {
+                items: itemsWithDocuments,
+                total: itemsWithDocuments.length, // Total sau khi filter
+                page,
+                limit,
+                totalPages: Math.ceil(itemsWithDocuments.length / limit)
             };
         }
 
-        // User: Filter ra những xe có đủ giấy tờ (chỉ hiển thị xe đủ giấy tờ cho user)
-        const itemsWithDocuments = [];
-        for (const vehicle of allVehicles) {
-            const { isValid } = await checkVehicleDocumentsComplete(this.prisma, vehicle.id);
-            if (isValid) {
-                itemsWithDocuments.push(vehicle);
-            }
+        try {
+            await this.redisService.set(cacheKey, JSON.stringify(result), 300); // Cache for 5 mins
+        } catch (err) {
+            console.error('Failed to set vehicles cache:', err);
         }
 
-        return {
-            items: itemsWithDocuments,
-            total: itemsWithDocuments.length, // Total sau khi filter
-            page,
-            limit,
-            totalPages: Math.ceil(itemsWithDocuments.length / limit)
-        };
+        return result;
     }
 
     // ----------------------------------------------------------
@@ -108,7 +163,7 @@ export class VehicleService {
             this.prisma.vehicle.update({
                 where: { id },
                 data: { viewCount: { increment: 1 } },
-            }).catch((err) => {
+            }).catch((err: any) => {
                 console.error('Failed to increment viewCount:', err);
             }); // Fire and forget - don't block response
         }
@@ -117,13 +172,44 @@ export class VehicleService {
     }
 
     async findBySlug(slug: string, incrementView: boolean = true) {
+        const cacheKey = `vehicles:slug:${slug}`;
+        
+        try {
+            const cached = await this.redisService.get(cacheKey);
+            if (cached) {
+                const vehicle = JSON.parse(cached);
+                if (incrementView && vehicle) {
+                    this.prisma.vehicle.update({
+                        where: { id: vehicle.id },
+                        data: { viewCount: { increment: 1 } },
+                    }).catch((err: any) => {
+                        console.error('Failed to increment viewCount:', err);
+                    });
+                }
+                return vehicle;
+            }
+        } catch (err) {
+            console.error('Failed to get vehicle from cache by slug:', err);
+        }
+
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { slug },
             include: {
                 brand: true,
                 branch: true,
                 category: true,
-                priceList: true
+                priceList: true,
+                vehicleDocuments: true,
+                reviews: {
+                    include: {
+                        customer: true,
+                        booking: true
+                    },
+                    take: 20,
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
             }
         });
 
@@ -134,9 +220,15 @@ export class VehicleService {
             this.prisma.vehicle.update({
                 where: { id: vehicle.id },
                 data: { viewCount: { increment: 1 } },
-            }).catch((err) => {
+            }).catch((err: any) => {
                 console.error('Failed to increment viewCount:', err);
             }); // Fire and forget - don't block response
+        }
+
+        try {
+            await this.redisService.set(cacheKey, JSON.stringify(vehicle), 300); // Cache for 5 mins
+        } catch (err) {
+            console.error('Failed to set vehicle cache by slug:', err);
         }
 
         return vehicle;
@@ -201,6 +293,8 @@ export class VehicleService {
             licensePlate: vehicle.licensePlate
         });
 
+        await this.clearVehicleCache();
+        this.notificationGateway.emitToAll('vehicle:created', vehicle);
         return vehicle;
     }
 
@@ -270,6 +364,8 @@ export class VehicleService {
 
         await this.audit.log(actorId ?? null, 'UPDATE', 'Vehicle', id, updateData);
 
+        await this.clearVehicleCache();
+        this.notificationGateway.emitToAll('vehicle:updated', vehicle);
         return vehicle;
     }
 
@@ -282,6 +378,8 @@ export class VehicleService {
 
         await this.audit.log(actorId ?? null, 'STATUS_UPDATE', 'Vehicle', id, { status });
 
+        await this.clearVehicleCache();
+        this.notificationGateway.emitToAll('vehicle:status-changed', { id, status });
         return vehicle;
     }
 
@@ -314,7 +412,11 @@ export class VehicleService {
         }
 
         await this.audit.log(actorId ?? null, 'DELETE', 'Vehicle', id);
-        return this.prisma.vehicle.delete({ where: { id } });
+        
+        const deleted = await this.prisma.vehicle.delete({ where: { id } });
+        await this.clearVehicleCache();
+        this.notificationGateway.emitToAll('vehicle:deleted', { id });
+        return deleted;
     }
 
     async findByBranch(branchId: string) {

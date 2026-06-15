@@ -1,4 +1,5 @@
 import { CreditCard } from "lucide-react";
+import { translateStatus } from "@/lib/utils";
 
 export default function PaymentCard({ payment, onClick }: any) {
     const methodColors: Record<string, string> = {
@@ -124,7 +125,7 @@ export default function PaymentCard({ payment, onClick }: any) {
                             payment.status === "FAILED" ? "bg-red-500/20 text-red-400" :
                             "bg-slate-500/20 text-slate-400"
                         }`}>
-                            {payment.status || "SUCCESS"}
+                            {translateStatus(payment.status || "SUCCESS", 'payment')}
                         </span>
                     </div>
                 </div>

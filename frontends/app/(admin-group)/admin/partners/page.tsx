@@ -5,11 +5,12 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { partnerService } from "@/services/partner.service";
 import { Handshake } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function AdminPartnersPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [partners, setPartners] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState<number>(0);
     const [editingPartner, setEditingPartner] = useState<any | null>(null);
     const [openForm, setOpenForm] = useState(false);
@@ -34,23 +35,20 @@ export default function AdminPartnersPage() {
     };
 
     const handleDelete = async (partner: any) => {
-        if (!confirm("Xóa partner này?")) return;
+        if (!confirm("Xóa đối tác này?")) return;
         try {
             await partnerService.delete(partner.id);
-            toast.success("Đã xóa partner");
+            toast.success("Đã xóa đối tác");
             loadPartners();
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Xóa partner thất bại");
+            toast.error(err?.response?.data?.message || "Xóa đối tác thất bại");
         }
     };
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
-        loadPartners();
+        if (!user || user.role !== "ADMIN") return;
+        Promise.resolve().then(() => loadPartners());
     }, [user, userLoading, search, statusFilter]);
 
     if (userLoading || loading) {
@@ -75,14 +73,14 @@ export default function AdminPartnersPage() {
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
-                            Partners
+                            Đối Tác
                         </h1>
                         <p className="mt-1 text-sm text-slate-400">
                             Quản lý đối tác và affiliate
                         </p>
                     </div>
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng partners</p>
+                        <p className="text-xs uppercase text-slate-500">Tổng đối tác</p>
                         <p className="text-lg font-semibold text-indigo-400">{total}</p>
                     </div>
                     <button
@@ -92,7 +90,7 @@ export default function AdminPartnersPage() {
                             setOpenForm(true);
                         }}
                     >
-                        + Thêm Partner
+                        + Thêm Đối Tác
                     </button>
                 </div>
 
@@ -110,8 +108,8 @@ export default function AdminPartnersPage() {
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         <option value="">Tất cả trạng thái</option>
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="ACTIVE">Hoạt động</option>
+                        <option value="INACTIVE">Không hoạt động</option>
                     </select>
                 </div>
 
@@ -130,41 +128,44 @@ export default function AdminPartnersPage() {
                                 <div className="mb-3 flex items-start justify-between">
                                     <div>
                                         <h3 className="text-lg font-semibold text-white">{partner.name}</h3>
-                                        <p className="text-xs text-slate-400">Code: {partner.code}</p>
+                                        <p className="text-xs text-slate-400">Mã: {partner.code}</p>
                                     </div>
                                     <span className={`rounded-full px-2 py-1 text-xs ${
                                         partner.status === 'ACTIVE' 
                                             ? 'bg-green-500/20 text-green-300' 
                                             : 'bg-red-500/20 text-red-300'
                                     }`}>
-                                        {partner.status}
+                                        {partner.status === 'ACTIVE' ? 'Hoạt động' : 'Không hoạt động'}
                                     </span>
                                 </div>
                                 {partner.email && (
                                     <p className="mb-1 text-sm text-slate-300">Email: {partner.email}</p>
                                 )}
                                 {partner.phone && (
-                                    <p className="mb-1 text-sm text-slate-300">Phone: {partner.phone}</p>
+                                    <p className="mb-1 text-sm text-slate-300">Số điện thoại: {partner.phone}</p>
                                 )}
                                 {partner.note && (
                                     <p className="mb-3 text-sm text-slate-400">{partner.note}</p>
                                 )}
                                 <div className="mt-4 flex gap-2">
-                                    <button
-                                        className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1"
+                                        size="sm"
                                         onClick={() => {
                                             setEditingPartner(partner);
                                             setOpenForm(true);
                                         }}
                                     >
                                         Sửa
-                                    </button>
-                                    <button
-                                        className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                                    </Button>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
                                         onClick={() => handleDelete(partner)}
                                     >
                                         Xóa
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -212,19 +213,19 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
         
         // Validate code
         if (!formData.code.trim()) {
-            toast.error("Code không được để trống");
+            toast.error("Mã đối tác không được để trống");
             return;
         }
         if (!/^[A-Z0-9_]+$/.test(formData.code)) {
-            toast.error("Code chỉ được chứa chữ in hoa, số và dấu gạch dưới");
+            toast.error("Mã đối tác chỉ được chứa chữ in hoa, số và dấu gạch dưới");
             return;
         }
         if (formData.code.length < 3) {
-            toast.error("Code phải có ít nhất 3 ký tự");
+            toast.error("Mã đối tác phải có ít nhất 3 ký tự");
             return;
         }
         if (formData.code.length > 50) {
-            toast.error("Code không được vượt quá 50 ký tự");
+            toast.error("Mã đối tác không được vượt quá 50 ký tự");
             return;
         }
         
@@ -290,10 +291,10 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
             };
             if (partner) {
                 await partnerService.update(partner.id, payload);
-                toast.success("Đã cập nhật partner");
+                toast.success("Đã cập nhật đối tác");
             } else {
                 await partnerService.create(payload);
-                toast.success("Đã tạo partner");
+                toast.success("Đã tạo đối tác");
             }
             onSuccess();
             onClose();
@@ -308,7 +309,7 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
                 <h2 className="mb-4 text-2xl font-bold text-white">
-                    {partner ? "Sửa Partner" : "Thêm Partner"}
+                    {partner ? "Sửa Đối Tác" : "Thêm Đối Tác"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -322,7 +323,7 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Code</label>
+                        <label className="block text-sm text-slate-300">Mã đối tác</label>
                         <input
                             type="text"
                             className="input-dark mt-1 w-full border p-2 rounded"
@@ -332,7 +333,7 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Phone</label>
+                        <label className="block text-sm text-slate-300">Số điện thoại</label>
                         <input
                             type="text"
                             className="input-dark mt-1 w-full border p-2 rounded"
@@ -350,7 +351,7 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Note</label>
+                        <label className="block text-sm text-slate-300">Ghi chú</label>
                         <textarea
                             className="input-dark mt-1 w-full border p-2 rounded"
                             rows={3}
@@ -359,31 +360,33 @@ function PartnerModal({ partner, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Status</label>
+                        <label className="block text-sm text-slate-300">Trạng thái</label>
                         <select
                             className="input-dark mt-1 w-full border p-2 rounded"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                         >
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="INACTIVE">INACTIVE</option>
+                            <option value="ACTIVE">Hoạt động</option>
+                            <option value="INACTIVE">Không hoạt động</option>
                         </select>
                     </div>
                     <div className="flex gap-3">
-                        <button
+                        <Button
                             type="button"
-                            className="flex-1 rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-600"
+                            variant="danger"
+                            className="flex-1"
                             onClick={onClose}
                         >
                             Hủy
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                            disabled={loading}
+                            variant="primary"
+                            className="flex-1"
+                            loading={loading}
                         >
-                            {loading ? "Đang xử lý..." : partner ? "Cập nhật" : "Tạo"}
-                        </button>
+                            {partner ? "Cập nhật" : "Tạo"}
+                        </Button>
                     </div>
                 </form>
             </div>

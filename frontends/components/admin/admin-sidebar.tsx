@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const links = [
-    { href: "/admin", label: "Dashboard" },
-    { href: "/admin/users", label: "Users" },
-    { href: "/admin/bookings", label: "Bookings" },
-    { href: "/admin/vehicles", label: "Vehicles" }
+    { href: "/admin", label: "Bảng Điều Khiển" },
+    { href: "/admin/users", label: "Người Dùng" },
+    { href: "/admin/bookings", label: "Đơn Đặt Xe" },
+    { href: "/admin/vehicles", label: "Xe" }
 ];
 
 export function AdminSidebar() {
@@ -18,7 +18,7 @@ export function AdminSidebar() {
     return (
         <aside className="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur">
             <div className="h-16 flex items-center px-4 border-b border-slate-800">
-                <span className="font-bold text-lg">Rental Admin</span>
+                <span className="font-bold text-lg">Quản Trị Viên Thuê Xe</span>
             </div>
 
             <nav className="flex-1 p-3 space-y-1">
@@ -36,7 +36,7 @@ export function AdminSidebar() {
 
             <div className="p-3 border-t border-slate-800">
                 <Button className="w-full" variant="outline">
-                    Logout
+                    Đăng xuất
                 </Button>
             </div>
         </aside>

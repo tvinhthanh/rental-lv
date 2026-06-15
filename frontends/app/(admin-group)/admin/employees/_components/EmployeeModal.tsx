@@ -227,7 +227,9 @@ export default function EmployeeModal({ mode, data, onClose, onSuccess }: any) {
                                     className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         >
                             {STATUS_OPTIONS.map((s) => (
-                                        <option key={s} value={s} className="bg-slate-800">{s}</option>
+                                        <option key={s} value={s} className="bg-slate-800">
+                                            {s === "ACTIVE" ? "Đang làm việc" : s === "INACTIVE" ? "Ngừng làm việc" : s === "ON_LEAVE" ? "Nghỉ phép" : s}
+                                        </option>
                             ))}
                         </select>
                             </div>

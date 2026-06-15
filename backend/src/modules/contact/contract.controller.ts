@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('contracts')
+@UseGuards(JwtAuthGuard)
 export class ContractController {
     constructor(private service: ContractService) { }
 

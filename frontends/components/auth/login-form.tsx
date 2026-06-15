@@ -31,7 +31,8 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!validate()) return;
     const payload = { email: form.email.trim(), password: form.password };
 
@@ -55,7 +56,10 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
     <div className="relative">
       <div className="absolute inset-0 bg-linear-to-br from-indigo-600/30 via-purple-500/20 to-cyan-300/20 blur-2xl opacity-70 pointer-events-none" />
 
-      <div className="relative z-10 p-6 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.45)]">
+      <form 
+        onSubmit={handleSubmit}
+        className="relative z-10 p-6 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.45)]"
+      >
 
         <h1 className="text-3xl font-extrabold mb-6 text-center bg-linear-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
           Welcome Back
@@ -66,29 +70,30 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
           <div>
             <label className="text-sm text-gray-200 mb-1 block">Email</label>
             <input
+              type="email"
               className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
-            placeholder="your@email.com"
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
-        </div>
+              placeholder="your@email.com"
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
+          </div>
 
-        <div>
-          <label className="text-sm text-gray-200 mb-1 block">Password</label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
-            placeholder="••••••••"
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-          {errors.password && <p className="text-xs text-rose-400 mt-1">{errors.password}</p>}
+          <div>
+            <label className="text-sm text-gray-200 mb-1 block">Password</label>
+            <input
+              type="password"
+              className="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20"
+              placeholder="••••••••"
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+            {errors.password && <p className="text-xs text-rose-400 mt-1">{errors.password}</p>}
+          </div>
         </div>
-      </div>
 
         <button
-          onClick={handleSubmit}
+          type="submit"
           disabled={loginMutation.isPending}
-          className="mt-6 w-full py-3 rounded-lg bg-linear-to-r from-indigo-600 to-cyan-500 text-white font-bold hover:scale-[1.03] transition-all disabled:opacity-50"
+          className="mt-6 w-full py-3 rounded-lg bg-linear-to-r from-indigo-600 to-cyan-500 text-white font-bold hover:scale-[1.03] transition-all disabled:opacity-50 cursor-pointer"
         >
           {loginMutation.isPending ? "Logging in..." : "Login"}
         </button>
@@ -106,7 +111,7 @@ export default function LoginForm({ onChangeView }: LoginFormProps) {
         >
           Create an account
         </p>
-      </div>
+      </form>
 
       <div className="absolute inset-0 -z-10 rounded-xl bg-linear-to-r from-indigo-600/40 via-purple-500/30 to-cyan-400/40 blur-3xl" />
     </div>

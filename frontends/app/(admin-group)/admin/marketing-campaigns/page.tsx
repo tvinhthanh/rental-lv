@@ -7,11 +7,12 @@ import { customerSegmentService } from "@/services/customer-segment.service";
 import { notificationTemplateService } from "@/services/notification-template.service";
 import { Megaphone } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function AdminMarketingCampaignsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [campaigns, setCampaigns] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState<number>(0);
     const [editingCampaign, setEditingCampaign] = useState<any | null>(null);
     const [openForm, setOpenForm] = useState(false);
@@ -32,11 +33,8 @@ export default function AdminMarketingCampaignsPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
-        loadCampaigns();
+        if (!user || user.role !== "ADMIN") return;
+        Promise.resolve().then(() => loadCampaigns());
     }, [user, userLoading]);
 
     if (userLoading || loading) {
@@ -52,11 +50,11 @@ export default function AdminMarketingCampaignsPage() {
             <div className="mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Marketing Campaigns</h1>
-                        <p className="mt-1 text-sm text-slate-400">Chiến dịch marketing</p>
+                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Chiến Dịch Marketing</h1>
+                        <p className="mt-1 text-sm text-slate-400">Quản lý các chiến dịch marketing</p>
                     </div>
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng campaigns</p>
+                        <p className="text-xs uppercase text-slate-500">Tổng chiến dịch</p>
                         <p className="text-lg font-semibold text-purple-400">{total}</p>
                     </div>
                     <button
@@ -66,7 +64,7 @@ export default function AdminMarketingCampaignsPage() {
                             setOpenForm(true);
                         }}
                     >
-                        + Thêm Campaign
+                        + Thêm Chiến Dịch
                     </button>
                 </div>
 
@@ -90,20 +88,23 @@ export default function AdminMarketingCampaignsPage() {
                                     Template: {campaign.template?.name || "N/A"}
                                 </p>
                                 <span className="inline-block rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-300 mb-3">
-                                    {campaign.status}
+                                    {campaign.status === "DRAFT" ? "Nháp" : campaign.status === "ACTIVE" ? "Hoạt động" : campaign.status === "COMPLETED" ? "Đã hoàn thành" : campaign.status === "CANCELLED" ? "Đã hủy" : campaign.status}
                                 </span>
                                 <div className="mt-4 flex gap-2">
-                                    <button
-                                        className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1"
+                                        size="sm"
                                         onClick={() => {
                                             setEditingCampaign(campaign);
                                             setOpenForm(true);
                                         }}
                                     >
                                         Sửa
-                                    </button>
-                                    <button
-                                        className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                                    </Button>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
                                         onClick={async () => {
                                             if (!confirm("Xóa campaign này?")) return;
                                             try {
@@ -116,7 +117,7 @@ export default function AdminMarketingCampaignsPage() {
                                         }}
                                     >
                                         Xóa
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -234,7 +235,7 @@ function CampaignModal({ campaign, onClose, onSuccess }: any) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
                 <h2 className="mb-4 text-2xl font-bold text-white">
-                    {campaign ? "Sửa Campaign" : "Thêm Campaign"}
+                    {campaign ? "Sửa Chiến Dịch" : "Thêm Chiến Dịch"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -276,19 +277,19 @@ function CampaignModal({ campaign, onClose, onSuccess }: any) {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Status</label>
+                        <label className="block text-sm text-slate-300">Trạng thái</label>
                         <select
                             className="input-dark mt-1 w-full border p-2 rounded"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                         >
-                            <option value="DRAFT">DRAFT</option>
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="DRAFT">Nháp</option>
+                            <option value="ACTIVE">Hoạt động</option>
+                            <option value="COMPLETED">Đã hoàn thành</option>
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Scheduled At</label>
+                        <label className="block text-sm text-slate-300">Thời gian lên lịch</label>
                         <input
                             type="datetime-local"
                             className="input-dark mt-1 w-full border p-2 rounded"
@@ -297,20 +298,22 @@ function CampaignModal({ campaign, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <button
+                        <Button
                             type="button"
-                            className="flex-1 rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-600"
+                            variant="danger"
+                            className="flex-1"
                             onClick={onClose}
                         >
                             Hủy
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                            disabled={loading}
+                            variant="primary"
+                            className="flex-1"
+                            loading={loading}
                         >
-                            {loading ? "Đang xử lý..." : campaign ? "Cập nhật" : "Tạo"}
-                        </button>
+                            {campaign ? "Cập nhật" : "Tạo"}
+                        </Button>
                     </div>
                 </form>
             </div>

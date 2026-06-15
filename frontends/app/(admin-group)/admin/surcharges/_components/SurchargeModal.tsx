@@ -109,7 +109,7 @@ export default function SurchargeModal({ surcharge, onClose }: SurchargeModalPro
                                     surcharge.status === "ACTIVE" ? "bg-emerald-500/20 text-emerald-400" :
                                     "bg-slate-500/20 text-slate-400"
                                 }`}>
-                                    {surcharge.status || "ACTIVE"}
+                                    {surcharge.status === "ACTIVE" ? "Hoạt động" : surcharge.status === "INACTIVE" ? "Không hoạt động" : surcharge.status || "Hoạt động"}
                                 </span>
                             </div>
                             {surcharge.occurredAt && (
@@ -214,7 +214,7 @@ export default function SurchargeModal({ surcharge, onClose }: SurchargeModalPro
                                             invoiceData.status === "UNPAID" ? "bg-red-500/20 text-red-400" :
                                             "bg-slate-500/20 text-slate-400"
                                         }`}>
-                                            {invoiceData.status}
+                                            {invoiceData.status === "PAID" ? "Đã thanh toán" : invoiceData.status === "UNPAID" ? "Chưa thanh toán" : invoiceData.status}
                                         </span>
                                     </div>
                                 </div>
@@ -227,7 +227,7 @@ export default function SurchargeModal({ surcharge, onClose }: SurchargeModalPro
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

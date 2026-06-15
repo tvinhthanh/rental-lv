@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { rentalProcessService } from "@/services/rental-process.service";
 import { depositService } from "@/services/deposit.service";
 import { billingService } from "@/services/billing.service";
+import { translateStatus } from "@/lib/utils";
 
 export default function AdminBookingModal({ booking, onClose }: any) {
     const [checking, setChecking] = useState(true);
@@ -150,27 +151,27 @@ export default function AdminBookingModal({ booking, onClose }: any) {
 
         // Nếu có Invoice nhưng chưa thanh toán → Đang xử lý ở bước Payment
         if (hasInvoice === true && hasPayment === false) {
-            return { text: "Đang xử lý ở bước Payment", color: "text-yellow-400" };
+            return { text: "Đang xử lý ở bước Thanh toán", color: "text-yellow-400" };
         }
 
         // Nếu có Return Report nhưng chưa có Invoice → Đang xử lý ở bước Invoice
         if (hasReturnReport === true && hasInvoice === false) {
-            return { text: "Đang xử lý ở bước Invoice", color: "text-yellow-400" };
+            return { text: "Đang xử lý ở bước Hóa đơn", color: "text-yellow-400" };
         }
 
         // Nếu có Handover nhưng chưa có Return Report → Đang xử lý ở bước Return Report
         if (hasHandover === true && hasReturnReport === false) {
-            return { text: "Đang xử lý ở bước Return Report", color: "text-yellow-400" };
+            return { text: "Đang xử lý ở bước Nhận xe", color: "text-yellow-400" };
         }
 
         // Nếu có Deposit nhưng chưa có Handover → Đang xử lý ở bước Handover
         if (hasDeposit === true && hasHandover === false) {
-            return { text: "Đang xử lý ở bước Handover", color: "text-yellow-400" };
+            return { text: "Đang xử lý ở bước Bàn giao xe", color: "text-yellow-400" };
         }
 
         // Nếu có Contract nhưng chưa có Deposit → Đang xử lý ở bước Deposits
         if (hasContract === true && hasDeposit === false) {
-            return { text: "Đang xử lý ở bước Deposits", color: "text-yellow-400" };
+            return { text: "Đang xử lý ở bước Đặt cọc", color: "text-yellow-400" };
         }
 
         // Nếu chưa có Contract → Đang chờ xử lý
@@ -283,7 +284,7 @@ export default function AdminBookingModal({ booking, onClose }: any) {
                                         {new Date(booking.returnDate).toLocaleDateString("vi-VN")}
                                     </p>
                                     <p>
-                                        <b>Trạng thái:</b> {booking.status}
+                                        <b>Trạng thái:</b> {translateStatus(booking.status, 'booking')}
                                     </p>
                                 </div>
                                 <div className="space-y-1 text-slate-200">
@@ -335,37 +336,37 @@ export default function AdminBookingModal({ booking, onClose }: any) {
 
                             <div className="mt-3 space-y-2 text-sm">
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>1. Contracts</span>
+                                    <span>1. Hợp đồng</span>
                                     <span className={statusColor(hasContract)}>
                                         {renderStatus(hasContract)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>2. Deposits</span>
+                                    <span>2. Đặt cọc</span>
                                     <span className={statusColor(hasDeposit)}>
                                         {renderStatus(hasDeposit)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>3. Handover</span>
+                                    <span>3. Bàn giao xe</span>
                                     <span className={statusColor(hasHandover)}>
                                         {renderStatus(hasHandover)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>4. Return Report</span>
+                                    <span>4. Nhận xe trả</span>
                                     <span className={statusColor(hasReturnReport)}>
                                         {renderStatus(hasReturnReport)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>5. Invoice</span>
+                                    <span>5. Hóa đơn</span>
                                     <span className={statusColor(hasInvoice)}>
                                         {renderStatus(hasInvoice)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2">
-                                    <span>6. Payment</span>
+                                    <span>6. Thanh toán</span>
                                     <span className={statusColor(hasPayment)}>
                                         {hasPayment === null ? "CHƯA TẠO" : hasPayment ? "ĐÃ THANH TOÁN" : "CHƯA THANH TOÁN"}
                                     </span>

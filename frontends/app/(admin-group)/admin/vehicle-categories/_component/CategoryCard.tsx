@@ -30,7 +30,7 @@ export default function CategoryCard({ category, onEdit, onDelete }: any) {
                         ? "bg-green-500/20 text-green-400 ring-green-500/50" 
                         : "bg-red-500/20 text-red-400 ring-red-500/50"
                 }`}>
-                    {category.isActive ? "Active" : "Inactive"}
+                    {category.isActive ? "Hoạt động" : "Không hoạt động"}
                 </div>
             </div>
 

@@ -10,17 +10,14 @@ function SurchargesContent() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
 
     const [surcharges, setSurcharges] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [selectedSurcharge, setSelectedSurcharge] = useState<any | null>(null);
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
+        if (!user || user.role !== "ADMIN") return;
 
         async function loadSurcharges() {
             try {
@@ -49,7 +46,7 @@ function SurchargesContent() {
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
-                            Bàn Phụ Phí
+                            Danh Sách Phụ Phí
                         </h1>
                         <p className="mt-1 text-sm text-slate-400">
                             Hiển thị các hóa đơn có phụ phí, dạng thẻ game.
@@ -65,7 +62,7 @@ function SurchargesContent() {
                 </div>
 
                 {/* Body */}
-                {loading ? (
+                {userLoading || loading ? (
                     <div className="mt-10 flex justify-center">
                         <div className="h-10 w-10 animate-spin rounded-full border-2 border-yellow-500 border-t-transparent" />
                     </div>

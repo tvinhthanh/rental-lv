@@ -10,9 +10,20 @@ export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
         { label: "Danh mục giá", href: "/admin/price-lists" },
 
         {
+            label: "Xe",
+            children: [
+                { label: "Danh sách xe", href: "/admin/vehicles" },
+                { label: "Danh mục xe", href: "/admin/vehicle-categories" },
+                { label: "Thương hiệu", href: "/admin/brands" },
+                { label: "Quy tắc định giá", href: "/admin/pricing-rules" },
+                { label: "Bảo dưỡng", href: "/admin/maintenance" },
+            ]
+        },
+
+        {
             label: "Đơn đặt xe",
             children: [
-        { label: "Đơn đặt xe", href: "/admin/bookings" },
+                { label: "Đơn đặt xe", href: "/admin/bookings" },
                 { label: "Hợp đồng", href: "/admin/contracts" },
                 { label: "Giao xe", href: "/admin/handover" },
                 { label: "Nhận xe", href: "/admin/returns" },
@@ -32,25 +43,28 @@ export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
         {
             label: "Người dùng",
             children: [
-        { label: "Người dùng", href: "/admin/users" },
-        { label: "Khách hàng", href: "/admin/customers" },
+                { label: "Người dùng", href: "/admin/users" },
+                { label: "Nhân viên", href: "/admin/employees" },
+                { label: "Khách hàng", href: "/admin/customers" },
+                { label: "Đối tác", href: "/admin/partners" },
             ]
         },
         
         {
             label: "Marketing",
             children: [
-                { label: "Notification Templates", href: "/admin/notification-templates" },
-                { label: "Customer Segments", href: "/admin/customer-segments" },
-                { label: "Marketing Campaigns", href: "/admin/marketing-campaigns" },
+                { label: "Mẫu thông báo", href: "/admin/notification-templates" },
+                { label: "Phân khúc khách hàng", href: "/admin/customer-segments" },
+                { label: "Chiến dịch marketing", href: "/admin/marketing-campaigns" },
+                { label: "Khuyến mãi", href: "/admin/promotions" },
             ]
         },
         
         {
-            label: "Loyalty",
+            label: "Khách hàng thân thiết",
             children: [
-                { label: "Loyalty Programs", href: "/admin/loyalty-programs" },
-                { label: "Loyalty Transactions", href: "/admin/loyalty-transactions" },
+                { label: "Chương trình tích điểm", href: "/admin/loyalty-programs" },
+                { label: "Giao dịch tích điểm", href: "/admin/loyalty-transactions" },
             ]
         },
         
@@ -58,12 +72,8 @@ export const ROLE_MENU_SIDEBAR: Record<string, (MenuItem | string)[]> = {
             label: "Khác",
             children: [
                 { label: "Blog", href: "/admin/blog" },
-                { label: "Khuyến mãi", href: "/admin/promotions" },
                 { label: "Đánh giá", href: "/admin/reviews" },
-        { label: "Bảo dưỡng", href: "/admin/maintenance" },
-        { label: "Thương hiệu", href: "/admin/brands" },
-                { label: "Pricing Rules", href: "/admin/pricing-rules" },
-                { label: "Partners", href: "/admin/partners" },
+                { label: "Chat Hỗ Trợ", href: "/admin/chat" },
             ]
         },
         

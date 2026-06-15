@@ -9,6 +9,7 @@ import { priceListService } from "@/services/price-list.service";
 import { useFormatVND } from "@/hooks/useFormatVND";
 import { toWebP, getImageLoading } from "@/lib/image-utils";
 import Link from "next/link";
+import { getSocket } from "@/lib/socket";
 
 interface VehicleItem {
     id: string;
@@ -55,6 +56,33 @@ function CarsPageContent() {
 
     const { formatVND } = useFormatVND();
 
+    // SOCKET REALTIME UPDATES
+    useEffect(() => {
+        const socket = getSocket();
+        if (!socket) return;
+
+        socket.on('vehicle:status-changed', ({ id, status }: { id: string; status: any }) => {
+            setVehicles(prev => prev.map(v => v.id === id ? { ...v, status } : v));
+            setFiltered(prev => prev.map(v => v.id === id ? { ...v, status } : v));
+        });
+
+        socket.on('vehicle:updated', (updatedVehicle: any) => {
+            setVehicles(prev => prev.map(v => v.id === updatedVehicle.id ? { ...v, ...updatedVehicle } : v));
+            setFiltered(prev => prev.map(v => v.id === updatedVehicle.id ? { ...v, ...updatedVehicle } : v));
+        });
+
+        socket.on('vehicle:deleted', ({ id }: { id: string }) => {
+            setVehicles(prev => prev.filter(v => v.id !== id));
+            setFiltered(prev => prev.filter(v => v.id !== id));
+        });
+
+        return () => {
+            socket.off('vehicle:status-changed');
+            socket.off('vehicle:updated');
+            socket.off('vehicle:deleted');
+        };
+    }, []);
+
     // LOAD DATA
     useEffect(() => {
         (async () => {
@@ -63,9 +91,11 @@ function CarsPageContent() {
             if (branchId) params.branchId = branchId;
             if (status) params.status = status;
 
-            const v = await vehicleService.getAll(params);
-            const b = await branchService.getAll();
-            const p = await priceListService.getAll();
+            const [v, b, p] = await Promise.all([
+                vehicleService.getAll(params),
+                branchService.getAll(),
+                priceListService.getAll()
+            ]);
 
             const vehicleItems: VehicleItem[] = Array.isArray(v.items) ? v.items : Array.isArray(v) ? v : [];
             const branchItems: Branch[] = Array.isArray(b.items) ? b.items : Array.isArray(b) ? b : [];
@@ -272,7 +302,7 @@ function CarsPageContent() {
 
                                 <Link
                                     href={`/user/cars/${car.slug}`}
-                                    className="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
+                                    className="block w-full text-center py-2.5 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] text-white rounded-lg font-semibold shadow shadow-cyan-500/20 transition"
                                 >
                                     Xem ngay
                                 </Link>

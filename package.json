@@ -1,1 +1,13 @@
-{}
+{
+  "name": "rental-lv-monorepo",
+  "private": true,
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev:backend": "pnpm --filter rental-backend dev",
+    "dev:frontend": "pnpm --filter frontends dev",
+    "build:backend": "pnpm --filter rental-backend build",
+    "build:frontend": "pnpm --filter frontends build",
+    "prisma:generate": "pnpm --filter rental-backend prisma:generate",
+    "prisma:push": "pnpm --filter rental-backend prisma:push"
+  }
+}

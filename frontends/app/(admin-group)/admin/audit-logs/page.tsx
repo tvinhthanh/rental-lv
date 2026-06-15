@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { auditLogService } from "@/services/audit-log.service";
 import { FileText, User, Calendar, Tag, Search } from "lucide-react";
+import { translateStatus } from "@/lib/utils";
 
 export default function AdminAuditLogsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -83,6 +84,17 @@ export default function AdminAuditLogsPage() {
         SIGN: "bg-purple-500/20 text-purple-400",
     };
 
+    const translateModule = (mod: string) => {
+        switch (mod) {
+            case "Contract": return "Hợp đồng";
+            case "Booking": return "Đơn đặt xe";
+            case "Vehicle": return "Xe";
+            case "Customer": return "Khách hàng";
+            case "Auth": return "Xác thực";
+            default: return mod || "—";
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-950/90 text-gray-100">
             <div className="mx-auto max-w-7xl px-4 py-8">
@@ -121,26 +133,29 @@ export default function AdminAuditLogsPage() {
                     <select
                         value={filters.module}
                         onChange={(e) => setFilters({ ...filters, module: e.target.value })}
-                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white"
+                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">Tất cả Module</option>
-                        <option value="Contract">Contract</option>
-                        <option value="Booking">Booking</option>
-                        <option value="Vehicle">Vehicle</option>
-                        <option value="Customer">Customer</option>
-                        <option value="Auth">Auth</option>
+                        <option value="Contract">Hợp đồng</option>
+                        <option value="Booking">Đơn đặt xe</option>
+                        <option value="Vehicle">Xe</option>
+                        <option value="Customer">Khách hàng</option>
+                        <option value="Auth">Xác thực</option>
                     </select>
 
                     <select
                         value={filters.action}
                         onChange={(e) => setFilters({ ...filters, action: e.target.value })}
-                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white"
+                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">Tất cả Action</option>
-                        <option value="CREATE">CREATE</option>
-                        <option value="UPDATE">UPDATE</option>
-                        <option value="DELETE">DELETE</option>
-                        <option value="LOGIN">LOGIN</option>
+                        <option value="CREATE">Tạo mới</option>
+                        <option value="UPDATE">Cập nhật</option>
+                        <option value="DELETE">Xóa</option>
+                        <option value="LOGIN">Đăng nhập</option>
+                        <option value="LOGOUT">Đăng xuất</option>
+                        <option value="STATUS">Đổi trạng thái</option>
+                        <option value="SIGN">Ký hợp đồng</option>
                     </select>
 
                     <input
@@ -148,7 +163,7 @@ export default function AdminAuditLogsPage() {
                         placeholder="User ID..."
                         value={filters.userId}
                         onChange={(e) => setFilters({ ...filters, userId: e.target.value })}
-                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white placeholder-slate-500"
+                        className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -182,11 +197,11 @@ export default function AdminAuditLogsPage() {
                                         <div className="flex items-center gap-2">
                                             <Tag className="w-4 h-4 text-blue-400" />
                                             <span className="text-xs font-semibold text-blue-400">
-                                                {log.module || "—"}
+                                                {translateModule(log.module)}
                                             </span>
                                         </div>
                                         <span className={`px-2 py-1 text-xs rounded-full ${actionColors[log.action] || "bg-slate-500/20 text-slate-400"}`}>
-                                            {log.action || "—"}
+                                            {translateStatus(log.action, 'audit')}
                                         </span>
                                     </div>
 
@@ -264,13 +279,13 @@ export default function AdminAuditLogsPage() {
                             <div className="space-y-4 text-sm">
                                 <div>
                                     <p className="text-slate-400">Module</p>
-                                    <p className="text-white text-lg font-semibold">{selectedLog.module || "—"}</p>
+                                    <p className="text-white text-lg font-semibold">{translateModule(selectedLog.module)}</p>
                                 </div>
 
                                 <div>
                                     <p className="text-slate-400">Action</p>
                                     <p className={`text-lg font-semibold ${actionColors[selectedLog.action] || "text-slate-400"}`}>
-                                        {selectedLog.action || "—"}
+                                        {translateStatus(selectedLog.action, 'audit')}
                                     </p>
                                 </div>
 

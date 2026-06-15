@@ -212,7 +212,7 @@ export default function PricingSection() {
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`rounded-full transition-all duration-300 ${idx === currentIndex
+                                className={`p-0 border-0 rounded-full transition-all duration-300 ${idx === currentIndex
                                     ? "w-10 h-3 bg-linear-to-r from-indigo-400 to-cyan-400"
                                     : "w-3 h-3 bg-white/40 hover:bg-white/60"
                                     }`}

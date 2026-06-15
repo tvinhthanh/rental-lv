@@ -6,6 +6,7 @@ import { employeeService } from "@/services/employee.service";
 import { vehicleService } from "@/services/vehicle.service";
 import { getPlaceholderImage } from "@/lib/image-placeholder";
 import VehicleModal from "./_components/VehicleModal";
+import { translateStatus } from "@/lib/utils";
 
 export default function VehiclesPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -127,7 +128,7 @@ export default function VehiclesPage() {
                                                 : "bg-red-600/20 text-red-400 border border-red-700"}
                                     `}
                                 >
-                                    {v.status}
+                                    {translateStatus(v.status, 'vehicle')}
                                 </span>
                             </div>
                         </div>

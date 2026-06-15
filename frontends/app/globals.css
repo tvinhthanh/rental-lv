@@ -1,14 +1,135 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f172a;
+  --foreground: #f8fafc;
 }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Premium Glassmorphic Card & Table Styles */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead {
+  background: rgba(15, 23, 42, 0.7) !important;
+}
+
+th {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4) !important;
+}
+
+td {
+  padding: 1rem 1.25rem !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.2) !important;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+tr:last-child td {
+  border-bottom: none !important;
+}
+
+tr:hover td {
+  background: rgba(30, 41, 59, 0.3);
+  color: #f8fafc;
+}
+
+.table-container, .overflow-x-auto {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+/* Custom inputs */
+.input-dark, input[type="text"], input[type="email"], input[type="password"], input[type="search"], select, textarea {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 0.95rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.input-dark:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="search"]:focus, select:focus, textarea:focus {
+  border-color: #22d3ee !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+/* Modern Gradient Buttons */
+.btn-primary, button:not([class*="bg-transparent"]):not([class*="border"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-slate"]):not([class*="p-"]) {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.025em !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 1.25rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.2) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+.btn-primary:hover, button:not([class*="bg-transparent"]):not([class*="border"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-slate"]):not([class*="p-"]):hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3) !important;
+  filter: brightness(1.05) !important;
+}
+
+.btn-primary:active, button:not([class*="bg-transparent"]):not([class*="border"]):not([class*="text-blue"]):not([class*="text-red"]):not([class*="text-slate"]):not([class*="p-"]):active {
+  transform: translateY(0) !important;
+}
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.6);
+}
+
+/* Custom Loader spin */
 .loader {
   width: 40px;
   height: 40px;
-  border: 4px solid #ffffff33;
-  border-top-color: #3b82f6;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #22d3ee;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -22,19 +143,91 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* SunEditor Custom Premium Dark Theme */
+.sun-editor {
+  border-color: rgba(51, 65, 85, 0.4) !important;
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: inherit;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.sun-editor .se-toolbar {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4) !important;
+  outline: none !important;
+}
+
+.sun-editor .se-btn-module-border {
+  border-color: rgba(51, 65, 85, 0.3) !important;
+}
+
+.sun-editor button {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  color: #cbd5e1 !important;
+}
+
+.sun-editor button:hover {
+  background-color: rgba(51, 65, 85, 0.3) !important;
+  color: #ffffff !important;
+}
+
+.sun-editor button.active,
+.sun-editor .se-btn:active {
+  background-color: #06b6d4 !important;
+  color: #ffffff !important;
+}
+
+.sun-editor .se-wrapper {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+}
+
+.sun-editor .se-wrapper-inner {
+  color: #f8fafc !important;
+  background-color: transparent !important;
+  min-height: 250px;
+}
+
+.sun-editor .se-placeholder {
+  color: #64748b !important;
+}
+
+.sun-editor .se-dialog-content {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  color: #f8fafc !important;
+}
+
+.sun-editor .se-dialog-header {
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+.sun-editor .se-dialog-footer {
+  border-top: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.sun-editor .se-input-control {
+  background-color: #0f172a !important;
+  border: 1px solid rgba(51, 65, 85, 0.5) !important;
+  color: #f8fafc !important;
+}
+
+.sun-editor .se-list-layer {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+}
+
+.sun-editor .se-list-layer button {
+  color: #cbd5e1 !important;
+}
+
+.sun-editor .se-list-layer button:hover {
+  background-color: rgba(51, 65, 85, 0.4) !important;
+  color: #ffffff !important;
 }

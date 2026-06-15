@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -39,10 +41,17 @@ import { PartnerModule } from './modules/partner/partner.module';
 import { PaymentGatewayModule } from './modules/payment-gateway/payment-gateway.module';
 import { SubscriptionPlanModule } from './modules/subscription-plan/subscription-plan.module';
 import { TenantModule } from './modules/tenant/tenant.module';
+import { RedisModule } from './shared/redis/redis.module';
+import { BullModule } from '@nestjs/bull';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    RedisModule,
+    BullModule.forRoot({
+      redis: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    }),
     PrismaModule,
     AuthModule,
     UserModule,
@@ -78,7 +87,14 @@ import { TenantModule } from './modules/tenant/tenant.module';
     PartnerModule,
     PaymentGatewayModule,
     SubscriptionPlanModule,
-    TenantModule
+    TenantModule,
+    ChatModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
+    },
   ],
 })
 export class AppModule { }

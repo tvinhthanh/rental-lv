@@ -6,6 +6,7 @@ import { billingService } from "@/services/billing.service";
 import { branchService } from "@/services/branch.service";
 import { FileText, DollarSign, CreditCard, Wallet, TrendingUp, Calendar, Building2, Filter } from "lucide-react";
 import { useFormatVND } from "@/hooks/useFormatVND";
+import { translateStatus } from "@/lib/utils";
 
 export default function AdminInvoicesPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -502,7 +503,7 @@ export default function AdminInvoicesPage() {
                                         invoice.status === "UNPAID" ? "bg-yellow-500/20 text-yellow-400" :
                                         "bg-slate-500/20 text-slate-400"
                                     }`}>
-                                        {invoice.status || "UNPAID"}
+                                        {translateStatus(invoice.status || "UNPAID", 'invoice')}
                                     </span>
                                 </div>
 
@@ -558,7 +559,7 @@ export default function AdminInvoicesPage() {
                                         selectedInvoice.status === "UNPAID" ? "text-yellow-400" :
                                         "text-slate-400"
                                     }`}>
-                                        {selectedInvoice.status || "UNPAID"}
+                                        {translateStatus(selectedInvoice.status || "UNPAID", 'invoice')}
                                     </p>
                                 </div>
                                 <div>

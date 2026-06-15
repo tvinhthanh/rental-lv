@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { employeeService } from "@/services/employee.service";
 import { billingService } from "@/services/billing.service";
+import { translateStatus } from "@/lib/utils";
 import InvoiceModal from "./_components/InvoiceModal";
 
 function InvoicesContent() {
@@ -161,7 +162,7 @@ function InvoicesContent() {
                                                     inv.status === "UNPAID" ? "bg-red-500/20 text-red-400" :
                                                     "bg-slate-500/20 text-slate-400"
                                                 }`}>
-                                                    {inv.status}
+                                                    {translateStatus(inv.status, 'invoice')}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">

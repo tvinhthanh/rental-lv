@@ -2,6 +2,7 @@
 
 import { getPlaceholderImage } from "@/lib/image-placeholder";
 import { useRouter } from "next/navigation";
+import { translateStatus } from "@/lib/utils";
 
 export default function VehicleModal({ vehicle, onClose }: any) {
     const router = useRouter();
@@ -48,7 +49,7 @@ export default function VehicleModal({ vehicle, onClose }: any) {
                     <p>
                         <b>Trạng thái:</b>{" "}
                         <span className="text-yellow-300 font-semibold">
-                            {vehicle.status}
+                            {translateStatus(vehicle.status, 'vehicle')}
                         </span>
                     </p>
                 </div>
@@ -75,7 +76,7 @@ export default function VehicleModal({ vehicle, onClose }: any) {
 
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

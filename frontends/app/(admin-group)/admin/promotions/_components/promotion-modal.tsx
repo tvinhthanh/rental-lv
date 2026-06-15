@@ -248,8 +248,8 @@ export default function PromotionModal({ open, selected, onClose, onSaved }: Pro
                                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                                 className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 focus:outline-none focus:border-blue-400"
                             >
-                                <option value="ACTIVE">ACTIVE</option>
-                                <option value="INACTIVE">INACTIVE</option>
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="INACTIVE">Không hoạt động</option>
                             </select>
                         </div>
                     </div>

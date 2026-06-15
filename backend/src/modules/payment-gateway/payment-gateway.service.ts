@@ -16,7 +16,7 @@ export class PaymentGatewayService {
       console.warn('⚠️ STRIPE_SECRET_KEY not found in environment variables');
     } else {
       this.stripe = new Stripe(stripeSecretKey, {
-        apiVersion: '2025-12-15.clover',
+        apiVersion: '2026-02-25.clover' as any,
       });
     }
   }
@@ -146,8 +146,8 @@ export class PaymentGatewayService {
 
     if (invoice) {
       const totalPaid = invoice.payments
-        .filter((p) => p.status === 'SUCCESS')
-        .reduce((sum, p) => sum + p.amount, 0);
+        .filter((p: any) => p.status === 'SUCCESS')
+        .reduce((sum: number, p: any) => sum + p.amount, 0);
 
       if (totalPaid >= invoice.totalAmount) {
         await this.prisma.invoice.update({

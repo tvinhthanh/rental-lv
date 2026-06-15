@@ -60,12 +60,12 @@ export default function CustomerModal({ selected, onClose }: Props) {
             return customerService.create(payload);
         },
         onSuccess: () => {
-            toast.success("Saved customer");
+            toast.success("Đã lưu thông tin khách hàng");
             queryClient.invalidateQueries({ queryKey: ["customers"] });
             onClose();
         },
         onError: (err: any) => {
-            const msg = err?.response?.data?.message || err?.message || "Save failed";
+            const msg = err?.response?.data?.message || err?.message || "Lưu thất bại";
             toast.error(msg);
         },
     });
@@ -119,19 +119,19 @@ export default function CustomerModal({ selected, onClose }: Props) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-slate-900 border border-slate-700 p-6 w-[520px] rounded-2xl shadow-xl text-gray-200 max-h-[90vh] overflow-y-auto">
                 <h2 className="text-xl font-semibold mb-4">
-                    {selected ? "Edit Customer" : "Add Customer"}
+                    {selected ? "Chỉnh sửa khách hàng" : "Thêm khách hàng"}
                 </h2>
 
                 <div className="grid grid-cols-2 gap-3">
-                    <Input label="Full Name *" value={form.fullName} error={errors.fullName} onChange={(v:any) => setForm({ ...form, fullName: v })} />
-                    <Input label="Phone *" value={form.phone} error={errors.phone} onChange={(v:any) => setForm({ ...form, phone: v })} />
+                    <Input label="Họ tên *" value={form.fullName} error={errors.fullName} onChange={(v:any) => setForm({ ...form, fullName: v })} />
+                    <Input label="Số điện thoại *" value={form.phone} error={errors.phone} onChange={(v:any) => setForm({ ...form, phone: v })} />
                     <Input label="Email" value={form.email} error={errors.email} onChange={(v:any) => setForm({ ...form, email: v })} />
-                    <Input label="Address" value={form.address} onChange={(v:any) => setForm({ ...form, address: v })} />
-                    <Input label="National ID" value={form.nationalId} error={errors.nationalId} onChange={(v:any) => setForm({ ...form, nationalId: v })} />
-                    <Input label="Nationality" value={form.nationality} onChange={(v:any) => setForm({ ...form, nationality: v })} />
-                    <Input label="Driver License No" value={form.driverLicenseNo} error={errors.driverLicenseNo} onChange={(v:any) => setForm({ ...form, driverLicenseNo: v })} />
+                    <Input label="Địa chỉ" value={form.address} onChange={(v:any) => setForm({ ...form, address: v })} />
+                    <Input label="CMND/CCCD" value={form.nationalId} error={errors.nationalId} onChange={(v:any) => setForm({ ...form, nationalId: v })} />
+                    <Input label="Quốc tịch" value={form.nationality} onChange={(v:any) => setForm({ ...form, nationality: v })} />
+                    <Input label="Số bằng lái xe" value={form.driverLicenseNo} error={errors.driverLicenseNo} onChange={(v:any) => setForm({ ...form, driverLicenseNo: v })} />
                     <Input
-                        label="License Expiry"
+                        label="Ngày hết hạn bằng lái"
                         type="date"
                         value={form.driverLicenseExpiry}
                         error={errors.driverLicenseExpiry}
@@ -145,7 +145,7 @@ export default function CustomerModal({ selected, onClose }: Props) {
                         onClick={onClose}
                         className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
                     >
-                        Cancel
+                        Hủy
                     </button>
                     <button
                         type="button"
@@ -153,7 +153,7 @@ export default function CustomerModal({ selected, onClose }: Props) {
                         disabled={mutation.isPending}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-60"
                     >
-                        {mutation.isPending ? "Saving..." : "Save"}
+                        {mutation.isPending ? "Đang lưu..." : "Lưu"}
                     </button>
                 </div>
             </div>

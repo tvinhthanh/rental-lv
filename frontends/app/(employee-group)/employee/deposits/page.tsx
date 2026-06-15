@@ -6,6 +6,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { employeeService } from "@/services/employee.service";
 import { depositService } from "@/services/deposit.service";
 import DepositModal from "./_components/DepositModal";
+import { translateStatus } from "@/lib/utils";
 
 function DepositsContent() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -158,7 +159,7 @@ function DepositsContent() {
                                                     d.status === "REFUNDED" ? "bg-emerald-500/20 text-emerald-400" :
                                                     "bg-slate-500/20 text-slate-400"
                                                 }`}>
-                                                    {d.status}
+                                                    {translateStatus(d.status, 'deposit')}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">

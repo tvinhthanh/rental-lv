@@ -6,15 +6,17 @@ import { pricingRuleService } from "@/services/pricing-rule.service";
 import { vehicleCategoryService } from "@/services/vehicle-category.service";
 import { DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function AdminPricingRulesPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [rules, setRules] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState<number>(0);
     const [editingRule, setEditingRule] = useState<any | null>(null);
     const [openForm, setOpenForm] = useState(false);
     const [categoryFilter, setCategoryFilter] = useState("");
+    const [categories, setCategories] = useState<any[]>([]);
 
     const loadRules = async () => {
         try {
@@ -22,9 +24,8 @@ export default function AdminPricingRulesPage() {
             const params: any = {};
             if (categoryFilter) params.categoryId = categoryFilter;
             const res = await pricingRuleService.list(params);
-            const items = Array.isArray(res) ? res : (res?.items || []);
-            setRules(items);
-            setTotal(items.length);
+            setRules(Array.isArray(res) ? res : (res?.items || []));
+            setTotal(Array.isArray(res) ? res.length : (res?.items?.length || 0));
         } catch (err) {
             // Silent fail
         } finally {
@@ -33,11 +34,15 @@ export default function AdminPricingRulesPage() {
     };
 
     useEffect(() => {
+        vehicleCategoryService.list().then((r: any) => {
+            const items = Array.isArray(r) ? r : (r?.items || []);
+            setCategories(items);
+        });
+    }, []);
+
+    useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
+        if (!user || user.role !== "ADMIN") return;
         loadRules();
     }, [user, userLoading, categoryFilter]);
 
@@ -54,39 +59,41 @@ export default function AdminPricingRulesPage() {
             <div className="mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Pricing Rules</h1>
+                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Quy tắc Định giá</h1>
                         <p className="mt-1 text-sm text-slate-400">Quy tắc định giá động</p>
                     </div>
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng rules</p>
+                        <p className="text-xs uppercase text-slate-500">Tổng quy tắc</p>
                         <p className="text-lg font-semibold text-yellow-400">{total}</p>
                     </div>
                     <button
-                        className="px-4 py-2 rounded-lg bg-yellow-600 text-white font-semibold"
+                        className="px-4 py-2 rounded-lg bg-yellow-600 text-white font-semibold hover:bg-yellow-700 transition-colors"
                         onClick={() => {
                             setEditingRule(null);
                             setOpenForm(true);
                         }}
                     >
-                        + Thêm Rule
+                        + Thêm quy tắc
                     </button>
                 </div>
 
                 <div className="mb-4">
                     <select
-                        className="input-dark border p-2 rounded"
+                        className="bg-slate-800/70 border border-slate-700 text-gray-200 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
                     >
-                        <option value="">Tất cả danh mục</option>
-                        {/* Categories will be loaded in modal */}
+                        <option value="" className="bg-slate-900 text-gray-200">Tất cả danh mục</option>
+                        {categories.map((c) => (
+                            <option key={c.id} value={c.id} className="bg-slate-900 text-gray-200">{c.name}</option>
+                        ))}
                     </select>
                 </div>
 
                 {rules.length === 0 ? (
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-12 text-center">
                         <DollarSign className="mx-auto mb-4 h-12 w-12 text-slate-500" />
-                        <p className="text-slate-400">Chưa có rule nào.</p>
+                        <p className="text-slate-400">Chưa có quy tắc nào.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -100,7 +107,7 @@ export default function AdminPricingRulesPage() {
                                     Danh mục: {rule.category?.name || "N/A"}
                                 </p>
                                 <p className="text-sm text-slate-400 mb-2">
-                                    Loại: {rule.type}
+                                    Loại: {rule.type === 'weekend' ? 'Cuối tuần' : rule.type === 'holiday' ? 'Ngày lễ' : rule.type === 'seasonal' ? 'Theo mùa' : rule.type}
                                 </p>
                                 <div className="space-y-1 text-sm">
                                     {rule.percent && (
@@ -116,17 +123,20 @@ export default function AdminPricingRulesPage() {
                                     )}
                                 </div>
                                 <div className="mt-4 flex gap-2">
-                                    <button
-                                        className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1"
+                                        size="sm"
                                         onClick={() => {
                                             setEditingRule(rule);
                                             setOpenForm(true);
                                         }}
                                     >
                                         Sửa
-                                    </button>
-                                    <button
-                                        className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                                    </Button>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
                                         onClick={async () => {
                                             if (!confirm("Xóa rule này?")) return;
                                             try {
@@ -139,7 +149,7 @@ export default function AdminPricingRulesPage() {
                                         }}
                                     >
                                         Xóa
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -208,7 +218,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
         
         // Validate percent or amount (at least one required)
         if (!formData.percent && !formData.amount) {
-            toast.error("Cần nhập percent hoặc amount");
+            toast.error("Vui lòng nhập phần trăm hoặc số tiền tăng");
             return;
         }
         
@@ -216,15 +226,15 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
         if (formData.percent) {
             const percentNum = Number(formData.percent);
             if (isNaN(percentNum)) {
-                toast.error("Percent phải là số");
+                toast.error("Phần trăm phải là số");
                 return;
             }
             if (percentNum < 0 || percentNum > 100) {
-                toast.error("Percent phải từ 0 đến 100");
+                toast.error("Phần trăm phải từ 0 đến 100");
                 return;
             }
             if (percentNum % 0.01 !== 0) {
-                toast.error("Percent chỉ được có tối đa 2 chữ số thập phân");
+                toast.error("Phần trăm chỉ được có tối đa 2 chữ số thập phân");
                 return;
             }
         }
@@ -233,15 +243,15 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
         if (formData.amount) {
             const amountNum = Number(formData.amount);
             if (isNaN(amountNum)) {
-                toast.error("Amount phải là số");
+                toast.error("Số tiền phải là số");
                 return;
             }
             if (amountNum < 0) {
-                toast.error("Amount phải lớn hơn hoặc bằng 0");
+                toast.error("Số tiền phải lớn hơn hoặc bằng 0");
                 return;
             }
             if (amountNum > 100000000) {
-                toast.error("Amount không được vượt quá 100,000,000 đ");
+                toast.error("Số tiền không được vượt quá 100,000,000 đ");
                 return;
             }
         }
@@ -272,7 +282,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
         
         // Validate at least one date if seasonal
         if (formData.type === 'seasonal' && !formData.startDate && !formData.endDate) {
-            toast.error("Loại seasonal cần có ngày bắt đầu và kết thúc");
+            toast.error("Loại theo mùa cần có ngày bắt đầu và kết thúc");
             return;
         }
         
@@ -306,7 +316,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
                 <h2 className="mb-4 text-2xl font-bold text-white">
-                    {rule ? "Sửa Pricing Rule" : "Thêm Pricing Rule"}
+                    {rule ? "Sửa Quy tắc Định giá" : "Thêm Quy tắc Định giá"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -341,14 +351,14 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             required
                         >
-                            <option value="weekend">Weekend</option>
-                            <option value="holiday">Holiday</option>
-                            <option value="seasonal">Seasonal</option>
+                            <option value="weekend">Cuối tuần</option>
+                            <option value="holiday">Ngày lễ</option>
+                            <option value="seasonal">Theo mùa</option>
                         </select>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-slate-300">Percent (%)</label>
+                            <label className="block text-sm text-slate-300">Phần trăm (%)</label>
                             <input
                                 type="number"
                                 step="0.1"
@@ -358,7 +368,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-slate-300">Amount (đ)</label>
+                            <label className="block text-sm text-slate-300">Số tiền (đ)</label>
                             <input
                                 type="number"
                                 className="input-dark mt-1 w-full border p-2 rounded"
@@ -369,7 +379,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-slate-300">Start Date</label>
+                            <label className="block text-sm text-slate-300">Ngày bắt đầu</label>
                             <input
                                 type="date"
                                 className="input-dark mt-1 w-full border p-2 rounded"
@@ -378,7 +388,7 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-slate-300">End Date</label>
+                            <label className="block text-sm text-slate-300">Ngày kết thúc</label>
                             <input
                                 type="date"
                                 className="input-dark mt-1 w-full border p-2 rounded"
@@ -388,20 +398,22 @@ function PricingRuleModal({ rule, onClose, onSuccess }: any) {
                         </div>
                     </div>
                     <div className="flex gap-3">
-                        <button
+                        <Button
                             type="button"
-                            className="flex-1 rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-600"
+                            variant="danger"
+                            className="flex-1"
                             onClick={onClose}
                         >
                             Hủy
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                            disabled={loading}
+                            variant="primary"
+                            className="flex-1"
+                            loading={loading}
                         >
-                            {loading ? "Đang xử lý..." : rule ? "Cập nhật" : "Tạo"}
-                        </button>
+                            {rule ? "Cập nhật" : "Tạo"}
+                        </Button>
                     </div>
                 </form>
             </div>

@@ -1,15 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { CreateMarketingCampaignDto } from './dto/create-marketing-campaign.dto';
 import { UpdateMarketingCampaignDto } from './dto/update-marketing-campaign.dto';
 import { MarketingCampaignQueryDto } from './dto/marketing-campaign-query.dto';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class MarketingCampaignService {
     constructor(
         private prisma: PrismaService,
-        private audit: AuditLogService
+        private audit: AuditLogService,
+        @InjectQueue('marketing-queue') private marketingQueue: Queue
     ) { }
 
     async findAll(query: MarketingCampaignQueryDto) {
@@ -127,6 +130,64 @@ export class MarketingCampaignService {
         }
 
         return { success: true };
+    }
+
+    async execute(id: string, userId?: string) {
+        const campaign = await this.prisma.marketingCampaign.findUnique({
+            where: { id },
+            include: {
+                segment: true,
+                template: true
+            }
+        });
+
+        if (!campaign) {
+            throw new NotFoundException('Marketing campaign not found');
+        }
+
+        if (campaign.status === 'COMPLETED') {
+            throw new BadRequestException('Campaign is already completed');
+        }
+
+        // Query customers matching segment conditions
+        const conditions = campaign.segment.conditions as any;
+        const customers = await this.prisma.customer.findMany({
+            where: conditions || {}
+        });
+
+        if (customers.length === 0) {
+            throw new BadRequestException('No customers found matching the segment conditions');
+        }
+
+        // Queue email jobs for each customer
+        for (const customer of customers) {
+            if (!customer.email) continue;
+            await this.marketingQueue.add('send-campaign-email', {
+                email: customer.email,
+                fullName: customer.fullName,
+                subject: campaign.template.subject,
+                content: campaign.template.content
+            });
+        }
+
+        // Update campaign status
+        const updated = await this.prisma.marketingCampaign.update({
+            where: { id },
+            data: { status: 'COMPLETED' }
+        });
+
+        if (userId) {
+            await this.audit.log(userId, 'EXECUTE', 'MarketingCampaign', id, {
+                customersCount: customers.length,
+                status: 'COMPLETED'
+            });
+        }
+
+        return {
+            success: true,
+            totalQueued: customers.length,
+            campaign: updated
+        };
     }
 }
 

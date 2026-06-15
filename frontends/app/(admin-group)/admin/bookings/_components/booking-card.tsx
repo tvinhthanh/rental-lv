@@ -1,4 +1,5 @@
 import { getPlaceholderImage } from "@/lib/image-placeholder";
+import { translateStatus } from "@/lib/utils";
 
 export default function BookingCard({ booking, onClick }: any) {
     const vehicle = booking.vehicle;
@@ -29,7 +30,7 @@ export default function BookingCard({ booking, onClick }: any) {
                     </span>
                     <div className="flex flex-col">
                         <span className="text-xs uppercase tracking-wide text-slate-400">
-                            Booking Code
+                            Mã Đặt Xe
                         </span>
                         <span className="text-sm font-semibold text-sky-300">
                             {booking.bookingCode}
@@ -38,7 +39,7 @@ export default function BookingCard({ booking, onClick }: any) {
                 </div>
 
                 <div className="rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300 ring-1 ring-emerald-500/50">
-                    {booking.status}
+                    {translateStatus(booking.status, 'booking')}
                 </div>
             </div>
 

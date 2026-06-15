@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { CreditCard } from "lucide-react";
 import { billingService } from "@/services/billing.service";
+import { translateStatus } from "@/lib/utils";
 import CreatePaymentModal from "./CreatePaymentModal";
 
 type InvoiceModalProps = {
@@ -146,7 +147,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                                     invoice.status === "UNPAID" ? "bg-red-500/20 text-red-400" :
                                     "bg-slate-500/20 text-slate-400"
                                 }`}>
-                                    {invoice.status}
+                                    {translateStatus(invoice.status, 'invoice')}
                                 </span>
                             </div>
                         </div>
@@ -248,7 +249,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                                                     s.status === "ACTIVE" ? "bg-emerald-500/20 text-emerald-400" :
                                                     "bg-slate-500/20 text-slate-400"
                                                 }`}>
-                                                    {s.status}
+                                                    {s.status === "ACTIVE" ? "Hoạt động" : s.status === "INACTIVE" ? "Không hoạt động" : s.status}
                                                 </span>
                                             )}
                                         </div>
@@ -280,14 +281,14 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                                                     p.method === 'STRIPE' || p.method === 'ONLINE' ? 'bg-blue-500/20 text-blue-400' :
                                                     'bg-slate-500/20 text-slate-400'
                                                 }`}>
-                                                    {p.method === 'CASH' ? 'Tiền mặt' : p.method === 'STRIPE' || p.method === 'ONLINE' ? 'Stripe' : p.method}
+                                                    {translateStatus(p.method, 'payment')}
                                                 </span>
                                                 {p.status && (
                                                     <span className={`px-2 py-0.5 rounded text-xs ${
                                                         p.status === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-400' :
                                                         'bg-slate-500/20 text-slate-400'
                                                     }`}>
-                                                        {p.status}
+                                                        {translateStatus(p.status, 'payment')}
                                                     </span>
                                                 )}
                                             </div>
@@ -337,7 +338,7 @@ export default function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

@@ -8,6 +8,7 @@ import { rentalProcessService } from "@/services/rental-process.service";
 import { bookingService } from "@/services/booking.service";
 import ReturnModal from "./_components/ReturnModal";
 import CreateReturnModal from "./_components/CreateReturnModal";
+import { translateStatus } from "@/lib/utils";
 
 function ReturnsContent() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -172,7 +173,7 @@ function ReturnsContent() {
                                             r.condition === "POOR" ? "bg-red-500/20 text-red-400" :
                                             "bg-slate-500/20 text-slate-400"
                                         }`}>
-                                            {r.condition || "—"}
+                                            {translateStatus(r.condition, 'condition')}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">

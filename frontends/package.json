@@ -37,6 +37,8 @@
     "recharts": "^3.5.1",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
+    "suneditor": "^2.44.0",
+    "suneditor-react": "^3.6.1",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.4.0"
   },

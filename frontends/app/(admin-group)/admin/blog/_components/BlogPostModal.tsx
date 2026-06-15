@@ -171,7 +171,7 @@ export default function BlogPostModal({ open, selected, categories, onClose, onS
                             >
                                 {STATUS_OPTIONS.map((s) => (
                                     <option key={s} value={s}>
-                                        {s}
+                                        {s === "DRAFT" ? "Bản nháp" : s === "PUBLISHED" ? "Đã xuất bản" : s === "ARCHIVED" ? "Lưu trữ" : s}
                                     </option>
                                 ))}
                             </select>

@@ -11,7 +11,8 @@ import { AuthProvider } from "@/hooks/auth/use-auth";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { Toaster } from "@/components/ui/toaster";
 import GlobalLoading from "@/components/common/global-loading";
-import { SocketNotificationProvider } from "@/components/notifications/SocketNotificationProvider";
+import { SocketProvider } from "@/providers/socket-provider";
+import CustomerChatWidget from "@/components/chat/CustomerChatWidget";
 
 export const metadata: Metadata = {
   title: "Rental System",
@@ -28,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryProvider>
               <SettingsProvider>
                 <AuthProvider>
-                  <SocketNotificationProvider>
+                  <SocketProvider>
                   <Header />
                   <GlobalLoading />
                   <main className="min-h-screen">
@@ -36,7 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </main>
                   <Footer />
                   <Toaster />
-                  </SocketNotificationProvider>
+                  <CustomerChatWidget />
+                  </SocketProvider>
                 </AuthProvider>
               </SettingsProvider>
             </QueryProvider>

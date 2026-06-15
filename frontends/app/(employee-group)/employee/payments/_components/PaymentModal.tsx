@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { billingService } from "@/services/billing.service";
+import { translateStatus } from "@/lib/utils";
 
 type PaymentModalProps = {
     payment: any;
@@ -88,7 +89,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                                     payment.status === "FAILED" ? "bg-red-500/20 text-red-400" :
                                     "bg-slate-500/20 text-slate-400"
                                 }`}>
-                                    {payment.status || "SUCCESS"}
+                                    {translateStatus(payment.status || "SUCCESS", 'payment')}
                                 </span>
                             </div>
                             <div>
@@ -180,7 +181,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                                             invoice.status === "UNPAID" ? "bg-red-500/20 text-red-400" :
                                             "bg-slate-500/20 text-slate-400"
                                         }`}>
-                                            {invoice.status}
+                                            {translateStatus(invoice.status, 'invoice')}
                                         </span>
                                     </div>
                                 </div>
@@ -193,7 +194,7 @@ export default function PaymentModal({ payment, onClose }: PaymentModalProps) {
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                        className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200"
                     >
                         Đóng
                     </button>

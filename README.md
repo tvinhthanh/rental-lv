@@ -165,9 +165,9 @@ Thư mục: `frontends/`
 
 ```bash
 cd backend
-npm install
-npm run prisma:generate
-npm run dev
+pnpm install
+pnpm run prisma:generate
+pnpm run dev
 ```
 
 Yêu cầu:
@@ -177,8 +177,8 @@ Yêu cầu:
 
 ```bash
 cd frontends
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Yêu cầu:

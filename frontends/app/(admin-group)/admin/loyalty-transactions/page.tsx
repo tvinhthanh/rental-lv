@@ -47,11 +47,11 @@ export default function AdminLoyaltyTransactionsPage() {
             <div className="mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Loyalty Transactions</h1>
-                        <p className="mt-1 text-sm text-slate-400">Giao dịch tích điểm</p>
+                        <h1 className="text-3xl font-extrabold tracking-wide text-white">Giao Dịch Tích Điểm</h1>
+                        <p className="mt-1 text-sm text-slate-400">Lịch sử tích lũy và sử dụng điểm của khách hàng</p>
                     </div>
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng transactions</p>
+                        <p className="text-xs uppercase text-slate-500">Tổng số giao dịch</p>
                         <p className="text-lg font-semibold text-cyan-400">{total}</p>
                     </div>
                 </div>
@@ -59,33 +59,41 @@ export default function AdminLoyaltyTransactionsPage() {
                 {transactions.length === 0 ? (
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-12 text-center">
                         <Receipt className="mx-auto mb-4 h-12 w-12 text-slate-500" />
-                        <p className="text-slate-400">Chưa có transaction nào.</p>
+                        <p className="text-slate-400">Chưa có giao dịch tích điểm nào.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-700">
-                                    <th className="p-3 text-left text-sm text-slate-400">Customer</th>
-                                    <th className="p-3 text-left text-sm text-slate-400">Type</th>
-                                    <th className="p-3 text-left text-sm text-slate-400">Points</th>
-                                    <th className="p-3 text-left text-sm text-slate-400">Date</th>
+                                    <th className="p-3 text-left text-sm text-slate-400">Khách hàng</th>
+                                    <th className="p-3 text-left text-sm text-slate-400">Loại giao dịch</th>
+                                    <th className="p-3 text-left text-sm text-slate-400">Số điểm</th>
+                                    <th className="p-3 text-left text-sm text-slate-400">Ngày tạo</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {transactions.map((t) => (
                                     <tr key={t.id} className="border-b border-slate-800 hover:bg-slate-900/50">
-                                        <td className="p-3 text-white">{t.customer?.fullName || "N/A"}</td>
+                                        <td className="p-3 text-white">{t.customer?.fullName || "—"}</td>
                                         <td className="p-3">
                                             <span className={`rounded-full px-2 py-1 text-xs ${
                                                 t.type === 'earn' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
                                             }`}>
-                                                {t.type}
+                                                {t.type === 'earn' ? 'Nhận điểm' : 'Tiêu điểm'}
                                             </span>
                                         </td>
-                                        <td className="p-3 text-white">{t.points}</td>
+                                        <td className="p-3 text-white">
+                                            {t.type === 'earn' ? '+' : '-'}{t.points}
+                                        </td>
                                         <td className="p-3 text-slate-400">
-                                            {new Date(t.createdAt).toLocaleDateString("vi-VN")}
+                                            {new Date(t.createdAt).toLocaleDateString("vi-VN", {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
                                         </td>
                                     </tr>
                                 ))}

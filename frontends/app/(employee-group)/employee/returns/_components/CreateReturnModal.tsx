@@ -6,6 +6,7 @@ import { bookingService } from "@/services/booking.service";
 import { rentalProcessService } from "@/services/rental-process.service";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { employeeService } from "@/services/employee.service";
+import { translateStatus } from "@/lib/utils";
 
 type CreateReturnModalProps = {
     branchId: string;
@@ -306,7 +307,7 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
                                 <option value="">-- Chọn booking --</option>
                                 {bookings.map((b: any) => (
                                     <option key={b.id} value={b.id}>
-                                        {b.bookingCode} - {b.customer?.fullName} - {b.vehicle?.name} ({b.vehicle?.licensePlate}) - {b.status}
+                                        {b.bookingCode} - {b.customer?.fullName} - {b.vehicle?.name} ({b.vehicle?.licensePlate}) - {translateStatus(b.status, 'booking')}
                                     </option>
                                 ))}
                             </select>
@@ -325,7 +326,7 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
                                 <p><b>Mã:</b> {selectedBooking.bookingCode}</p>
                                 <p><b>Khách hàng:</b> {selectedBooking.customer?.fullName}</p>
                                 <p><b>Xe:</b> {selectedBooking.vehicle?.name} - {selectedBooking.vehicle?.licensePlate}</p>
-                                <p><b>Trạng thái:</b> {selectedBooking.status}</p>
+                                <p><b>Trạng thái:</b> {translateStatus(selectedBooking.status, 'booking')}</p>
                             </div>
 
                             {/* Contract Info */}
@@ -357,7 +358,7 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
                                     <p><b>Tổng tiền:</b> {deposit.totalAmount?.toLocaleString("vi-VN")} đ</p>
                                     <p><b>Đã sử dụng:</b> {deposit.usedAmount?.toLocaleString("vi-VN") || 0} đ</p>
                                     <p><b>Đã hoàn:</b> {deposit.refundedAmount?.toLocaleString("vi-VN") || 0} đ</p>
-                                    <p><b>Trạng thái:</b> {deposit.status}</p>
+                                    <p><b>Trạng thái:</b> {translateStatus(deposit.status, 'deposit')}</p>
                                 </div>
                             )}
                         </div>
@@ -653,7 +654,7 @@ export default function CreateReturnModal({ branchId, onClose, onSuccess }: Crea
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+                            className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-red-100"
                         >
                             Hủy
                         </button>

@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="min-h-screen bg-slate-950/90 text-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">404 - Page Not Found</h1>
+          <h1 className="text-2xl font-bold mb-2">404 - Không Tìm Thấy Trang</h1>
           <p className="text-gray-400">Bạn không có quyền truy cập trang này.</p>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-900 text-white">
+    <div className="flex min-h-screen bg-slate-950 text-slate-100">
       <Sidebar />
       <div className="flex-1 flex flex-col lg:ml-0">
         <main className="p-3 sm:p-4 md:p-6 lg:p-6 pt-16 lg:pt-6">{children}</main>

@@ -136,7 +136,7 @@ export default function SurchargeCard({ surcharge, onClick }: any) {
                             surcharge.status === "ACTIVE" ? "bg-emerald-500/20 text-emerald-400" :
                             "bg-slate-500/20 text-slate-400"
                         }`}>
-                            {surcharge.status || "ACTIVE"}
+                            {surcharge.status === "ACTIVE" ? "Hoạt động" : surcharge.status === "INACTIVE" ? "Không hoạt động" : surcharge.status || "Hoạt động"}
                         </span>
                     </div>
                 </div>

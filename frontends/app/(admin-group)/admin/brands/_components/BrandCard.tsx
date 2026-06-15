@@ -29,15 +29,15 @@ export default function BrandCard({ brand, onEdit, onDelete }: any) {
                     {brand.isFeatured && (
                         <div className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1 bg-yellow-500/20 text-yellow-400 ring-yellow-500/50">
                             <Star className="w-3 h-3 inline mr-1" />
-                            Featured
+                            Nổi bật
                         </div>
                     )}
                     <div className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ring-1 ${
-                        brand.status 
+                        (brand.isActive !== false && brand.status !== false)
                             ? "bg-green-500/20 text-green-400 ring-green-500/50" 
-                            : "bg-red-500/20 text-red-400 ring-red-500/50"
+                             : "bg-red-500/20 text-red-400 ring-red-500/50"
                     }`}>
-                        {brand.status ? "Active" : "Inactive"}
+                        {(brand.isActive !== false && brand.status !== false) ? "Hoạt động" : "Không hoạt động"}
                     </div>
                 </div>
             </div>

@@ -73,7 +73,7 @@ export default function QuickBooking() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#0b5ca7] hover:bg-[#0a4f8f] transition text-white font-semibold rounded-lg py-2 text-sm shadow-lg"
+                        className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:scale-[1.02] active:scale-[0.98] transition text-white font-semibold rounded-lg py-2.5 text-sm shadow-lg shadow-cyan-500/20"
                         disabled={loading}
                     >
                         {loading ? "Đang tải..." : "Tìm xe ngay"}

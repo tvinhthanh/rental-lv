@@ -195,7 +195,7 @@ export default function AdminBlogPage() {
                                                     </h3>
                                                     {post.status === "PUBLISHED" && (
                                                         <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30">
-                                                            Published
+                                                            Đã xuất bản
                                                         </span>
                                                     )}
                                                 </div>

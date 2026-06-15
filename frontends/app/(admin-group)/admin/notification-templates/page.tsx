@@ -5,11 +5,12 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { notificationTemplateService } from "@/services/notification-template.service";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function AdminNotificationTemplatesPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [templates, setTemplates] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
     const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
@@ -47,11 +48,8 @@ export default function AdminNotificationTemplatesPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
-        loadTemplates();
+        if (!user || user.role !== "ADMIN") return;
+        Promise.resolve().then(() => loadTemplates());
     }, [user, userLoading, search, typeFilter]);
 
     if (userLoading || loading) {
@@ -76,14 +74,14 @@ export default function AdminNotificationTemplatesPage() {
                 <div className="mb-6 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-wide text-white drop-shadow-md">
-                            Notification Templates
+                            Mẫu Thông Báo
                         </h1>
                         <p className="mt-1 text-sm text-slate-400">
-                            Quản lý templates cho email, SMS, push notifications
+                            Quản lý mẫu thông báo cho Email, SMS, Push notifications
                         </p>
                     </div>
                     <div className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-right">
-                        <p className="text-xs uppercase text-slate-500">Tổng templates</p>
+                        <p className="text-xs uppercase text-slate-500">Tổng số mẫu</p>
                         <p className="text-lg font-semibold text-blue-400">{total}</p>
                     </div>
                     <button
@@ -93,7 +91,7 @@ export default function AdminNotificationTemplatesPage() {
                             setOpenForm(true);
                         }}
                     >
-                        + Thêm Template
+                        + Thêm Mẫu
                     </button>
                 </div>
 
@@ -141,28 +139,31 @@ export default function AdminNotificationTemplatesPage() {
                                         <p className="text-xs text-slate-400">Code: {template.code}</p>
                                     </div>
                                     <span className="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-300">
-                                        {template.type}
+                                        {template.type === "email" ? "Email" : template.type === "sms" ? "SMS" : template.type === "push" ? "Push" : template.type}
                                     </span>
                                 </div>
                                 {template.subject && (
                                     <p className="mb-2 text-sm text-slate-300">{template.subject}</p>
                                 )}
                                 <div className="mt-4 flex gap-2">
-                                    <button
-                                        className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                                    <Button
+                                        variant="primary"
+                                        className="flex-1"
+                                        size="sm"
                                         onClick={() => {
                                             setEditingTemplate(template);
                                             setOpenForm(true);
                                         }}
                                     >
                                         Sửa
-                                    </button>
-                                    <button
-                                        className="rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
+                                    </Button>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
                                         onClick={() => handleDelete(template)}
                                     >
                                         Xóa
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -265,7 +266,7 @@ function NotificationTemplateModal({ template, onClose, onSuccess }: any) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
                 <h2 className="mb-4 text-2xl font-bold text-white">
-                    {template ? "Sửa Template" : "Thêm Template"}
+                    {template ? "Sửa Mẫu Thông Báo" : "Thêm Mẫu Thông Báo"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -279,7 +280,7 @@ function NotificationTemplateModal({ template, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Code</label>
+                        <label className="block text-sm text-slate-300">Mã (Code)</label>
                         <input
                             type="text"
                             className="input-dark mt-1 w-full border p-2 rounded"
@@ -302,7 +303,7 @@ function NotificationTemplateModal({ template, onClose, onSuccess }: any) {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Subject</label>
+                        <label className="block text-sm text-slate-300">Tiêu đề (Subject)</label>
                         <input
                             type="text"
                             className="input-dark mt-1 w-full border p-2 rounded"
@@ -311,7 +312,7 @@ function NotificationTemplateModal({ template, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm text-slate-300">Content</label>
+                        <label className="block text-sm text-slate-300">Nội dung (Content)</label>
                         <textarea
                             className="input-dark mt-1 w-full border p-2 rounded"
                             rows={6}
@@ -320,20 +321,22 @@ function NotificationTemplateModal({ template, onClose, onSuccess }: any) {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <button
+                        <Button
                             type="button"
-                            className="flex-1 rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-600"
+                            variant="danger"
+                            className="flex-1"
                             onClick={onClose}
                         >
                             Hủy
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                            disabled={loading}
+                            variant="primary"
+                            className="flex-1"
+                            loading={loading}
                         >
-                            {loading ? "Đang xử lý..." : template ? "Cập nhật" : "Tạo"}
-                        </button>
+                            {template ? "Cập nhật" : "Tạo"}
+                        </Button>
                     </div>
                 </form>
             </div>

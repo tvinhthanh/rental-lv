@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export default function AdminPromotionsPage() {
     const { data: user, isLoading: userLoading } = useCurrentUser();
     const [promotions, setPromotions] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState<number>(0);
     const [editingPromotion, setEditingPromotion] = useState<any | null>(null);
@@ -44,12 +44,8 @@ export default function AdminPromotionsPage() {
 
     useEffect(() => {
         if (userLoading) return;
-        if (!user || user.role !== "ADMIN") {
-            setLoading(false);
-            return;
-        }
-
-        loadPromotions();
+        if (!user || user.role !== "ADMIN") return;
+        Promise.resolve().then(() => loadPromotions());
     }, [user, userLoading]);
 
     if (userLoading || loading) {
@@ -124,7 +120,7 @@ export default function AdminPromotionsPage() {
                                         </span>
                                     </div>
                                     <span className="text-xs px-2 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200">
-                                        {promotion.status || "ACTIVE"}
+                                        {promotion.status === 'ACTIVE' ? 'Hoạt động' : promotion.status === 'INACTIVE' ? 'Ngừng hoạt động' : promotion.status || "Hoạt động"}
                                     </span>
                                 </div>
 

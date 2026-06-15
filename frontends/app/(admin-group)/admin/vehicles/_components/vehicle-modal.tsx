@@ -14,6 +14,7 @@ import { documentService } from "@/services/document.service";
 import { uploadService } from "@/services/upload.service";
 
 import { useFormSubmit } from "@/hooks/useHooks";
+import { translateStatus } from "@/lib/utils";
 
 interface VehicleModalProps {
   open: boolean;
@@ -422,7 +423,7 @@ export default function VehicleModal({ open, selected, onClose }: VehicleModalPr
                     >
                       {STATUS_OPTIONS.map((s) => (
                         <option key={s} value={s} className="bg-slate-800">
-                          {s}
+                          {translateStatus(s, "vehicle")}
                         </option>
                       ))}
                     </select>

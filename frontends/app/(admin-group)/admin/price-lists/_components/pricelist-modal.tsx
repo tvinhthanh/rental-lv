@@ -78,7 +78,7 @@ export default function PriceListModal({ open, selected, onClose }: any) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-slate-900 border border-slate-700 p-6 w-[520px] rounded-lg shadow-xl">
                 <h2 className="text-xl font-semibold mb-4 text-gray-200">
-                    {selected ? "Edit Price List" : "Add Price List"}
+                    {selected ? "Chỉnh sửa bảng giá" : "Thêm bảng giá"}
                 </h2>
 
                 <form onSubmit={formHandle(onSubmit)} className="space-y-4">
@@ -87,14 +87,14 @@ export default function PriceListModal({ open, selected, onClose }: any) {
                         <input
                             {...register("name")}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Name *"
+                            placeholder="Tên bảng giá *"
                             required
                         />
 
                         <input
                             {...register("description")}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Description"
+                            placeholder="Mô tả"
                         />
                     </div>
 
@@ -102,14 +102,14 @@ export default function PriceListModal({ open, selected, onClose }: any) {
                         <input
                             {...register("currency")}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Currency (VND/USD)"
+                            placeholder="Loại tiền tệ (VND/USD)"
                         />
 
                         <input
                             type="number"
                             {...register("dailyRate", { valueAsNumber: true })}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Daily Rate *"
+                            placeholder="Giá theo ngày *"
                             required
                         />
                     </div>
@@ -119,14 +119,14 @@ export default function PriceListModal({ open, selected, onClose }: any) {
                             type="number"
                             {...register("hourlyRate", { valueAsNumber: true })}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Hourly Rate"
+                            placeholder="Giá theo giờ"
                         />
 
                         <input
                             type="number"
                             {...register("weekendRate", { valueAsNumber: true })}
                             className="input-dark focus:bg-white focus:text-black"
-                            placeholder="Weekend Rate"
+                            placeholder="Giá cuối tuần"
                         />
                     </div>
 
@@ -134,29 +134,29 @@ export default function PriceListModal({ open, selected, onClose }: any) {
                         type="number"
                         {...register("holidayRate", { valueAsNumber: true })}
                         className="input-dark focus:bg-white focus:text-black"
-                        placeholder="Holiday Rate (optional)"
+                        placeholder="Giá ngày lễ (không bắt buộc)"
                     />
 
-                    <label className="text-gray-300 flex items-center gap-2">
+                    <label className="text-gray-300 flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" {...register("isActive")} />
-                        Active
+                        Hoạt động
                     </label>
 
                     <div className="flex justify-end gap-3 pt-4">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700"
+                            className="px-4 py-2 border border-slate-600 text-gray-300 rounded hover:bg-slate-700 transition-colors"
                         >
-                            Cancel
+                            Hủy
                         </button>
 
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50"
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50 transition-colors"
                         >
-                            {isPending ? "Saving..." : "Save"}
+                            {isPending ? "Đang lưu..." : "Lưu"}
                         </button>
                     </div>
                 </form>

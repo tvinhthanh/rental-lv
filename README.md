@@ -111,3 +111,9 @@ cd backend && cp .env.example .env    # Mongo URI, JWT secret, Cloudinary
 pnpm prisma generate && pnpm start:dev
 cd ../frontends && pnpm dev
 ```
+
+## Note on authorship
+
+Team project. I authored the majority of the codebase — 57 of 85 commits,
+including the rental lifecycle model and the admin surface. Commit history is
+unmodified and shows exactly who wrote what.

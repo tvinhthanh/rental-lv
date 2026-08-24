@@ -1,211 +1,113 @@
-## Car Rental Management System – NestJS + Next.js
+# rental-lv
 
-### 🎯 Overview
+Multi-tenant vehicle rental platform. Covers the whole commercial lifecycle of a
+rental — from the moment a customer asks for a car to the moment the damage
+surcharge is settled — plus the marketing surface that brings them in.
 
-Full-stack car rental management system with:
-- **Backend**: NestJS + TypeScript + Prisma + MongoDB
-- **Frontend**: Next.js App Router + React + Tailwind CSS
-- **Domain**: Vehicle rental workflow (booking → contract → deposit → handover → return → invoice), SEO content (blog, pages), promotions, and basic CRM.
+pnpm monorepo: **NestJS + Prisma + MongoDB** behind a **Next.js App Router**
+frontend. 38 backend modules, 39 data models, three role-scoped interfaces.
 
-This README mô tả **code hiện tại trong repo**, không chỉ là roadmap.
+## The lifecycle is the architecture
 
----
+Most rental software models a booking and bolts everything else onto it. This
+one gives every step its own record, because each step is a different legal and
+financial fact and they must be able to disagree:
 
-### 🧱 Project Structure
-
-- **backend/**
-  - `src/app.module.ts` – Root module wiring all feature modules
-  - `src/modules/*` – Business modules (auth, booking, billing, vehicle, promotion, blog, page, …)
-  - `prisma/schema.prisma` – MongoDB schema (Prisma)
-  - `prisma/erd.md` – Mermaid ERD (tự sinh từ schema)
-- **frontends/**
-  - `app/(admin-group)/admin/*` – Admin dashboard (management screens)
-  - `app/(employee-group)/employee/*` – Employee workflow (operational screens)
-  - `app/(user-group)/user/*` – Customer portal (search cars, booking, invoices, profile…)
-  - `app/(auth-group)/auth/*` – Auth pages (login/register)
-  - `services/*.service.ts` – Typed API clients talking to backend
-
----
-
-### 🗄 Backend – Modules & Features
-
-File chính: `backend/src/app.module.ts`  
-Database schema: `backend/prisma/schema.prisma`
-
-#### Core Business
-
-- **AuthModule** (`modules/auth`): JWT auth, login/register, forgot/reset password, guards.
-- **UserModule** (`modules/user`): CRUD user, đổi mật khẩu, cập nhật role.
-- **CustomerModule** (`modules/customer`): CRUD khách hàng, link `User`.
-- **EmployeeModule** (`modules/employee`): CRUD nhân viên, chi nhánh, quyền hạn.
-- **BranchModule** (`modules/branch`): Chi nhánh + local SEO (lat/lng, map URL, business hours).
-- **VehicleCategoryModule** (`modules/vehicle-category`): Danh mục xe + SEO.
-- **VehicleBrandModule** (`modules/brand`): Hãng xe (logo, slug, SEO).
-- **PriceListModule** (`modules/price-list`): Bảng giá theo loại xe.
-- **VehicleModule** (`modules/vehicle`): CRUD xe, liên kết category/branch/brand/priceList, SEO fields, photos.
-
-#### Booking Flow
-
-- **BookingModule** (`modules/booking`)
-  - Tạo booking:
-    - Kiểm tra xe rảnh (`checkVehicleAvailable`)
-    - Tự tính giá thuê theo khoảng ngày (`calcPrice`)
-    - Hỗ trợ **promotion** thông qua `promotionId`
-  - Cập nhật / cancel / đổi status booking
-  - API list + filter (status, branch, vehicle, customer…)
-  - Trả về đầy đủ quan hệ: `customer`, `vehicle`, `branch`, `returnBranch`, `contract`, `deposit`, `handover`, `returnReport`, `invoice`, `review`, `promotion`.
-  - Hàm `getDateAvailable` tổng hợp dải ngày đã được đặt để FE disable date.
-- **ContractModule** (`modules/contact`): Hợp đồng thuê xe.
-- **DepositModule** (`modules/deposit`): Đặt cọc + chi tiết tài sản cọc.
-- **HandoverModule** (`modules/handover`): Biên bản bàn giao xe.
-- **ReturnReportModule** (`modules/return-report`): Báo cáo trả xe.
-
-#### Billing & Finance
-
-- **BillingModule** (`modules/billing`): Điều phối Invoice/Payment/Surcharge.
-- **Invoice / Payment / Surcharge**: Nằm trong Prisma schema, thao tác qua Billing APIs.
-
-#### Operations & Settings
-
-- **MaintenanceModule** (`modules/maintenance`): Lịch sử bảo dưỡng, chi phí, nhắc bảo dưỡng.
-- **AuditLogModule** (`modules/audit-log`): Audit mọi thay đổi quan trọng.
-- **CloudinaryModule** (`cloudinary`): Upload file/image lên Cloudinary.
-- **SettingsModule** (`modules/settings`): Cấu hình hệ thống (map `SystemConfig`).
-
-#### Marketing, Content & Promotion
-
-- **PromotionModule** (`modules/promotion`)
-  - Mã khuyến mãi:
-    - code, name, description
-    - discountPercent / discountAmount
-    - usageLimit / usedCount
-    - startDate / endDate, status
-  - `BookingService`:
-    - `validatePromotion()` kiểm tra thời gian + trạng thái + usage limit
-    - Khi tạo booking: tự tính discount từ promotion, ghi `promotionId`, tăng `usedCount`.
-- **BlogModule** (`modules/blog`): CRUD blog categories + posts (slug, metaTitle, metaDescription).
-- **PageModule** (`modules/page`): CRUD các trang tĩnh (About, FAQ, Terms, Privacy…).
-
-> ⚠️ **Lưu ý:** Một số models trong Prisma **chưa có module tương ứng**:
->
-> - ❌ **Review** - Frontend đang dùng `reviewService.list()` nhưng backend chưa có ReviewModule
-> - ❌ **Notification** - Thông báo (Email/SMS/Push)
-> - ❌ **LoyaltyProgram/LoyaltyTransaction** - Chương trình tích điểm
-> - ❌ **MarketingCampaign/CustomerSegment** - Chiến dịch marketing
-> - ❌ **PricingRule** - Định giá động
-> - ❌ **Tenant/SubscriptionPlan** - Multi-tenant
-> - ❌ **Partner** - Đối tác/Affiliate
->
-> Xem `KIEM_TRA_MODULES.md` để biết chi tiết: **24/37 models đã có module (65%)**
-
----
-
-### 🎨 Frontend – Apps & Flows
-
-Thư mục: `frontends/`
-
-#### User Portal (`app/(user-group)/user`)
-
-- `user/cars` – Listing xe.
-- `user/cars/[slug]` – Trang chi tiết xe:
-  - Ảnh chính + gallery.
-  - Thông tin: biển số, hãng, mẫu, năm, màu, danh mục, chi nhánh, trạng thái.
-  - Giá thuê từ `priceList.dailyRate`.
-  - Nếu user là CUSTOMER nhưng **chưa có Customer profile**:
-    - Nút **“Tạo hồ sơ khách hàng để thuê xe”** → modal `CreateCustomerModal`.
-  - Nếu đã có profile:
-    - Nút **“Thuê ngay”** → `user/bookings/[vehicle.slug]`.
-  - **Reviews block**:
-    - Dùng `reviewService.list({ vehicleId, limit: 20 })`.
-    - Tính `avgRating` từ reviews +/or `vehicle.rating`.
-    - Hiển thị sao, tên khách, comment, mã booking, ngày.
-- Các trang khác: `bookings`, `invoices`, `profile`, `about`, `contact`, `terms`, `privacy`, `refund`, `membership`, `sitemap`…
-
-#### Admin Portal (`app/(admin-group)/admin`)
-
-- Dashboard quản lý:
-  - Vehicles, Vehicle Categories, Vehicle Brands
-  - Branches
-  - Customers, Employees, Users
-  - Bookings, Contracts, Deposits, Returns, Invoices, Payments
-  - Price Lists, Maintenance, Promotions, Settings, Audit Logs
-
-#### Employee Portal (`app/(employee-group)/employee`)
-
-- Dành cho nhân viên:
-  - Lịch bookings theo chi nhánh
-  - Handover / Returns
-  - Thu cọc, thanh toán, hóa đơn
-  - Làm việc với khách tại chi nhánh
-
-#### Auth & Shared UI
-
-- `app/(auth-group)/auth` – Login/Register.
-- `components/*`, `providers/*` – Layout, theme, React Query, Redux…
-
----
-
-### 🔌 Frontend ↔ Backend Integration
-
-- `frontends/lib/api.ts` – `APIRequest`:
-  - Base URL: `NEXT_PUBLIC_API_ENDPOINT`
-  - Tự attach `Authorization` từ cookie/localStorage
-  - Bắt lỗi khi backend trả HTML/redirect.
-- `frontends/services/*.service.ts` – Service layer (vehicle, booking, promotion, review, settings…)
-  - Ví dụ `review.service.ts`:
-    ```ts
-    reviewService.list({ vehicleId, limit: 20 });
-    ```
-
----
-
-### 🚀 Run Project
-
-#### Backend
-
-```bash
-cd backend
-pnpm install
-pnpm run prisma:generate
-pnpm run dev
+```
+Booking      the customer's intent — dates, vehicle class, branch
+   ▼
+Contract     the agreement actually signed, with its own terms
+   ▼
+Deposit      money held, with DepositDetail tracking each movement
+   ▼
+Handover     the vehicle's condition at the moment keys change hands
+   ▼
+ReturnReport the condition when it comes back
+   ▼
+Invoice ─> Payment ─> Surcharge   damage, fuel, late return
 ```
 
-Yêu cầu:
-- MongoDB + `DATABASE_URL` trong `backend/.env`.
+**`Handover` and `ReturnReport` are the point of the whole system.** Vehicle
+rental disputes are almost never about the rate — they are about whether that
+scratch was already there. Two dated condition records, captured separately by
+different people at different times, are what makes that argument resolvable.
+Collapsing them into fields on the booking destroys the evidence.
 
-#### Frontend
+Similarly, `Deposit` is separate from `Payment`: money held is not money earned,
+and a system that cannot express the difference will eventually recognise revenue
+it has to give back.
 
-```bash
-cd frontends
-pnpm install
-pnpm run dev
+## Multi-tenancy
+
+`Tenant` and `SubscriptionPlan` make this a product rather than an installation.
+Each rental company operates its own `Branch` set, fleet, pricing and staff
+within one deployment, and plan tier gates what a tenant can reach.
+
+## Pricing
+
+Rates are not a column on the vehicle:
+
+- **`PriceList`** — seasonal and per-category base rates
+- **`PricingRule`** — conditional adjustments layered on top
+- **`Promotion`** — campaign discounts with their own validity
+- **`Surcharge`** — post-return additions, which is the only place a price is
+  allowed to move after the fact
+
+## Retention
+
+`CustomerSegment` groups customers by behaviour; `MarketingCampaign` targets
+those segments; `LoyaltyProgram` defines earning rules and `LoyaltyTransaction`
+records every point movement as its own row rather than mutating a balance —
+so a customer's point total can always be explained.
+
+`NotificationTemplate` and `Notification` keep message copy out of the code, so
+changing what a booking-confirmation email says is not a deploy.
+
+## Fleet operations
+
+`Vehicle` carries `VehicleCategory` and `VehicleBrand`; `VehicleDocument` tracks
+registration and insurance with their expiry, and `Maintenance` records service
+history. A vehicle whose insurance lapsed is a vehicle that must not be rentable,
+and that can only be enforced if the document is modelled.
+
+## Three interfaces, three route groups
+
+```
+frontends/app/
+├── (admin-group)/     29 admin surfaces — fleet, pricing, staff, marketing, audit
+├── (employee-group)/  counter staff — bookings, contracts, deposits, handover, returns
+└── (auth-group)/      authentication, isolated layout
 ```
 
-Yêu cầu:
-- `NEXT_PUBLIC_API_ENDPOINT` trong `frontends/.env.local` trỏ về backend.
+Employee screens are deliberately narrower than admin ones: someone handing over
+a car needs six actions, not twenty-nine.
 
----
+Public marketing pages, blog and SEO redirects are modelled server-side
+(`Page`, `BlogPost`, `BlogCategory`, `SeoRedirect`) — a rental business is found
+through search, so content is part of the product, not a separate site.
 
-### 📚 Tài liệu thêm
+## Accountability
 
-- `TECH_STACK.md` – Tech stack chi tiết (packages, versions).
-- `QUICKSTART.md` – Hướng dẫn setup trong 10 phút.
-- `DOCS.md` – Tài liệu chi tiết (phân tích modules, roadmap, checklist).
+`AuditLog` records sensitive operations. In a business where staff can discount a
+rate, waive a surcharge or alter a return report, an unlogged admin panel is a
+liability.
 
----
+## Repository
 
-### ✅ Trạng thái hiện tại
+```
+backend/     NestJS · Prisma · MongoDB
+frontends/   Next.js App Router · React · Tailwind
+car_rental_erd_full.dbml    the full ERD, versioned alongside the code
+```
 
-**Backend:**
+The ERD is committed as a `.dbml` file rather than living in a diagramming tool,
+so the data model is reviewed in pull requests like everything else.
 
-- ✅ **24/37 Prisma models** đã có module tương ứng (65%)
-- ✅ Core modules: Auth, User, Customer, Employee, Branch, Vehicle, Booking, Billing, Promotion, Blog, Page...
-- ❌ **13 models chưa có module:** Review, Notification, LoyaltyProgram, MarketingCampaign, PricingRule, Tenant, Partner...
+## Running it
 
-**Frontend:**
-
-- ✅ 3 portals: Admin, Employee, User
-- ✅ Booking flow cơ bản
-- ⚠️ Review UI đang dùng `reviewService.list()` nhưng backend chưa có ReviewModule
-
-**Chi tiết:** Xem `KIEM_TRA_MODULES.md` để biết đầy đủ models nào đã có/chưa có module.
+```bash
+pnpm install
+cd backend && cp .env.example .env    # Mongo URI, JWT secret, Cloudinary
+pnpm prisma generate && pnpm start:dev
+cd ../frontends && pnpm dev
+```
